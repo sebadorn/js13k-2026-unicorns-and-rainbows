@@ -1,0 +1,9 @@
+# Directories
+/build/
+/ignore/
+/node_modules/
+
+# Files
+IDEAS.md
+package-lock.json
+TODO.md
