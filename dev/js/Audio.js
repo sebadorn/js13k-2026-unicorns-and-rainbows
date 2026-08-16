@@ -1,7 +1,7 @@
-'use strict';
+import { zzfx } from './lib/ZzFXMicro.min';
 
 
-js13k.Audio = {
+export const Audio = {
 
 
 	context: new AudioContext(),

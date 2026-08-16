@@ -1,7 +1,4 @@
-'use strict';
-
-
-js13k.Input = {
+export const Input = {
 
 
 	_onKeyDown: {},

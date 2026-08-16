@@ -19,7 +19,7 @@ export default [
 			'dev/js/**/*.js',
 		],
 		languageOptions: {
-			sourceType: 'script',
+			sourceType: 'module',
 		},
 	},
 	{
@@ -27,8 +27,6 @@ export default [
 			ecmaVersion: 2022,
 			globals: {
 				...globals.browser,
-				js13k: 'writable',
-				zzfx: 'readonly',
 			},
 		},
 		plugins: {

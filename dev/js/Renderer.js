@@ -1,7 +1,11 @@
-'use strict';
+import { Input } from './Input.js';
 
 
-js13k.Renderer = {
+export const targetFPS = 60;
+export const fontMono = '"Courier New", monospace';
+
+
+export const Renderer = {
 
 
 	/** @type {HTMLCanvasElement?} */
@@ -10,7 +14,7 @@ js13k.Renderer = {
 	/** @type {CanvasRenderingContext2D?} */
 	ctx: null,
 
-	/** @type {js13k.Level?} */
+	/** @type {import('./Level').Level} */
 	level: null,
 
 	// Last known cursor position as position on the canvas.
@@ -54,7 +58,7 @@ js13k.Renderer = {
 		this.ctx.fillRect( 0, 0, this.cnv.width / this.scale, this.cnv.height / this.scale );
 
 		this.ctx.fillStyle = '#fff';
-		this.ctx.font = '600 56px ' + js13k.FONT_SANS;
+		this.ctx.font = '600 56px ' + fontMono;
 		this.ctx.textAlign = 'center';
 		this.ctx.textBaseline = 'top';
 		this.ctx.fillText( 'PAUSED', this.center.x, this.center.y - 56 );
@@ -113,7 +117,7 @@ js13k.Renderer = {
 			const timeElapsed = timestamp - this.last; // Time that passed between frames. [ms]
 
 			// Target speed of 60 FPS (=> 1000 / 60 ~= 16.667 [ms]).
-			const dt = timeElapsed / ( 1000 / js13k.TARGET_FPS );
+			const dt = timeElapsed / ( 1000 / targetFPS );
 
 			if( this.isPaused ) {
 				this.drawPause();
@@ -127,10 +131,10 @@ js13k.Renderer = {
 
 			// // Draw FPS info
 			// this.ctx.fillStyle = '#fff';
-			// this.ctx.font = '600 12px ' + js13k.FONT_MONO;
+			// this.ctx.font = '600 12px ' + fontMono;
 			// this.ctx.textAlign = 'left';
 			// this.ctx.fillText(
-			// 	String( Math.round( js13k.TARGET_FPS / dt ) ).padStart( 3, '0' ) + ' FPS, ' + this.scale.toFixed( 5 ),
+			// 	String( Math.round( targetFPS / dt ) ).padStart( 3, '0' ) + ' FPS, ' + this.scale.toFixed( 5 ),
 			// 	10, 20
 			// );
 		}
@@ -156,7 +160,7 @@ js13k.Renderer = {
 		window.addEventListener( 'resize', _ev => this.resize() );
 		this.resize();
 
-		js13k.Input.onKeyUp( 'Escape', () => this.togglePause() );
+		Input.onKeyUp( 'Escape', () => this.togglePause() );
 
 		let timeoutMove = null;
 

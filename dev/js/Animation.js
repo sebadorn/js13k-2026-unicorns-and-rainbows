@@ -1,7 +1,8 @@
-'use strict';
+import { Renderer } from './Renderer.js';
+import { Timer } from './Timer.js';
 
 
-js13k.Animation = class {
+export class Animation {
 
 
 	/**
@@ -11,7 +12,7 @@ js13k.Animation = class {
 	 * @param {function} onDone 
 	 */
 	constructor( duration, onUpdate, onDone ) {
-		this.timer = new js13k.Timer( js13k.Renderer.level, duration );
+		this.timer = new Timer( Renderer.level, duration );
 		this.onUpdate = onUpdate;
 		this.onDone = onDone;
 	}

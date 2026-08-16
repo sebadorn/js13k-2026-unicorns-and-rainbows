@@ -1,7 +1,4 @@
-'use strict';
-
-
-js13k.Level = class {
+export class Level {
 
 
 	/**
@@ -11,7 +8,7 @@ js13k.Level = class {
 	constructor() {
 		this.timer = 0;
 
-		/** @type {js13k.Animation[]} */
+		/** @type {import('./Animation').Animation[]} */
 		this.animations = [];
 	}
 

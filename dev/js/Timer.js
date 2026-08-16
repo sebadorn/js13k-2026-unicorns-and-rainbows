@@ -1,4 +1,4 @@
-'use strict';
+import { targetFPS } from './Renderer.js';
 
 
 /**
@@ -6,7 +6,7 @@
  * Based on the Timer class of LittleJS:
  * https://killedbyapixel.github.io/LittleJS/docs/Timer.html
  */
-js13k.Timer = class {
+export class Timer {
 
 
 	/**
@@ -44,7 +44,7 @@ js13k.Timer = class {
 	 * @param {number} duration - Duration in game seconds.
 	 */
 	set( duration ) {
-		this.duration = duration * js13k.TARGET_FPS;
+		this.duration = duration * targetFPS;
 		this.timeEnd = this.level.timer + this.duration;
 	}
 

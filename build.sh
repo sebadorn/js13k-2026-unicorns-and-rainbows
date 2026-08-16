@@ -22,25 +22,12 @@ cd 'build' > '/dev/null'
 tr -d '\n' < 'index-dev.html' > 'index.html'
 
 # Remove the single JS files and only include the minified one.
-sed -i'' 's/js\/js13k\.js/i.js/' 'index.html'
+sed -i'' 's/js\/js13k\.js" type="module"/i.js"/' 'index.html'
 sed -E -i'' 's/<script src="([a-zA-Z0-9_-]+\/)+[a-zA-Z0-9_.-]{2,}\.js"><\/script>//g' 'index.html'
 
-# Minify and combine the JS files.
-terser \
-	'ZzFXMicro.min.js' \
-	'js13k.js' \
-	'Renderer.js' \
-	'Audio.js' \
-	'Input.js' \
-	'Timer.js' \
-	'LevelObject.js' \
-	'Level.js' \
-	--ecma 12 --warn \
-	--compress --toplevel \
-	--mangle --mangle-props keep_quoted \
-	-o 'i.js'
-
-sed -i'' 's/^"use strict";//' 'i.js'
+npx esbuild 'js13k.js' \
+	--bundle --minify --platform=browser \
+	--outfile='i.js'
 
 rm 'index-dev.html'
 find -type f -name '*.js' -not -name 'i.js' -delete

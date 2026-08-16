@@ -1,7 +1,4 @@
-'use strict';
-
-
-js13k.LevelObject = class {
+export class LevelObject {
 
 
 	_needsRedraw = true;
@@ -9,25 +6,14 @@ js13k.LevelObject = class {
 
 	/**
 	 *
-	 * @param {js13k.Level} level
-	 * @param {number} w
-	 * @param {number} h
+	 * @param {import('./Level').Level} level
+	 * @param {number} x
+	 * @param {number} y
 	 */
-	constructor( level, w , h ) {
+	constructor( level, x, y ) {
 		this.level = level;
-		this.w = w;
-		this.h = h;
-
-		[this.cnv, this.ctx] = js13k.Renderer.getOffscreenCanvas( w, h );
-	}
-
-
-	/**
-	 *
-	 * @returns {number}
-	 */
-	calcCenterX() {
-		return ( js13k.w - this.w ) / 2;
+		this.x = x;
+		this.y = y;
 	}
 
 
