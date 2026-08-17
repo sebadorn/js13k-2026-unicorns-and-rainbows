@@ -12,6 +12,10 @@ export const Input = {
 	 */
 	init() {
 		document.body.onkeydown = ev => {
+			if( ev.altKey || ev.ctrlKey || ev.metaKey ) {
+				return;
+			}
+
 			const ks = this.keystate[ev.code];
 
 			if( !ks || !ks.waitForReset ) {
@@ -20,17 +24,23 @@ export const Input = {
 				};
 
 				if( this._onKeyDown[ev.code] ) {
+					ev.preventDefault();
 					this._onKeyDown[ev.code].forEach( cb => cb() );
 				}
 			}
 		};
 
 		document.body.onkeyup = ev => {
+			if( ev.altKey || ev.ctrlKey || ev.metaKey ) {
+				return;
+			}
+
 			this.keystate[ev.code] = {
 				time: 0
 			};
 
 			if( this._onKeyUp[ev.code] ) {
+				ev.preventDefault();
 				this._onKeyUp[ev.code].forEach( cb => cb() );
 			}
 		};
@@ -63,7 +73,7 @@ export const Input = {
 	isPressedKey( code, forget ) {
 		const ks = this.keystate[code];
 
-		if( ks && ks.time ) {
+		if( ks?.time ) {
 			if( forget ) {
 				ks.time = 0;
 				ks.waitForReset = true;
@@ -78,25 +88,33 @@ export const Input = {
 
 	/**
 	 * Add a listener for the keydown event.
-	 * @param {string}   code - Key code.
-	 * @param {function} cb   - Callback.
+	 * @param {string|string[]} codes - Key code(s).
+	 * @param {function}        cb    - Callback.
 	 */
-	onKeyDown( code, cb ) {
-		const list = this._onKeyDown[code] || [];
-		list.push( cb );
-		this._onKeyDown[code] = list;
+	onKeyDown( codes, cb ) {
+		codes = !Array.isArray( codes ) ? [codes] : codes;
+
+		codes.forEach( code => {
+			const list = this._onKeyDown[code] || [];
+			list.push( cb );
+			this._onKeyDown[code] = list;
+		} );
 	},
 
 
 	/**
 	 * Add a listener for the keyup event.
-	 * @param {string}   code - Key code.
-	 * @param {function} cb   - Callback.
+	 * @param {string|string[]} codes - Key code(s).
+	 * @param {function}        cb    - Callback.
 	 */
-	onKeyUp( code, cb ) {
-		const list = this._onKeyUp[code] || [];
-		list.push( cb );
-		this._onKeyUp[code] = list;
+	onKeyUp( codes, cb ) {
+		codes = !Array.isArray( codes ) ? [codes] : codes;
+
+		codes.forEach( code => {
+			const list = this._onKeyUp[code] || [];
+			list.push( cb );
+			this._onKeyUp[code] = list;
+		} );
 	},
 
 

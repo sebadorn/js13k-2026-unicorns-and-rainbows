@@ -1,8 +1,9 @@
 import { Input } from './Input.js';
 
 
-export const targetFPS = 60;
 export const fontMono = '"Courier New", monospace';
+export const targetFPS = 60;
+export const tileSizePx = 60;
 
 
 export const Renderer = {
@@ -24,8 +25,8 @@ export const Renderer = {
 	last: 0,
 	timer: 0,
 
-	center: [0, 0],
-	offset: [0, 0],
+	center: { x: 0, y: 0 },
+	offset: { x: 0, y: 0 },
 	scale: 1,
 
 
@@ -43,6 +44,9 @@ export const Renderer = {
 	 */
 	draw() {
 		this.clear();
+		this.ctx.font = '500 48px ' + fontMono;
+		this.ctx.textAlign = 'left';
+		this.ctx.textBaseline = 'alphabetic';
 		this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
 
 		this.level?.draw( this.ctx );
@@ -62,6 +66,24 @@ export const Renderer = {
 		this.ctx.textAlign = 'center';
 		this.ctx.textBaseline = 'top';
 		this.ctx.fillText( 'PAUSED', this.center.x, this.center.y - 56 );
+	},
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	getHeight() {
+		return this.cnv.height;
+	},
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	getWidth() {
+		return this.cnv.width;
 	},
 
 
@@ -129,14 +151,15 @@ export const Renderer = {
 			this.level.update( dt );
 			this.draw();
 
-			// // Draw FPS info
-			// this.ctx.fillStyle = '#fff';
-			// this.ctx.font = '600 12px ' + fontMono;
-			// this.ctx.textAlign = 'left';
-			// this.ctx.fillText(
-			// 	String( Math.round( targetFPS / dt ) ).padStart( 3, '0' ) + ' FPS, ' + this.scale.toFixed( 5 ),
-			// 	10, 20
-			// );
+			// Draw FPS info
+			this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
+			this.ctx.fillStyle = '#fff';
+			this.ctx.font = '600 12px ' + fontMono;
+			this.ctx.textAlign = 'left';
+			this.ctx.fillText(
+				String( Math.round( targetFPS / dt ) ).padStart( 3, '0' ) + ' FPS, ' + this.scale.toFixed( 5 ),
+				10, 20
+			);
 		}
 
 		this.last = timestamp;
@@ -162,40 +185,40 @@ export const Renderer = {
 
 		Input.onKeyUp( 'Escape', () => this.togglePause() );
 
-		let timeoutMove = null;
+		// let timeoutMove = null;
 
-		this.cnv.addEventListener( 'mouseleave', _ev => {
-			this.cursor[0] = -1;
-		} );
+		// this.cnv.addEventListener( 'mouseleave', _ev => {
+		// 	this.cursor[0] = -1;
+		// } );
 
-		this.cnv.addEventListener( 'mousemove', ev => {
-			this.cursor[0] = ev.clientX - this.offset[0];
-			this.cursor[1] = ev.clientY - this.offset[1];
+		// this.cnv.addEventListener( 'mousemove', ev => {
+		// 	this.cursor[0] = ev.clientX - this.offset.x;
+		// 	this.cursor[1] = ev.clientY - this.offset.y;
 
-			// Slow down mousemove event related actions for better performance.
-			if( !timeoutMove && !this.isPaused ) {
-				timeoutMove = setTimeout( () => {
-					const foundClickable = this.level?.onMouseMove( this.getScaledCursor() );
-					timeoutMove = null;
+		// 	// Slow down mousemove event related actions for better performance.
+		// 	if( !timeoutMove && !this.isPaused ) {
+		// 		timeoutMove = setTimeout( () => {
+		// 			const foundClickable = this.level?.onMouseMove( this.getScaledCursor() );
+		// 			timeoutMove = null;
 
-					if( foundClickable ) {
-						this.cnv.classList.add( 'p' );
-					}
-					else {
-						this.cnv.classList.remove( 'p' );
-					}
-				}, 66 );
-			}
-		} );
+		// 			if( foundClickable ) {
+		// 				this.cnv.classList.add( 'p' );
+		// 			}
+		// 			else {
+		// 				this.cnv.classList.remove( 'p' );
+		// 			}
+		// 		}, 66 );
+		// 	}
+		// } );
 
-		this.cnv.addEventListener( 'click', ev => {
-			this.cursor[0] = ev.clientX - this.offset[0];
-			this.cursor[1] = ev.clientY - this.offset[1];
+		// this.cnv.addEventListener( 'click', ev => {
+		// 	this.cursor[0] = ev.clientX - this.offset.x;
+		// 	this.cursor[1] = ev.clientY - this.offset.y;
 
-			if( !this.isPaused ) {
-				this.level?.onClick( this.getScaledCursor() );
-			}
-		} );
+		// 	if( !this.isPaused ) {
+		// 		this.level?.onClick( this.getScaledCursor() );
+		// 	}
+		// } );
 	},
 
 
@@ -203,7 +226,7 @@ export const Renderer = {
 	 * Resize the canvas.
 	 */
 	resize() {
-		const targetRatio = 1920 / 1080;
+		const targetRatio = 4 / 3;
 
 		let height = window.innerHeight;
 		let width = Math.round( height * targetRatio );
@@ -218,8 +241,8 @@ export const Renderer = {
 		this.center.x = width / 2 / this.scale;
 		this.center.y = height / 2 / this.scale;
 
-		this.offset[0] = ( window.innerWidth - width ) / 2;
-		this.offset[1] = ( window.innerHeight - height ) / 2;
+		this.offset.x = ( window.innerWidth - width ) / 2;
+		this.offset.y = ( window.innerHeight - height ) / 2;
 
 		this.cnv.width = width;
 		this.cnv.height = height;

@@ -1,4 +1,36 @@
-export class WorldField {
+import { tileSizePx } from './Renderer.js';
+
+
+export const CharMeasures = {
+
+	data: {},
+
+	/**
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {string} char
+	 * @returns {object}
+	 */
+	measure( ctx, char ) {
+		if( this.data[char] ) {
+			return this.data[char];
+		}
+
+		// assumes textBaseline = 'alphabetical'
+		const metrics = ctx.measureText( char );
+
+		this.data[char] = {
+			x: ( tileSizePx - metrics.width ) / 2,
+			y: tileSizePx - ( tileSizePx - metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent ) / 2,
+		};
+
+		return this.data[char];
+	},
+
+};
+
+
+export class Tile {
 
 
 	/** @type {number} */
@@ -11,7 +43,7 @@ export class WorldField {
 	char = '.';
 
 	/** @type {string} */
-	color = '#fff';
+	color = '#777';
 
 	/** @type {import('./Animation').Animation[]?} */
 	animations;
@@ -36,22 +68,23 @@ export class WorldField {
 
 export const WorldMap = {
 
-	/** @type {WorldField[][]} */
+	/** @type {Tile[][]} */
 	data: [
-		['.', '.', '.', '.', '.'],
-		['.', '.', '.', '.', '.'],
-		['.', '.', '.', '.', '.'],
-		['.', '.', '.', '.', '.'],
-		['.', '.', '.', '.', '.'],
+		['.', '.', '.', '.', '.', '.'],
+		['.', '.', 'y', '.', '.', '.'],
+		['.', '.', '.', '.', '.', '.'],
+		['.', 'l', '.', '.', '.', '.'],
+		['.', '.', '.', 's', 'o', '.'],
+		['.', '.', '.', '.', '.', '.'],
 	].map( ( line, y ) => line.map( ( char, x ) => {
-		return new WorldField( x, y, char );
+		return new Tile( x, y, char );
 	} ) ),
 
 	/**
 	 * 
 	 * @param {number} x 
 	 * @param {number} y 
-	 * @returns {WorldField}
+	 * @returns {Tile}
 	 */
 	at( x, y ) {
 		return this.data[y][x];

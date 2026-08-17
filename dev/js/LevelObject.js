@@ -1,7 +1,8 @@
-export class LevelObject {
+import { tileSizePx } from './Renderer.js';
+import { CharMeasures, Tile } from './WorldMap.js';
 
 
-	_needsRedraw = true;
+export class LevelObject extends Tile {
 
 
 	/**
@@ -9,26 +10,36 @@ export class LevelObject {
 	 * @param {import('./Level').Level} level
 	 * @param {number} x
 	 * @param {number} y
+	 * @param {string} char
 	 */
-	constructor( level, x, y ) {
+	constructor( level, x, y, char ) {
+		super( x, y, char );
 		this.level = level;
-		this.x = x;
-		this.y = y;
 	}
 
 
 	/**
 	 *
-	 * @param {CanvasRenderingContext2D} _ctx
+	 * @param {CanvasRenderingContext2D} ctx
 	 */
-	draw( _ctx ) {}
+	draw( ctx ) {
+		const correction = CharMeasures.measure( ctx, this.char );
+
+		ctx.fillStyle = this.color;
+		ctx.fillText(
+			this.char,
+			this.x * tileSizePx + correction.x,
+			this.y * tileSizePx + correction.y,
+			tileSizePx,
+		);
+	}
 
 
 	/**
 	 *
-	 * @param {number} _timer
+	 * @param {number} _dt
 	 */
-	update( _timer ) {}
+	update( _dt ) {}
 
 
 };
