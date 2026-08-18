@@ -3,7 +3,7 @@ import { Input } from './Input.js';
 
 export const fontMono = '"Courier New", monospace';
 export const targetFPS = 60;
-export const tileSizePx = 60;
+export const tileSizePx = 40;
 
 
 export const Renderer = {
@@ -17,9 +17,6 @@ export const Renderer = {
 
 	/** @type {import('./Level').Level} */
 	level: null,
-
-	// Last known cursor position as position on the canvas.
-	cursor: [-1, -1],
 
 	isPaused: false,
 	last: 0,
@@ -70,24 +67,6 @@ export const Renderer = {
 
 
 	/**
-	 *
-	 * @returns {number}
-	 */
-	getHeight() {
-		return this.cnv.height;
-	},
-
-
-	/**
-	 *
-	 * @returns {number}
-	 */
-	getWidth() {
-		return this.cnv.width;
-	},
-
-
-	/**
 	 * Get an offset canvas and its context.
 	 * @param  {number?} w
 	 * @param  {number?} h
@@ -103,18 +82,6 @@ export const Renderer = {
 		ctx.lineJoin = 'round';
 
 		return [canvas, ctx];
-	},
-
-
-	/**
-	 *
-	 * @returns {number[]}
-	 */
-	getScaledCursor() {
-		return [
-			this.cursor[0] / this.scale,
-			this.cursor[1] / this.scale,
-		];
 	},
 
 
@@ -184,41 +151,6 @@ export const Renderer = {
 		this.resize();
 
 		Input.onKeyUp( 'Escape', () => this.togglePause() );
-
-		// let timeoutMove = null;
-
-		// this.cnv.addEventListener( 'mouseleave', _ev => {
-		// 	this.cursor[0] = -1;
-		// } );
-
-		// this.cnv.addEventListener( 'mousemove', ev => {
-		// 	this.cursor[0] = ev.clientX - this.offset.x;
-		// 	this.cursor[1] = ev.clientY - this.offset.y;
-
-		// 	// Slow down mousemove event related actions for better performance.
-		// 	if( !timeoutMove && !this.isPaused ) {
-		// 		timeoutMove = setTimeout( () => {
-		// 			const foundClickable = this.level?.onMouseMove( this.getScaledCursor() );
-		// 			timeoutMove = null;
-
-		// 			if( foundClickable ) {
-		// 				this.cnv.classList.add( 'p' );
-		// 			}
-		// 			else {
-		// 				this.cnv.classList.remove( 'p' );
-		// 			}
-		// 		}, 66 );
-		// 	}
-		// } );
-
-		// this.cnv.addEventListener( 'click', ev => {
-		// 	this.cursor[0] = ev.clientX - this.offset.x;
-		// 	this.cursor[1] = ev.clientY - this.offset.y;
-
-		// 	if( !this.isPaused ) {
-		// 		this.level?.onClick( this.getScaledCursor() );
-		// 	}
-		// } );
 	},
 
 

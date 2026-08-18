@@ -75,4 +75,4 @@ if [ -d '../docs' ]; then
 fi
 
 mkdir '../docs'
-rsync -avq ./ '../docs/' --exclude *.zip
+# rsync -avq ./ '../docs/' --exclude *.zip

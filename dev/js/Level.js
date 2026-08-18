@@ -1,7 +1,7 @@
 import { Input } from './Input.js';
 import { Player, PlayerAction } from './Player.js';
 import { Renderer, tileSizePx } from './Renderer.js';
-import { CharMeasures, WorldMap } from './WorldMap.js';
+import { CharMeasures, DungeonMap, dungeonMapsData } from './DungeonMap.js';
 
 
 export class Level {
@@ -17,7 +17,11 @@ export class Level {
 		/** @type {import('./Animation').Animation[]} */
 		this.animations = [];
 
-		this.player = new Player( this, 2, 2 );
+		this.currentMap = DungeonMap.load( dungeonMapsData.start );
+
+		const playerStart = this.currentMap.setup.playerStart;
+		this.player = new Player( this, playerStart[0], playerStart[1] );
+		this.currentMap.updateLightMap( this.player );
 	}
 
 
@@ -27,45 +31,23 @@ export class Level {
 	 */
 	draw( ctx ) {
 		ctx.translate(
-			Renderer.center.x - WorldMap.sizeX / 2 * tileSizePx,
-			Renderer.center.y - WorldMap.sizeY / 2 * tileSizePx,
+			Renderer.center.x - this.currentMap.sizeX / 2 * tileSizePx,
+			Renderer.center.y - this.currentMap.sizeY / 2 * tileSizePx,
 		);
 
-		for( let y = 0; y < WorldMap.sizeY; y++ ) {
-			for( let x = 0; x < WorldMap.sizeX; x++ ) {
+		for( let y = 0; y < this.currentMap.sizeY; y++ ) {
+			for( let x = 0; x < this.currentMap.sizeX; x++ ) {
 				if( x === this.player.x && y === this.player.y ) {
 					continue;
 				}
 
-				const tile = WorldMap.at( x, y );
-				this.drawTile( ctx, tile );
+				const tile = this.currentMap.at( x, y );
+				tile.draw( ctx );
 			}
 		}
 
 		this.player.draw( ctx );
 		this.animations.forEach( anim => anim.do() );
-	}
-
-
-	/**
-	 *
-	 * @param {CanvasRenderingContext2D} ctx
-	 * @param {import('./WorldMap').Tile} tile
-	 */
-	drawTile( ctx, tile ) {
-		const correction = CharMeasures.measure( ctx, tile.char );
-
-		ctx.fillStyle = tile.color;
-		ctx.fillText(
-			tile.char,
-			tile.x * tileSizePx + correction.x,
-			tile.y * tileSizePx + correction.y,
-			tileSizePx,
-		);
-
-		// // Debug grid
-		// ctx.strokeStyle = '#f00';
-		// ctx.strokeRect( tile.x * tileSizePx, tile.y * tileSizePx, tileSizePx, tileSizePx );
 	}
 
 
@@ -97,13 +79,13 @@ export class Level {
 			// TODO: check neighbouring tiles for objects to interact with
 		}
 
-		x = Math.max( 0, Math.min( WorldMap.sizeX - 1, x ) );
-		y = Math.max( 0, Math.min( WorldMap.sizeY - 1, y ) );
+		const targetTile = this.currentMap.at( x, y );
 
-		// TODO: also check for non-traversable tiles like walls
-
-		this.player.x = x;
-		this.player.y = y;
+		if( targetTile?.isTraversable() ) {
+			this.player.x = x;
+			this.player.y = y;
+			this.currentMap.updateLightMap( this.player );
+		}
 	}
 
 
