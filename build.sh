@@ -12,9 +12,7 @@ fi
 mkdir -p build/lib
 
 cp 'dev/index-dev.html' 'build/'
-# cp 'dev/i.png' 'build/'
-cp 'dev/js/lib/'*.js 'build/'
-cp 'dev/js/'*.js 'build/'
+rsync -r 'dev/js/' 'build/'
 
 cd 'build' > '/dev/null'
 
@@ -25,9 +23,9 @@ tr -d '\n' < 'index-dev.html' > 'index.html'
 sed -i'' 's/js\/js13k\.js" type="module"/i.js"/' 'index.html'
 sed -E -i'' 's/<script src="([a-zA-Z0-9_-]+\/)+[a-zA-Z0-9_.-]{2,}\.js"><\/script>//g' 'index.html'
 
-npx esbuild 'js13k.js' \
+npx esbuild './js13k.js' \
 	--bundle --minify --platform=browser \
-	--outfile='i.js'
+	--outfile='./i.js'
 
 rm 'index-dev.html'
 find -type f -name '*.js' -not -name 'i.js' -delete
