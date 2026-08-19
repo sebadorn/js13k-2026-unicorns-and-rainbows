@@ -1,7 +1,8 @@
+import { tileSizePx } from './Config.js';
+import { DungeonMap, dungeonMapsData } from './DungeonMap.js';
 import { Input } from './Input.js';
 import { Player, PlayerAction } from './Player.js';
-import { Renderer, tileSizePx } from './Renderer.js';
-import { CharMeasures, DungeonMap, dungeonMapsData } from './DungeonMap.js';
+import { Renderer } from './Renderer.js';
 
 
 export class Level {
@@ -17,10 +18,12 @@ export class Level {
 		/** @type {import('./Animation').Animation[]} */
 		this.animations = [];
 
-		this.currentMap = DungeonMap.load( dungeonMapsData.start );
+		this.currentMap = DungeonMap.load( this, dungeonMapsData.start );
 
 		const playerStart = this.currentMap.setup.playerStart;
-		this.player = new Player( this, playerStart[0], playerStart[1] );
+		const startTile = this.currentMap.at( playerStart.x, playerStart.y );
+		this.player = new Player( this, startTile );
+
 		this.currentMap.updateLightMap( this.player );
 	}
 
@@ -37,12 +40,11 @@ export class Level {
 
 		for( let y = 0; y < this.currentMap.sizeY; y++ ) {
 			for( let x = 0; x < this.currentMap.sizeX; x++ ) {
-				if( x === this.player.x && y === this.player.y ) {
-					continue;
-				}
-
 				const tile = this.currentMap.at( x, y );
-				tile.draw( ctx );
+
+				if( tile !== this.player.tile ) {
+					tile.draw( ctx );
+				}
 			}
 		}
 
@@ -82,8 +84,7 @@ export class Level {
 		const targetTile = this.currentMap.at( x, y );
 
 		if( targetTile?.isTraversable() ) {
-			this.player.x = x;
-			this.player.y = y;
+			this.player.moveToTile( targetTile );
 			this.currentMap.updateLightMap( this.player );
 		}
 	}

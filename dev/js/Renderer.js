@@ -1,9 +1,5 @@
+import { fontMono, targetFPS } from './Config.js';
 import { Input } from './Input.js';
-
-
-export const fontMono = '"Courier New", monospace';
-export const targetFPS = 60;
-export const tileSizePx = 40;
 
 
 export const Renderer = {

@@ -1,4 +1,27 @@
-import { LevelObject } from './LevelObject.js';
+import { LightSource } from './LightSource.js';
+import { LevelObject } from './objects/LevelObject.js';
+
+
+export class Player extends LevelObject {
+
+
+	/**
+	 * 
+	 * @param {import('./Level').Level} level
+	 * @param {import('./Tile').Tile} tile
+	 */
+	constructor( level, tile ) {
+		super( level, tile, '@' );
+
+		this.lightSource = new LightSource( {
+			brightness: 0.5,
+			color: '#fff',
+			radius: 2,
+		} );
+	}
+
+
+};
 
 
 export const PlayerAction = {
@@ -22,22 +45,4 @@ export const PlayerAction = {
 		keys: ['KeyE'],
 		enum: 5,
 	},
-};
-
-
-export class Player extends LevelObject {
-
-
-	/**
-	 * 
-	 * @param {import('./Level').Level} level
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	constructor( level, x, y ) {
-		super( level, x, y, '@' );
-		this.color = '#fff';
-	}
-
-
 };
