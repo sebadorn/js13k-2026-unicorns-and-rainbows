@@ -45,6 +45,12 @@ export class Tile {
 	/** @type {import('./objects/LevelObject').LevelObject} */
 	objects = [];
 
+	/** @type {boolean} */
+	visible = false;
+
+	/** @type {boolean} */
+	seen = false;
+
 
 	/**
 	 *
@@ -79,6 +85,11 @@ export class Tile {
 			tileSizePx,
 		);
 		ctx.globalAlpha = 1;
+
+		if( this.visible ) {
+			ctx.strokeStyle = '#f00';
+			ctx.strokeRect( this.x * tileSizePx, this.y * tileSizePx, tileSizePx, tileSizePx );
+		}
 	}
 
 
