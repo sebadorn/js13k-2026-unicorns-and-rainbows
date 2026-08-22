@@ -1,3 +1,6 @@
+import { clamp, euclidDistance } from './MathUtils.js';
+
+
 export class LightSource {
 
 
@@ -16,56 +19,24 @@ export class LightSource {
 
 
 	/**
-	 *
-	 * @param {import('./Tile').Tile} tile
-	 * @param {number} add
-	 */
-	applyOnTile( tile, add ) {
-		if( !tile ) {
-			return;
-		}
-
-		tile.brightness = Math.max( 0, Math.min( 1, tile.brightness + add ) );
-	}
-
-
-	/**
 	 * 
 	 * @param {import('./DungeonMap').DungeonMap} dungeonMap
-	 * @param {import('./Tile').Tile} tile
+	 * @param {import('./Tile').Tile} source
 	 */
-	updateTiles( dungeonMap, tile ) {
+	updateTiles( dungeonMap, source ) {
 		if( this.brightness === 0 ) {
 			return;
 		}
 
-		const x = tile.x;
-		const y = tile.y;
-		const full = this.brightness;
-		const dimm = full * 0.5;
+		const tiles = dungeonMap.tileTracing( source, this.radius );
 
-		// same tile
-		this.applyOnTile( tile, full );
+		tiles.forEach( t => {
+			const dist = euclidDistance( source, t );
+			const f = clamp( 1 - dist / this.radius, 0, 1 );
 
-		// left
-		this.applyOnTile( dungeonMap.at( x - 1, y ), full );
-		// right
-		this.applyOnTile( dungeonMap.at( x + 1, y ), full );
-		// top
-		this.applyOnTile( dungeonMap.at( x, y - 1 ), full );
-		// down
-		this.applyOnTile( dungeonMap.at( x, y + 1 ), full );
+			t.brightness = clamp( t.brightness + f * this.brightness, 0, 1 );
+		} );
 
-		// top-left
-		this.applyOnTile( dungeonMap.at( x - 1, y - 1 ), dimm );
-		// top-right
-		this.applyOnTile( dungeonMap.at( x + 1, y - 1 ), dimm );
-		// bottom-left
-		this.applyOnTile( dungeonMap.at( x - 1, y + 1 ), dimm );
-		// bottom-right
-		this.applyOnTile( dungeonMap.at( x + 1, y + 1 ), dimm );
-
-		// TODO: radius/distance
 	}
 
 

@@ -1,4 +1,5 @@
 import { tileSizePx } from './Config.js';
+import { DungeonMap } from './DungeonMap.js';
 
 
 export const CharMeasures = {
@@ -74,21 +75,42 @@ export class Tile {
 			return;
 		}
 
-		const correction = CharMeasures.measure( ctx, this.char );
+		if( this.visible || this.seen ) {
+			ctx.globalAlpha = this.visible ? this.brightness : DungeonMap.minBrightness;
+			ctx.fillStyle = this.color;
 
-		ctx.globalAlpha = this.brightness;
-		ctx.fillStyle = this.color;
-		ctx.fillText(
-			this.char,
-			this.x * tileSizePx + correction.x,
-			this.y * tileSizePx + correction.y,
-			tileSizePx,
-		);
-		ctx.globalAlpha = 1;
+			if( this.char === 'o' ) {
+				const size = tileSizePx / 2;
+				ctx.fillRect(
+					this.x * tileSizePx + size / 2,
+					this.y * tileSizePx + size / 2,
+					size, size,
+				);
 
-		if( this.visible ) {
-			ctx.strokeStyle = '#f00';
-			ctx.strokeRect( this.x * tileSizePx, this.y * tileSizePx, tileSizePx, tileSizePx );
+				// const radius = tileSizePx / 4;
+
+				// ctx.beginPath();
+				// ctx.arc(
+				// 	this.x * tileSizePx + radius * 2,
+				// 	this.y * tileSizePx + radius * 2,
+				// 	radius, 0, Math.PI * 2
+				// );
+				// ctx.closePath();
+				// ctx.fill();
+			}
+			else {
+				const correction = CharMeasures.measure( ctx, this.char );
+				ctx.fillText(
+					this.char,
+					this.x * tileSizePx + correction.x,
+					this.y * tileSizePx + correction.y,
+					tileSizePx,
+				);
+			}
+
+			this.objects.forEach( o => o.draw( ctx ) );
+
+			ctx.globalAlpha = 1;
 		}
 	}
 

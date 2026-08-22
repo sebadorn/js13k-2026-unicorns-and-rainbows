@@ -10,17 +10,17 @@ export const dungeonMapsData = {
 			'..........',
 			'..........',
 			'...o..o...',
-			'...o..o...',
+			'..oo..oo..',
 			'..o....o..',
-			'..........',
-			'..........',
+			'..o.......',
+			'.......ooo',
 			'..........',
 			'..........',
 		],
 		setup: {
 			playerStart: { x: 5, y: 5 },
 			objects: [
-				{ x: 4, y: 5, build: ( l, t ) => new Torch( l, t ) },
+				{ x: 3, y: 4, build: ( l, t ) => new Torch( l, t ) },
 			],
 		},
 	},
@@ -29,6 +29,10 @@ export const dungeonMapsData = {
 
 
 export class DungeonMap {
+
+
+	/** @type {number} */
+	static minBrightness = 0.05;
 
 
 	/**
@@ -85,22 +89,27 @@ export class DungeonMap {
 	 * in a straight line without a blocking tile in the way.
 	 * Similar to ray-tracing.
 	 * @param {Tile} start
+	 * @param {number?} rangeLimit
 	 * @returns {Tile[]}
 	 */
-	tileTracing( start ) {
+	tileTracing( start, rangeLimit ) {
 		const result = [start];
 
-		const addAndCheckContinue = ( x, y ) => {
+		const addAndCheckContinue = ( x, y, list ) => {
 			x = Math.round( x );
 			y = Math.round( y );
 
 			const tile = this.at( x, y );
 
-			if( tile && !result.includes( tile ) ) {
-				result.push( tile );
+			if( tile && !result.includes( tile ) && !list.includes( tile ) ) {
+				list.push( tile );
 			}
 
-			return tile?.isTraversable();
+			if( rangeLimit > 0 && list.length >= rangeLimit ) {
+				return false;
+			}
+
+			return tile === start || tile?.isTraversable();
 		};
 
 		const checkRay = to => {
@@ -108,6 +117,7 @@ export class DungeonMap {
 				return;
 			}
 
+			const list = [];
 			const yStart = Math.min( start.y, to.y );
 			const yEnd = Math.max( start.y, to.y );
 
@@ -120,6 +130,7 @@ export class DungeonMap {
 				rangeY = start.y < to.y ? [yStart, yEnd] : [yEnd, yStart];
 			}
 			else {
+				// y = m * x + b
 				const m = ( to.y - start.y ) / ( to.x - start.x );
 				const b = start.y - m * start.x;
 
@@ -139,24 +150,26 @@ export class DungeonMap {
 				}
 			}
 
+			const precision = 1;
+
 			if( rangeX ) {
 				const xs = rangeX[0];
 				const xe = rangeX[1];
 
 				if( xs <= xe ) {
-					for( let x = xs; x <= xe; x++ ) {
+					for( let x = xs; x <= xe; x += precision ) {
 						const y = solverY( x, start.y );
 
-						if( !addAndCheckContinue( x, y ) ) {
+						if( !addAndCheckContinue( x, y, list ) ) {
 							break;
 						}
 					}
 				}
 				else {
-					for( let x = xs; x >= xe; x-- ) {
+					for( let x = xs; x >= xe; x -= precision ) {
 						const y = solverY( x, start.y );
 
-						if( !addAndCheckContinue( x, y ) ) {
+						if( !addAndCheckContinue( x, y, list ) ) {
 							break;
 						}
 					}
@@ -167,24 +180,26 @@ export class DungeonMap {
 				const ye = rangeY[1];
 
 				if( ys <= ye ) {
-					for( let y = ys; y <= ye; y++ ) {
+					for( let y = ys; y <= ye; y += precision ) {
 						const x = solverX( start.x, y );
 
-						if( !addAndCheckContinue( x, y ) ) {
+						if( !addAndCheckContinue( x, y, list ) ) {
 							break;
 						}
 					}
 				}
 				else {
-					for( let y = ys; y >= ye; y-- ) {
+					for( let y = ys; y >= ye; y -= precision ) {
 						const x = solverX( start.x, y );
 
-						if( !addAndCheckContinue( x, y ) ) {
+						if( !addAndCheckContinue( x, y, list ) ) {
 							break;
 						}
 					}
 				}
 			}
+
+			result.push( ...list );
 		};
 
 		// Check top and bottom border tiles as ray targets
@@ -222,7 +237,7 @@ export class DungeonMap {
 
 		this.layout.forEach( line => {
 			line.forEach( tile => {
-				tile.brightness = 0.1;
+				tile.brightness = tile.seen ? DungeonMap.minBrightness : 0;
 				tile.visible = false;
 
 				tile.objects.forEach( o => {
@@ -238,7 +253,10 @@ export class DungeonMap {
 		} );
 
 		const visible = this.tileTracing( player.tile );
-		visible.forEach( t => t.visible = true );
+		visible.forEach( t => {
+			t.seen = t.seen || t.brightness > DungeonMap.minBrightness;
+			t.visible = true;
+		} );
 	}
 
 

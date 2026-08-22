@@ -13,10 +13,11 @@ export class Torch extends LevelObject {
 	constructor( level, tile ) {
 		super( level, tile, 't' );
 
+		this.color = '#f90';
 		this.lightSource = new LightSource( {
-			brightness: 0.5,
-			color: '#f90',
-			radius: 3,
+			brightness: 0.8,
+			color: this.color,
+			radius: 4,
 		} );
 	}
 

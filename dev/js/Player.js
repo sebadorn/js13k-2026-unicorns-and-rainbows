@@ -14,7 +14,7 @@ export class Player extends LevelObject {
 		super( level, tile, '@' );
 
 		this.lightSource = new LightSource( {
-			brightness: 0.5,
+			brightness: 0.2,
 			color: '#fff',
 			radius: 2,
 		} );

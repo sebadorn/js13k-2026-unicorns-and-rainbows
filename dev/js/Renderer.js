@@ -37,7 +37,7 @@ export const Renderer = {
 	 */
 	draw() {
 		this.clear();
-		this.ctx.font = '500 48px ' + fontMono;
+		this.ctx.font = '500 32px ' + fontMono;
 		this.ctx.textAlign = 'left';
 		this.ctx.textBaseline = 'alphabetic';
 		this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
