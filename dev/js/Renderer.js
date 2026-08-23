@@ -1,5 +1,6 @@
-import { fontMono, targetFPS } from './Config.js';
+import { fontMono, fontSize, targetFPS } from './Config.js';
 import { Input } from './Input.js';
+import { clamp } from './MathUtils.js';
 
 
 export const Renderer = {
@@ -21,6 +22,7 @@ export const Renderer = {
 	center: { x: 0, y: 0 },
 	offset: { x: 0, y: 0 },
 	scale: 1,
+	zoom: 0.5,
 
 
 	/**
@@ -37,10 +39,10 @@ export const Renderer = {
 	 */
 	draw() {
 		this.clear();
-		this.ctx.font = '500 32px ' + fontMono;
+		this.ctx.font = `500 ${fontSize}px ${fontMono}`;
 		this.ctx.textAlign = 'left';
 		this.ctx.textBaseline = 'alphabetic';
-		this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
+		this.ctx.setTransform( this.scale + this.zoom, 0, 0, this.scale + this.zoom, 0, 0 );
 
 		this.level?.draw( this.ctx );
 	},
@@ -147,6 +149,9 @@ export const Renderer = {
 		this.resize();
 
 		Input.onKeyUp( 'Escape', () => this.togglePause() );
+		Input.onKeyUp( 'Digit8', () => this.setZoom( this.zoom -= 0.25 ) );
+		Input.onKeyUp( 'Digit9', () => this.setZoom( this.zoom += 0.25 ) );
+		Input.onKeyUp( 'Digit0', () => this.setZoom( 0 ) );
 	},
 
 
@@ -166,8 +171,8 @@ export const Renderer = {
 
 		this.scale = height / 1080;
 
-		this.center.x = width / 2 / this.scale;
-		this.center.y = height / 2 / this.scale;
+		this.center.x = width / 2 / ( this.scale + this.zoom );
+		this.center.y = height / 2 / ( this.scale + this.zoom );
 
 		this.offset.x = ( window.innerWidth - width ) / 2;
 		this.offset.y = ( window.innerHeight - height ) / 2;
@@ -179,6 +184,16 @@ export const Renderer = {
 			clearTimeout( this._timeoutDrawPause );
 			this._timeoutDrawPause = setTimeout( () => this.drawPause(), 100 );
 		}
+	},
+
+
+	/**
+	 *
+	 * @param {number} newZoom
+	 */
+	setZoom( newZoom ) {
+		this.zoom = clamp( newZoom, -0.5, 2.5 );
+		this.resize();
 	},
 
 

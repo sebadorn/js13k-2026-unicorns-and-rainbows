@@ -41,10 +41,7 @@ export class Level {
 		for( let y = 0; y < this.currentMap.sizeY; y++ ) {
 			for( let x = 0; x < this.currentMap.sizeX; x++ ) {
 				const tile = this.currentMap.at( x, y );
-
-				if( tile !== this.player.tile ) {
-					tile.draw( ctx );
-				}
+				tile.draw( ctx );
 			}
 		}
 

@@ -15,7 +15,7 @@ export class Player extends LevelObject {
 
 		this.lightSource = new LightSource( {
 			brightness: 0.2,
-			color: '#fff',
+			isPlayerLight: true,
 			radius: 2,
 		} );
 	}

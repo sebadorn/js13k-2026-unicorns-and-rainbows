@@ -40,6 +40,9 @@ export class Tile {
 	/** @type {string} */
 	color = '#777';
 
+	/** @type {string?} */
+	lightColor;
+
 	/** @type {number} */
 	brightness = 1;
 
@@ -76,14 +79,24 @@ export class Tile {
 		}
 
 		if( this.visible || this.seen ) {
+			const x = this.x * tileSizePx;
+			const y = this.y * tileSizePx;
+
+			if( this.lightColor ) {
+				ctx.globalAlpha = this.visible ? 0.5 * this.brightness : DungeonMap.minBrightness;
+				ctx.fillStyle = this.lightColor;
+				ctx.fillRect( x, y, tileSizePx, tileSizePx );
+			}
+
 			ctx.globalAlpha = this.visible ? this.brightness : DungeonMap.minBrightness;
+
 			ctx.fillStyle = this.color;
 
 			if( this.char === 'o' ) {
 				const size = tileSizePx / 2;
 				ctx.fillRect(
-					this.x * tileSizePx + size / 2,
-					this.y * tileSizePx + size / 2,
+					x + size / 2,
+					y + size / 2,
 					size, size,
 				);
 
@@ -91,8 +104,8 @@ export class Tile {
 
 				// ctx.beginPath();
 				// ctx.arc(
-				// 	this.x * tileSizePx + radius * 2,
-				// 	this.y * tileSizePx + radius * 2,
+				// 	x + radius * 2,
+				// 	y + radius * 2,
 				// 	radius, 0, Math.PI * 2
 				// );
 				// ctx.closePath();
@@ -102,8 +115,8 @@ export class Tile {
 				const correction = CharMeasures.measure( ctx, this.char );
 				ctx.fillText(
 					this.char,
-					this.x * tileSizePx + correction.x,
-					this.y * tileSizePx + correction.y,
+					x + correction.x,
+					y + correction.y,
 					tileSizePx,
 				);
 			}

@@ -20,7 +20,7 @@ export const dungeonMapsData = {
 		setup: {
 			playerStart: { x: 5, y: 5 },
 			objects: [
-				{ x: 3, y: 4, build: ( l, t ) => new Torch( l, t ) },
+				{ x: 3, y: 5, build: ( l, t ) => new Torch( l, t ) },
 			],
 		},
 	},
@@ -32,7 +32,7 @@ export class DungeonMap {
 
 
 	/** @type {number} */
-	static minBrightness = 0.05;
+	static minBrightness = 0.1;
 
 
 	/**
@@ -85,6 +85,17 @@ export class DungeonMap {
 
 
 	/**
+	 *
+	 * @param {Tile} tile
+	 */
+	resetTileVisuals( tile ) {
+		tile.brightness = tile.seen ? DungeonMap.minBrightness : 0;
+		tile.lightColor = null;
+		tile.visible = false;
+	}
+
+
+	/**
 	 * Get all tiles from a given starting tile that can be reached
 	 * in a straight line without a blocking tile in the way.
 	 * Similar to ray-tracing.
@@ -101,12 +112,14 @@ export class DungeonMap {
 
 			const tile = this.at( x, y );
 
-			if( tile && !result.includes( tile ) && !list.includes( tile ) ) {
-				list.push( tile );
-			}
+			if( tile ) {
+				if( !list.includes( tile ) ) {
+					list.push( tile );
+				}
 
-			if( rangeLimit > 0 && list.length >= rangeLimit ) {
-				return false;
+				if( rangeLimit > 0 && list.length >= rangeLimit ) {
+					return false;
+				}
 			}
 
 			return tile === start || tile?.isTraversable();
@@ -199,7 +212,7 @@ export class DungeonMap {
 				}
 			}
 
-			result.push( ...list );
+			result.push( ...new Set( list ) );
 		};
 
 		// Check top and bottom border tiles as ray targets
@@ -231,14 +244,9 @@ export class DungeonMap {
 	updateLightMap( player ) {
 		const withLightSource = [];
 
-		if( player.lightSource ) {
-			withLightSource.push( player );
-		}
-
 		this.layout.forEach( line => {
 			line.forEach( tile => {
-				tile.brightness = tile.seen ? DungeonMap.minBrightness : 0;
-				tile.visible = false;
+				this.resetTileVisuals( tile );
 
 				tile.objects.forEach( o => {
 					if( o.lightSource ) {
@@ -248,11 +256,17 @@ export class DungeonMap {
 			} );
 		} );
 
+		// Important: Light player light source last, because
+		// it is more of an ambient fallback light source.
+		if( player.lightSource ) {
+			withLightSource.push( player );
+		}
+
 		withLightSource.forEach( o => {
 			o.lightSource.updateTiles( this, o.tile );
 		} );
 
-		const visible = this.tileTracing( player.tile );
+		const visible = this.tileTracing( player.tile, 10 );
 		visible.forEach( t => {
 			t.seen = t.seen || t.brightness > DungeonMap.minBrightness;
 			t.visible = true;

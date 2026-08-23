@@ -15,7 +15,7 @@ export class Torch extends LevelObject {
 
 		this.color = '#f90';
 		this.lightSource = new LightSource( {
-			brightness: 0.8,
+			brightness: 0.3,
 			color: this.color,
 			radius: 4,
 		} );
