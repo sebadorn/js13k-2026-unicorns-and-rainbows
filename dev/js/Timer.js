@@ -1,4 +1,4 @@
-import { targetFPS } from './Renderer.js';
+import { targetFPS } from './Config.js';
 
 
 /**

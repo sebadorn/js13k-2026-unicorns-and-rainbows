@@ -1,5 +1,4 @@
-import { LightSource } from './LightSource.js';
-import { LevelObject } from './objects/LevelObject.js';
+import { LevelObject } from './LevelObject.js';
 
 
 export class Player extends LevelObject {
@@ -8,16 +7,9 @@ export class Player extends LevelObject {
 	/**
 	 * 
 	 * @param {import('./Level').Level} level
-	 * @param {import('./Tile').Tile} tile
 	 */
-	constructor( level, tile ) {
-		super( level, tile, '@' );
-
-		this.lightSource = new LightSource( {
-			brightness: 0.2,
-			isPlayerLight: true,
-			radius: 2,
-		} );
+	constructor( level ) {
+		super( level );
 	}
 
 

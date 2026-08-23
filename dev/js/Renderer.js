@@ -1,6 +1,9 @@
-import { fontMono, fontSize, targetFPS } from './Config.js';
+import { targetFPS } from './Config.js';
 import { Input } from './Input.js';
 import { clamp } from './MathUtils.js';
+
+
+const fontFamily = 'Arial, sans-serif';
 
 
 export const Renderer = {
@@ -39,7 +42,7 @@ export const Renderer = {
 	 */
 	draw() {
 		this.clear();
-		this.ctx.font = `500 ${fontSize}px ${fontMono}`;
+		this.ctx.font = `500 32px ${fontFamily}`;
 		this.ctx.textAlign = 'left';
 		this.ctx.textBaseline = 'alphabetic';
 		this.ctx.setTransform( this.scale + this.zoom, 0, 0, this.scale + this.zoom, 0, 0 );
@@ -57,7 +60,7 @@ export const Renderer = {
 		this.ctx.fillRect( 0, 0, this.cnv.width / this.scale, this.cnv.height / this.scale );
 
 		this.ctx.fillStyle = '#fff';
-		this.ctx.font = '600 56px ' + fontMono;
+		this.ctx.font = '600 56px ' + fontFamily;
 		this.ctx.textAlign = 'center';
 		this.ctx.textBaseline = 'top';
 		this.ctx.fillText( 'PAUSED', this.center.x, this.center.y - 56 );
@@ -119,7 +122,7 @@ export const Renderer = {
 			// Draw FPS info
 			this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
 			this.ctx.fillStyle = '#fff';
-			this.ctx.font = '600 12px ' + fontMono;
+			this.ctx.font = '600 12px ' + fontFamily;
 			this.ctx.textAlign = 'left';
 			this.ctx.fillText(
 				String( Math.round( targetFPS / dt ) ).padStart( 3, '0' ) + ' FPS, ' + this.scale.toFixed( 5 ),
@@ -149,9 +152,6 @@ export const Renderer = {
 		this.resize();
 
 		Input.onKeyUp( 'Escape', () => this.togglePause() );
-		Input.onKeyUp( 'Digit8', () => this.setZoom( this.zoom -= 0.25 ) );
-		Input.onKeyUp( 'Digit9', () => this.setZoom( this.zoom += 0.25 ) );
-		Input.onKeyUp( 'Digit0', () => this.setZoom( 0 ) );
 	},
 
 
