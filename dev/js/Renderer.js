@@ -22,10 +22,31 @@ export const Renderer = {
 	last: 0,
 	timer: 0,
 
+	// Last known cursor position as position on the canvas.
+	cursor: [-1, -1],
+
 	center: { x: 0, y: 0 },
 	offset: { x: 0, y: 0 },
 	scale: 1,
-	zoom: 0.5,
+	zoom: 0,
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get drawHeight() {
+		return this.cnv.height / this.scale;
+	},
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get drawWidth() {
+		return this.cnv.width / this.scale;
+	},
 
 
 	/**
@@ -57,9 +78,9 @@ export const Renderer = {
 	drawPause() {
 		this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
 		this.ctx.fillStyle = '#0006';
-		this.ctx.fillRect( 0, 0, this.cnv.width / this.scale, this.cnv.height / this.scale );
+		this.ctx.fillRect( 0, 0, this.drawWidth, this.drawHeight );
 
-		this.ctx.fillStyle = '#fff';
+		this.ctx.fillStyle = '#000';
 		this.ctx.font = '600 56px ' + fontFamily;
 		this.ctx.textAlign = 'center';
 		this.ctx.textBaseline = 'top';
@@ -83,6 +104,18 @@ export const Renderer = {
 		ctx.lineJoin = 'round';
 
 		return [canvas, ctx];
+	},
+
+
+	/**
+	 *
+	 * @returns {Position}
+	 */
+	getScaledCursor() {
+		return {
+			x: this.cursor[0] / ( this.scale + this.zoom ),
+			y: this.cursor[1] / ( this.scale + this.zoom ),
+		};
 	},
 
 
@@ -121,7 +154,7 @@ export const Renderer = {
 
 			// Draw FPS info
 			this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
-			this.ctx.fillStyle = '#fff';
+			this.ctx.fillStyle = '#000';
 			this.ctx.font = '600 12px ' + fontFamily;
 			this.ctx.textAlign = 'left';
 			this.ctx.fillText(
@@ -152,6 +185,41 @@ export const Renderer = {
 		this.resize();
 
 		Input.onKeyUp( 'Escape', () => this.togglePause() );
+
+		let timeoutMove = null;
+
+		this.cnv.addEventListener( 'mouseleave', _ev => {
+			this.cursor[0] = -1;
+		} );
+
+		this.cnv.addEventListener( 'mousemove', ev => {
+			this.cursor[0] = ev.clientX - this.offset[0];
+			this.cursor[1] = ev.clientY - this.offset[1];
+
+			// Slow down mousemove event related actions for better performance.
+			if( !timeoutMove && !this.isPaused ) {
+				timeoutMove = setTimeout( () => {
+					const foundClickable = this.level?.onMouseMove( this.getScaledCursor() );
+					timeoutMove = null;
+
+					if( foundClickable ) {
+						this.cnv.classList.add( 'p' );
+					}
+					else {
+						this.cnv.classList.remove( 'p' );
+					}
+				}, 66 );
+			}
+		} );
+
+		this.cnv.addEventListener( 'click', ev => {
+			this.cursor[0] = ev.clientX - this.offset[0];
+			this.cursor[1] = ev.clientY - this.offset[1];
+
+			if( !this.isPaused ) {
+				this.level?.onClick( this.getScaledCursor() );
+			}
+		} );
 	},
 
 

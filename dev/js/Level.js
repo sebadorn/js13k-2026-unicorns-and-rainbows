@@ -1,5 +1,4 @@
-import { Input } from './Input.js';
-import { Player, PlayerAction } from './Player.js';
+import { Player } from './Player.js';
 import { Renderer } from './Renderer.js';
 
 
@@ -12,9 +11,7 @@ export class Level {
 	 */
 	constructor() {
 		this.timer = 0;
-
-		/** @type {import('./Animation').Animation[]} */
-		this.animations = [];
+		this.player = new Player( this, 100, 400 );
 	}
 
 
@@ -23,40 +20,44 @@ export class Level {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
-		// TODO
+		ctx.fillStyle = '#eee';
+		ctx.fillRect( 0, 0, Renderer.drawWidth, Renderer.drawHeight );
+		const y = 0.7 * Renderer.drawHeight;
+
+		ctx.lineWidth = 4;
+		ctx.stokeStyle = '#222';
+		ctx.beginPath();
+		ctx.moveTo( 0, y );
+		ctx.lineTo( Renderer.drawWidth, y );
+		ctx.closePath();
+		ctx.stroke();
 
 		this.player.draw( ctx );
-		this.animations.forEach( anim => anim.do() );
+	}
+
+
+
+	/**
+	 *
+	 * @param {Position} pos
+	 */
+	onClick( pos ) {
+		// TODO: walk player to position
+		this.player.walkTo( pos );
 	}
 
 
 	/**
-	 * 
-	 * @param {number} action
+	 *
+	 * @param {Position} pos
+	 * @returns {boolean}
 	 */
-	onKey( action ) {
-		if( Renderer.isPaused ) {
-			return;
-		}
+	onMouseMove( pos ) {
+		let targetFound = false;
 
-		let x = this.player.x;
-		let y = this.player.y;
+		// TODO:
 
-		if( action === PlayerAction.Up.enum ) {
-			y--;
-		}
-		else if( action === PlayerAction.Down.enum ) {
-			y++;
-		}
-		else if( action === PlayerAction.Left.enum ) {
-			x--;
-		}
-		else if( action === PlayerAction.Right.enum ) {
-			x++;
-		}
-		else if( action === PlayerAction.Interact.enum ) {
-			// TODO
-		}
+		return targetFound;
 	}
 
 
@@ -66,23 +67,6 @@ export class Level {
 	 */
 	update( dt ) {
 		this.timer += dt;
-
-		if( Input.isPressed( PlayerAction.Up.keys, true ) ) {
-			this.onKey( PlayerAction.Up.enum );
-		}
-		else if( Input.isPressed( PlayerAction.Left.keys, true ) ) {
-			this.onKey( PlayerAction.Left.enum );
-		}
-		else if( Input.isPressed( PlayerAction.Down.keys, true ) ) {
-			this.onKey( PlayerAction.Down.enum );
-		}
-		else if( Input.isPressed( PlayerAction.Right.keys, true ) ) {
-			this.onKey( PlayerAction.Right.enum );
-		}
-		else if( Input.isPressed( PlayerAction.Interact.keys, true ) ) {
-			this.onKey( PlayerAction.Interact.enum );
-		}
-
 		this.player.update( dt );
 	}
 

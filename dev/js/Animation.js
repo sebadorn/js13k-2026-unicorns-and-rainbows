@@ -1,4 +1,3 @@
-import { Renderer } from './Renderer.js';
 import { Timer } from './Timer.js';
 
 
@@ -7,12 +6,13 @@ export class Animation {
 
 	/**
 	 *
+	 * @param {improt('./Level').Level} level
 	 * @param {number}   duration - Duration in seconds.
 	 * @param {function} onUpdate
 	 * @param {function} onDone 
 	 */
-	constructor( duration, onUpdate, onDone ) {
-		this.timer = new Timer( Renderer.level, duration );
+	constructor( level, duration, onUpdate, onDone ) {
+		this.timer = new Timer( level, duration );
 		this.onUpdate = onUpdate;
 		this.onDone = onDone;
 	}

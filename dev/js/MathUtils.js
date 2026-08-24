@@ -26,3 +26,21 @@ export function euclidDistance( a, b ) {
 
 	return Math.sqrt( diffX * diffX + diffY * diffY );
 };
+
+
+/**
+ *
+ * @param {number[]} pos - [x, y]
+ * @param {object}   aabb
+ * @param {number}   aabb.x
+ * @param {number}   aabb.y
+ * @param {number}   aabb.w
+ * @param {number}   aabb.h
+ * @returns {boolean}
+ */
+export function isInside( pos, aabb ) {
+	return pos[0] >= aabb.x &&
+		pos[0] <= aabb.x + aabb.w &&
+		pos[1] >= aabb.y &&
+		pos[1] <= aabb.y + aabb.h;
+};
