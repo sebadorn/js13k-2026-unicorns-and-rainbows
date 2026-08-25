@@ -24,19 +24,13 @@ export class LevelObject {
 
 	/**
 	 *
-	 * @returns {number}
+	 * @returns {Position}
 	 */
-	get centerX() {
-		return this.x + this.w / 2;
-	}
-
-
-	/**
-	 *
-	 * @returns {number}
-	 */
-	get centerY() {
-		return this.y + this.h / 2;
+	getCenter() {
+		return {
+			x: this.x + this.w / 2,
+			y: this.y + this.h / 2,
+		};
 	}
 
 

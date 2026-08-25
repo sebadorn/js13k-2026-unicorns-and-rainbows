@@ -1,6 +1,8 @@
 import { Animation } from './Animation.js';
 import { removeItem } from './ArrayUtils.js';
+import { Assets } from './Assets.js';
 import { LevelObject } from './LevelObject.js';
+import { Renderer } from './Renderer.js';
 
 
 export class Player extends LevelObject {
@@ -13,7 +15,8 @@ export class Player extends LevelObject {
 	 * @param {number} y
 	 */
 	constructor( level, x, y ) {
-		super( level, x, y, 200, 140 );
+		super( level, x, y, 334, 305 );
+		this.direction = 1; // +1: right, -1: left
 	}
 
 
@@ -22,8 +25,13 @@ export class Player extends LevelObject {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
-		ctx.fillStyle = '#f00';
-		ctx.fillRect( this.x, this.y, this.w, this.h );
+		if( this.direction < 0 ) {
+			Renderer.scaleCenter( ctx, -1, 1, this.getCenter() );
+		}
+
+		ctx.drawImage( Assets.get( Assets.IdPlayer ), this.x, this.y );
+
+		Renderer.resetTransform();
 	}
 
 
@@ -37,20 +45,22 @@ export class Player extends LevelObject {
 			removeItem( this.animations, this._walkingAnim );
 		}
 
-		const distance = Math.abs( pos.x - this.x );
+		this.direction = pos.x < this.x ? -1 : 1;
 
-		if( distance < 100 ) {
+		const distance = Math.abs( pos.x - this.w / 2 - this.x );
+
+		if( distance < 30 ) {
 			return;
 		}
 
-		const timeNeeded = distance / 250;
+		const timeNeeded = distance / this.w;
 		const startX = this.x;
-		const targetX = pos.x;
+		const targetX = pos.x - this.w / 2;
 
 		this._walkingAnim = new Animation(
 			this.level, timeNeeded,
 			progress => {
-				this.x = startX + targetX * progress;
+				this.x = startX * ( 1 - progress ) + targetX * progress;
 			},
 			animation => {
 				this.x = targetX;

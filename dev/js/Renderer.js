@@ -22,11 +22,17 @@ export const Renderer = {
 	last: 0,
 	timer: 0,
 
-	// Last known cursor position as position on the canvas.
-	cursor: [-1, -1],
+	/**
+	 * Last known cursor position as position on the canvas.
+	 * @type {Position}
+	 */
+	cursor: { x: -1, y: -1 },
 
+	/** @type {Position} */
 	center: { x: 0, y: 0 },
+	/** @type {Position} */
 	offset: { x: 0, y: 0 },
+
 	scale: 1,
 	zoom: 0,
 
@@ -36,7 +42,7 @@ export const Renderer = {
 	 * @returns {number}
 	 */
 	get drawHeight() {
-		return this.cnv.height / this.scale;
+		return this.cnv.height / ( this.scale + this.zoom );
 	},
 
 
@@ -45,7 +51,7 @@ export const Renderer = {
 	 * @returns {number}
 	 */
 	get drawWidth() {
-		return this.cnv.width / this.scale;
+		return this.cnv.width / ( this.scale + this.zoom );
 	},
 
 
@@ -66,7 +72,7 @@ export const Renderer = {
 		this.ctx.font = `500 32px ${fontFamily}`;
 		this.ctx.textAlign = 'left';
 		this.ctx.textBaseline = 'alphabetic';
-		this.ctx.setTransform( this.scale + this.zoom, 0, 0, this.scale + this.zoom, 0, 0 );
+		this.resetTransform();
 
 		this.level?.draw( this.ctx );
 	},
@@ -113,8 +119,8 @@ export const Renderer = {
 	 */
 	getScaledCursor() {
 		return {
-			x: this.cursor[0] / ( this.scale + this.zoom ),
-			y: this.cursor[1] / ( this.scale + this.zoom ),
+			x: this.cursor.x / ( this.scale + this.zoom ),
+			y: this.cursor.y / ( this.scale + this.zoom ),
 		};
 	},
 
@@ -189,12 +195,12 @@ export const Renderer = {
 		let timeoutMove = null;
 
 		this.cnv.addEventListener( 'mouseleave', _ev => {
-			this.cursor[0] = -1;
+			this.cursor.x = -1;
 		} );
 
 		this.cnv.addEventListener( 'mousemove', ev => {
-			this.cursor[0] = ev.clientX - this.offset[0];
-			this.cursor[1] = ev.clientY - this.offset[1];
+			this.cursor.x = ev.clientX - this.offset.x;
+			this.cursor.y = ev.clientY - this.offset.y;
 
 			// Slow down mousemove event related actions for better performance.
 			if( !timeoutMove && !this.isPaused ) {
@@ -213,13 +219,21 @@ export const Renderer = {
 		} );
 
 		this.cnv.addEventListener( 'click', ev => {
-			this.cursor[0] = ev.clientX - this.offset[0];
-			this.cursor[1] = ev.clientY - this.offset[1];
+			this.cursor.x = ev.clientX - this.offset.x;
+			this.cursor.y = ev.clientY - this.offset.y;
 
 			if( !this.isPaused ) {
 				this.level?.onClick( this.getScaledCursor() );
 			}
 		} );
+	},
+
+
+	/**
+	 *
+	 */
+	resetTransform() {
+		this.ctx.setTransform( this.scale + this.zoom, 0, 0, this.scale + this.zoom, 0, 0 );
 	},
 
 
@@ -252,6 +266,34 @@ export const Renderer = {
 			clearTimeout( this._timeoutDrawPause );
 			this._timeoutDrawPause = setTimeout( () => this.drawPause(), 100 );
 		}
+	},
+
+
+	/**
+	 * Rotate around a given coordinate.
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {number} rad - Rotation in radians.
+	 * @param {Position} c
+	 */
+	rotateCenter( ctx, rad, c ) {
+		ctx.translate( c.x, c.y );
+		ctx.rotate( rad );
+		ctx.translate( -c.x, -c.y );
+	},
+
+
+
+	/**
+	 * Scale around a given coordinate.
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {number} sx
+	 * @param {number} sy
+	 * @param {Position} c
+	 */
+	scaleCenter( ctx, sx, sy, c ) {
+		ctx.translate( c.x, c.y );
+		ctx.scale( sx, sy );
+		ctx.translate( -c.x, -c.y );
 	},
 
 

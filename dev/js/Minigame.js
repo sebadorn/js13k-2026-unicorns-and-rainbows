@@ -1,9 +1,10 @@
-export class Minigame {
+import { Level } from './Level.js';
 
 
-	constructor() {
-		// TODO:
-	}
+export class Minigame extends Level {
+
+
+	// TODO:
 
 
 };

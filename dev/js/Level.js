@@ -11,7 +11,7 @@ export class Level {
 	 */
 	constructor() {
 		this.timer = 0;
-		this.player = new Player( this, 100, 400 );
+		this.player = new Player( this, 100, 0.7 * Renderer.drawHeight - 180 );
 	}
 
 
@@ -20,17 +20,12 @@ export class Level {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
-		ctx.fillStyle = '#eee';
+		ctx.fillStyle = '#b7eafd';
 		ctx.fillRect( 0, 0, Renderer.drawWidth, Renderer.drawHeight );
 		const y = 0.7 * Renderer.drawHeight;
 
-		ctx.lineWidth = 4;
-		ctx.stokeStyle = '#222';
-		ctx.beginPath();
-		ctx.moveTo( 0, y );
-		ctx.lineTo( Renderer.drawWidth, y );
-		ctx.closePath();
-		ctx.stroke();
+		ctx.fillStyle = '#60b369';
+		ctx.fillRect( 0, y, Renderer.drawWidth, Renderer.drawHeight - y );
 
 		this.player.draw( ctx );
 	}
@@ -42,7 +37,6 @@ export class Level {
 	 * @param {Position} pos
 	 */
 	onClick( pos ) {
-		// TODO: walk player to position
 		this.player.walkTo( pos );
 	}
 

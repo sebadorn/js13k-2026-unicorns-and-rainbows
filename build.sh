@@ -9,10 +9,12 @@ if [ -d 'build' ]; then
 	rm -r 'build'
 fi
 
-mkdir -p build/lib
+mkdir -p 'build/img'
+mkdir -p 'build/lib'
 
 cp 'dev/index-dev.html' 'build/'
 rsync -r 'dev/js/' 'build/'
+cp 'dev/img/'*.{gif,png} 'build/img'
 
 cd 'build' > '/dev/null'
 
