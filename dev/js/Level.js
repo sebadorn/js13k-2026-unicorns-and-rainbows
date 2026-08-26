@@ -1,8 +1,8 @@
-import { Player } from './Player.js';
-import { Renderer } from './Renderer.js';
-
-
 export class Level {
+
+
+	/** @type {import('./LevelObject').LevelObject[]} */
+	objects = [];
 
 
 	/**
@@ -11,7 +11,6 @@ export class Level {
 	 */
 	constructor() {
 		this.timer = 0;
-		this.player = new Player( this, 100, 0.7 * Renderer.drawHeight - 180 );
 	}
 
 
@@ -19,39 +18,23 @@ export class Level {
 	 *
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
-	draw( ctx ) {
-		ctx.fillStyle = '#b7eafd';
-		ctx.fillRect( 0, 0, Renderer.drawWidth, Renderer.drawHeight );
-		const y = 0.7 * Renderer.drawHeight;
-
-		ctx.fillStyle = '#60b369';
-		ctx.fillRect( 0, y, Renderer.drawWidth, Renderer.drawHeight - y );
-
-		this.player.draw( ctx );
-	}
-
+	draw( _ctx ) {}
 
 
 	/**
 	 *
-	 * @param {Position} pos
+	 * @param {Position} _pos
 	 */
-	onClick( pos ) {
-		this.player.walkTo( pos );
-	}
+	onClick( _pos ) {}
 
 
 	/**
 	 *
-	 * @param {Position} pos
+	 * @param {Position} _pos
 	 * @returns {boolean}
 	 */
-	onMouseMove( pos ) {
-		let targetFound = false;
-
-		// TODO:
-
-		return targetFound;
+	onMouseMove( _pos ) {
+		return false;
 	}
 
 
@@ -61,7 +44,8 @@ export class Level {
 	 */
 	update( dt ) {
 		this.timer += dt;
-		this.player.update( dt );
+		this.objects.forEach( o => o.update( dt ) );
+		this.player?.update( dt );
 	}
 
 

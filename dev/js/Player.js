@@ -16,7 +16,11 @@ export class Player extends LevelObject {
 	 */
 	constructor( level, x, y ) {
 		super( level, x, y, 334, 305 );
+
 		this.direction = 1; // +1: right, -1: left
+
+		[this.cnv, this.ctx] = Renderer.getOffscreenCanvas( this.w, this.h );
+		this.ctx.drawImage( Assets.get( Assets.IdPlayer ), 0, 0 );
 	}
 
 
@@ -29,7 +33,7 @@ export class Player extends LevelObject {
 			Renderer.scaleCenter( ctx, -1, 1, this.getCenter() );
 		}
 
-		ctx.drawImage( Assets.get( Assets.IdPlayer ), this.x, this.y );
+		ctx.drawImage( this.cnv, this.x, this.y );
 
 		Renderer.resetTransform();
 	}

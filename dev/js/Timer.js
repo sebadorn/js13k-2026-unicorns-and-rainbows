@@ -12,8 +12,8 @@ export class Timer {
 	/**
 	 *
 	 * @constructor
-	 * @param {js13k.Level} level          - Level to which this timer sets its time to.
-	 * @param {number}      [duration = 0] - Duration in game seconds.
+	 * @param {import('./Level').Level} level - Level to which this timer sets its time to.
+	 * @param {number} [duration = 0] - Duration in game seconds.
 	 */
 	constructor( level, duration = 0 ) {
 		this.level = level;

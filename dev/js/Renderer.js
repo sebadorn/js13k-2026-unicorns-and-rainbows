@@ -1,3 +1,4 @@
+import { Animation } from './Animation.js';
 import { targetFPS } from './Config.js';
 import { Input } from './Input.js';
 import { clamp } from './MathUtils.js';
@@ -17,6 +18,9 @@ export const Renderer = {
 
 	/** @type {import('./Level').Level} */
 	level: null,
+
+	/** @type {Animation} */
+	animTransition: null,
 
 	isPaused: false,
 	last: 0,
@@ -52,6 +56,31 @@ export const Renderer = {
 	 */
 	get drawWidth() {
 		return this.cnv.width / ( this.scale + this.zoom );
+	},
+
+
+	/**
+	 *
+	 * @param {import('./Level').Level} newLevel
+	 */
+	changeLevel( newLevel ) {
+		if( newLevel === this.level ) {
+			return;
+		}
+
+		const [snapshotCnv, snapshotCtx] = this.getOffscreenCanvas( this.cnv.width, this.cnv.height );
+		snapshotCtx.drawImage( this.cnv, 0, 0 );
+
+		this.level = newLevel;
+
+		this.animTransition = new Animation(
+			newLevel, 2,
+			progress => {
+				progress = 1 - progress * progress;
+				this.ctx.drawImage( snapshotCnv, 0, 0, progress * this.drawWidth, this.drawHeight );
+			},
+			_ => this.animTransition = null,
+		);
 	},
 
 
@@ -95,7 +124,7 @@ export const Renderer = {
 
 
 	/**
-	 * Get an offset canvas and its context.
+	 * Get an offscreen canvas and its context.
 	 * @param  {number?} w
 	 * @param  {number?} h
 	 * @return {[HTMLCanvasElement, CanvasRenderingContext2D]}
@@ -157,6 +186,7 @@ export const Renderer = {
 
 			this.level.update( dt );
 			this.draw();
+			this.animTransition?.do();
 
 			// Draw FPS info
 			this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
