@@ -14,7 +14,7 @@ mkdir -p 'build/lib'
 
 cp 'dev/index-dev.html' 'build/'
 rsync -r 'dev/js/' 'build/'
-cp 'dev/img/'*.{gif,png} 'build/img'
+cp 'dev/img/'*.gif 'build/img'
 
 cd 'build' > '/dev/null'
 
@@ -28,6 +28,11 @@ sed -E -i'' 's/<script src="([a-zA-Z0-9_-]+\/)+[a-zA-Z0-9_.-]{2,}\.js"><\/script
 npx esbuild './js13k.js' \
 	--bundle --minify --platform=browser \
 	--outfile='./i.js'
+
+terser 'i.js' \
+	--ecma 15 --warn --compress \
+	--toplevel --mangle --mangle-props keep_quoted \
+	-o 'i.js'
 
 rm 'index-dev.html'
 find -type f -name '*.js' -not -name 'i.js' -delete
