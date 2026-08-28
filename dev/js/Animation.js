@@ -6,7 +6,7 @@ export class Animation {
 
 	/**
 	 *
-	 * @param {improt('./Level').Level} level
+	 * @param {import('./Level').Level} level
 	 * @param {number}   duration - Duration in seconds.
 	 * @param {function} onUpdate
 	 * @param {function} onDone 
@@ -19,10 +19,9 @@ export class Animation {
 
 
 	/**
-	 *
-	 * @param {object?} params
+	 * Progress the animation.
 	 */
-	do( params ) {
+	do() {
 		if( !this.timer ) {
 			return;
 		}
@@ -32,7 +31,7 @@ export class Animation {
 			this.timer = null;
 		}
 		else {
-			this.onUpdate( this.timer.progress(), params );
+			this.onUpdate( this.timer.progress() );
 		}
 	}
 

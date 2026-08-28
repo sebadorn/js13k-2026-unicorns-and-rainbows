@@ -12,9 +12,13 @@ export const Renderer = {
 
 	/** @type {HTMLCanvasElement?} */
 	cnv: null,
+	/** @type {HTMLCanvasElement?} */
+	cnvUI: null,
 
 	/** @type {CanvasRenderingContext2D?} */
 	ctx: null,
+	/** @type {CanvasRenderingContext2D?} */
+	ctxUI: null,
 
 	/** @type {import('./Level').Level} */
 	level: null,
@@ -68,19 +72,19 @@ export const Renderer = {
 			return;
 		}
 
-		const [snapshotCnv, snapshotCtx] = this.getOffscreenCanvas( this.cnv.width, this.cnv.height );
-		snapshotCtx.drawImage( this.cnv, 0, 0 );
+		// const [snapshotCnv, snapshotCtx] = this.getOffscreenCanvas( this.cnv.width, this.cnv.height );
+		// snapshotCtx.drawImage( this.cnv, 0, 0 );
 
 		this.level = newLevel;
 
-		this.animTransition = new Animation(
-			newLevel, 2,
-			progress => {
-				progress = 1 - progress * progress;
-				this.ctx.drawImage( snapshotCnv, 0, 0, progress * this.drawWidth, this.drawHeight );
-			},
-			_ => this.animTransition = null,
-		);
+		// this.animTransition = new Animation(
+		// 	newLevel, 2,
+		// 	progress => {
+		// 		progress = 1 - progress * progress;
+		// 		this.ctx.drawImage( snapshotCnv, 0, 0, progress * this.drawWidth, this.drawHeight );
+		// 	},
+		// 	_ => this.animTransition = null,
+		// );
 	},
 
 
@@ -90,6 +94,9 @@ export const Renderer = {
 	clear() {
 		this.ctx.setTransform( 1, 0, 0, 1, 0, 0 );
 		this.ctx.clearRect( 0, 0, this.cnv.width, this.cnv.height );
+
+		this.ctxUI.setTransform( 1, 0, 0, 1, 0, 0 );
+		this.ctxUI.clearRect( 0, 0, this.cnvUI.width, this.cnvUI.height );
 	},
 
 
@@ -103,7 +110,8 @@ export const Renderer = {
 		this.ctx.textBaseline = 'alphabetic';
 		this.resetTransform();
 
-		this.level?.draw( this.ctx );
+		this.level?.draw( this.ctx, this.ctxUI );
+		this.ctx.drawImage( this.cnvUI, 0, 0 );
 	},
 
 
@@ -111,23 +119,23 @@ export const Renderer = {
 	 * Draw the pause screen.
 	 */
 	drawPause() {
-		this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
-		this.ctx.fillStyle = '#0006';
-		this.ctx.fillRect( 0, 0, this.drawWidth, this.drawHeight );
+		this.ctxUI.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
+		this.ctxUI.fillStyle = '#0006';
+		this.ctxUI.fillRect( 0, 0, this.drawWidth, this.drawHeight );
 
-		this.ctx.fillStyle = '#000';
-		this.ctx.font = '600 56px ' + fontFamily;
-		this.ctx.textAlign = 'center';
-		this.ctx.textBaseline = 'top';
-		this.ctx.fillText( 'PAUSED', this.center.x, this.center.y - 56 );
+		this.ctxUI.fillStyle = '#000';
+		this.ctxUI.font = '600 56px ' + fontFamily;
+		this.ctxUI.textAlign = 'center';
+		this.ctxUI.textBaseline = 'top';
+		this.ctxUI.fillText( 'PAUSED', this.center.x, this.center.y - 56 );
 	},
 
 
 	/**
 	 * Get an offscreen canvas and its context.
-	 * @param  {number?} w
-	 * @param  {number?} h
-	 * @return {[HTMLCanvasElement, CanvasRenderingContext2D]}
+	 * @param {number?} w
+	 * @param {number?} h
+	 * @returns {[HTMLCanvasElement, CanvasRenderingContext2D]}
 	 */
 	getOffscreenCanvas( w, h ) {
 		const canvas = document.createElement( 'canvas' );
@@ -135,8 +143,8 @@ export const Renderer = {
 		canvas.height = h;
 
 		const ctx = canvas.getContext( '2d', { alpha: true } );
-		ctx.lineCap = 'round';
-		ctx.lineJoin = 'round';
+		// ctx.lineCap = 'round';
+		// ctx.lineJoin = 'round';
 
 		return [canvas, ctx];
 	},
@@ -160,6 +168,8 @@ export const Renderer = {
 	init() {
 		[this.cnv, this.ctx] = this.getOffscreenCanvas();
 		document.body.append( this.cnv );
+
+		[this.cnvUI, this.ctxUI] = this.getOffscreenCanvas();
 
 		this.registerEvents();
 		this.resize();
@@ -189,11 +199,11 @@ export const Renderer = {
 			this.animTransition?.do();
 
 			// Draw FPS info
-			this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
-			this.ctx.fillStyle = '#000';
-			this.ctx.font = '600 12px ' + fontFamily;
-			this.ctx.textAlign = 'left';
-			this.ctx.fillText(
+			this.ctxUI.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
+			this.ctxUI.fillStyle = '#000';
+			this.ctxUI.font = '600 12px ' + fontFamily;
+			this.ctxUI.textAlign = 'left';
+			this.ctxUI.fillText(
 				String( Math.round( targetFPS / dt ) ).padStart( 3, '0' ) + ' FPS, ' + this.scale.toFixed( 5 ),
 				10, 20
 			);
@@ -271,7 +281,7 @@ export const Renderer = {
 	 * Resize the canvas.
 	 */
 	resize() {
-		const targetRatio = 4 / 3;
+		const targetRatio = 9 / 6;
 
 		let height = window.innerHeight;
 		let width = Math.round( height * targetRatio );
@@ -291,6 +301,9 @@ export const Renderer = {
 
 		this.cnv.width = width;
 		this.cnv.height = height;
+
+		this.cnvUI.width = width;
+		this.cnvUI.height = height;
 
 		if( this.isPaused ) {
 			clearTimeout( this._timeoutDrawPause );

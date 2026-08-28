@@ -49,9 +49,9 @@ export const Input = {
 
 	/**
 	 *
-	 * @param  {string[]} keys
-	 * @param  {boolean?} forget
-	 * @return {boolean}
+	 * @param {string[]} keys
+	 * @param {boolean?} forget
+	 * @returns {boolean}
 	 */
 	isPressed( keys, forget ) {
 		for( const key of keys ) {
@@ -66,9 +66,9 @@ export const Input = {
 
 	/**
 	 * Check if a key is currently being pressed.
-	 * @param  {number}  code   - Key code.
-	 * @param  {boolean} forget
-	 * @return {boolean}
+	 * @param {number}  code   - Key code.
+	 * @param {boolean} forget
+	 * @returns {boolean}
 	 */
 	isPressedKey( code, forget ) {
 		const ks = this.keystate[code];

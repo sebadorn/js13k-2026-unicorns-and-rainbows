@@ -3,15 +3,12 @@ import { targetFPS } from './Config.js';
 
 /**
  * Timer class to time e.g. animations.
- * Based on the Timer class of LittleJS:
- * https://killedbyapixel.github.io/LittleJS/docs/Timer.html
  */
 export class Timer {
 
 
 	/**
 	 *
-	 * @constructor
 	 * @param {import('./Level').Level} level - Level to which this timer sets its time to.
 	 * @param {number} [duration = 0] - Duration in game seconds.
 	 */
@@ -23,7 +20,7 @@ export class Timer {
 
 	/**
 	 *
-	 * @return {boolean}
+	 * @returns {boolean}
 	 */
 	elapsed() {
 		return this.level.timer > this.timeEnd;
@@ -32,10 +29,18 @@ export class Timer {
 
 	/**
 	 * 
-	 * @return {number} Progress as [0, 1]
+	 * @returns {number} Progress as [0, 1]
 	 */
 	progress() {
 		return Math.min( 1, 1 - ( this.timeEnd - this.level.timer ) / this.duration );
+	}
+
+
+	/**
+	 * Restart the timer.
+	 */
+	restart() {
+		this.set( this.duration / targetFPS );
 	}
 
 

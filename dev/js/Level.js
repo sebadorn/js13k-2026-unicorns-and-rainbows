@@ -7,7 +7,6 @@ export class Level {
 
 	/**
 	 *
-	 * @constructor
 	 */
 	constructor() {
 		this.timer = 0;
@@ -16,24 +15,53 @@ export class Level {
 
 	/**
 	 *
+	 * @private
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
-	draw( _ctx ) {}
+	_drawMap( ctx ) {
+		// TODO: draw background
+		this.objects.forEach( o => o.draw( ctx ) );
+	}
 
 
 	/**
 	 *
-	 * @param {Position} _pos
+	 * @private
+	 * @param {CanvasRenderingContext2D} ctx
 	 */
-	onClick( _pos ) {}
+	_drawUI( ctx ) {
+		// TODO: draw rainbow brush unicorn in bottom left
+		// TODO: draw drawing area if in drawing mode
+	}
 
 
 	/**
 	 *
-	 * @param {Position} _pos
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {CanvasRenderingContext2D} ctxUI
+	 */
+	draw( ctx, ctxUI ) {
+		this._drawMap( ctx );
+		this._drawUI( ctxUI );
+	}
+
+
+	/**
+	 *
+	 * @param {Position} pos
+	 */
+	onClick( pos ) {
+		// TODO:
+	}
+
+
+	/**
+	 *
+	 * @param {Position} pos
 	 * @returns {boolean}
 	 */
-	onMouseMove( _pos ) {
+	onMouseMove( pos ) {
+		// TODO: check for clickable element to maybe highlight it
 		return false;
 	}
 
@@ -45,7 +73,9 @@ export class Level {
 	update( dt ) {
 		this.timer += dt;
 		this.objects.forEach( o => o.update( dt ) );
-		this.player?.update( dt );
+
+		// TODO: decide actions for enemy units
+		// TODO: decide actions for own units
 	}
 
 
