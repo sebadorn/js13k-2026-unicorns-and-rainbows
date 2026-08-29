@@ -21,7 +21,7 @@ export const Assets = {
 	 * Load assets into cache.
 	 */
 	async init() {
-		cache[this.IdPlayer] = await this._loadAsset( this.IdPlayer );
+		// cache[this.IdPlayer] = await this._loadAsset( this.IdPlayer );
 	},
 
 

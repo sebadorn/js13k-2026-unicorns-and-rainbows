@@ -1,8 +1,19 @@
+import { PaintingArea } from './PaintingArea.js';
+import { Renderer } from './Renderer.js';
+import { UIOverlay } from './UIOverlay.js';
+
+
 export class Level {
 
 
+	/** @type {PaintingArea?} */
+	drawingArea = null;
+
 	/** @type {import('./LevelObject').LevelObject[]} */
-	objects = [];
+	enemies = [];
+
+	/** @type {import('./LevelObject').LevelObject[]} */
+	friends = [];
 
 
 	/**
@@ -10,6 +21,7 @@ export class Level {
 	 */
 	constructor() {
 		this.timer = 0;
+		this.uiOverlay = new UIOverlay( this );
 	}
 
 
@@ -19,8 +31,11 @@ export class Level {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	_drawMap( ctx ) {
-		// TODO: draw background
-		this.objects.forEach( o => o.draw( ctx ) );
+		ctx.fillStyle = '#111';
+		ctx.fillRect( 0, 0, Renderer.drawWidth, Renderer.drawHeight );
+
+		this.friends.forEach( o => o.draw( ctx ) );
+		this.enemies.forEach( o => o.draw( ctx ) );
 	}
 
 
@@ -32,6 +47,8 @@ export class Level {
 	_drawUI( ctx ) {
 		// TODO: draw rainbow brush unicorn in bottom left
 		// TODO: draw drawing area if in drawing mode
+
+		this.uiOverlay.draw( ctx );
 	}
 
 
@@ -43,6 +60,13 @@ export class Level {
 	draw( ctx, ctxUI ) {
 		this._drawMap( ctx );
 		this._drawUI( ctxUI );
+
+		if( this.drawingArea ) {
+			ctxUI.strokeStyle = '#fff';
+			ctxUI.lineWidth = 1;
+			ctxUI.strokeRect( this.drawingArea.pos.x, this.drawingArea.pos.y, this.drawingArea.w, this.drawingArea.h );
+			this.drawingArea.drawOnParent( ctxUI );
+		}
 	}
 
 
@@ -58,10 +82,27 @@ export class Level {
 	/**
 	 *
 	 * @param {Position} pos
+	 */
+	onMouseDrawing( pos ) {
+		if( !this.drawingArea ) {
+			this.drawingArea = new PaintingArea( 400, 200, 400, 600 );
+		}
+
+		this.drawingArea.color = '#f00';
+		this.drawingArea.brushDown( pos );
+	}
+
+
+	/**
+	 *
+	 * @param {Position} pos
 	 * @returns {boolean}
 	 */
 	onMouseMove( pos ) {
 		// TODO: check for clickable element to maybe highlight it
+
+		this.drawingArea?.brushUp();
+
 		return false;
 	}
 
@@ -72,7 +113,9 @@ export class Level {
 	 */
 	update( dt ) {
 		this.timer += dt;
-		this.objects.forEach( o => o.update( dt ) );
+		this.enemies.forEach( o => o.update( dt ) );
+		this.friends.forEach( o => o.update( dt ) );
+		this.uiOverlay.update( dt );
 
 		// TODO: decide actions for enemy units
 		// TODO: decide actions for own units

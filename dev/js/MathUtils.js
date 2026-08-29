@@ -12,12 +12,8 @@ export function clamp( value, min, max ) {
 
 /**
  * Calculate the euclidean distance of two positions.
- * @param {object} a Position a.
- * @param {number} a.x
- * @param {number} a.y
- * @param {object} b Position b.
- * @param {number} b.x
- * @param {number} b.y
+ * @param {Position} a Position a.
+ * @param {Position} b Position b.
  * @returns {number} Euclidean distance between a and b.
  */
 export function euclidDistance( a, b ) {

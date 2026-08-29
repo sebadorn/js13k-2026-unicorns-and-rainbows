@@ -163,6 +163,52 @@ export const Renderer = {
 
 
 	/**
+	 * Trim the given canvas down to the area with drawings.
+	 * Assumes a transparent background.
+	 * @param {HTMLCanvasElement} canvas
+	 * @returns {[HTMLCanvasElement, CanvasRenderingContext2D]}
+	 */
+	getTrimmedCanvasCopy( canvas ) {
+		const ctx = canvas.getContext( '2d', { alpha: true } );
+
+		let left = 0;
+		let top = 0;
+		let right = canvas.width;
+		let bottom = canvas.height;
+
+		const pixels = ctx.getImageData( 0, 0, right, bottom );
+
+		for( let y = 0; y < canvas.height; y++ ) {
+			for( let x = 0; x < canvas.width; x++ ) {
+				const pxIndex = ( y * canvas.width + x ) * 4;
+				const pxAlpha = pixels[pxIndex + 3];
+
+				if( pxAlpha === 0 ) {
+					continue;
+				}
+
+				left = left > x ? x : left;
+				right = right < x ? x : right;
+				top = top > y ? y : top;
+				bottom = bottom < y ? y : bottom;
+			}
+		}
+
+		const newWidth = right - left;
+		const newHeight = bottom - top;
+
+		const [copyCnv, copyCtx] = this.getOffscreenCanvas( newWidth, newHeight );
+		copyCtx.drawImage(
+			canvas,
+			left, top, right, bottom,
+			0, 0, newWidth, newHeight,
+		);
+
+		return [copyCnv, copyCtx];
+	},
+
+
+	/**
 	 *
 	 */
 	init() {
@@ -242,8 +288,16 @@ export const Renderer = {
 			this.cursor.x = ev.clientX - this.offset.x;
 			this.cursor.y = ev.clientY - this.offset.y;
 
+			if( this.isPaused ) {
+				return;
+			}
+
+			// Drawing with the mouse.
+			if( ev.buttons === 1 ) {
+				this.level?.onMouseDrawing( this.getScaledCursor() );
+			}
 			// Slow down mousemove event related actions for better performance.
-			if( !timeoutMove && !this.isPaused ) {
+			else if( !timeoutMove ) {
 				timeoutMove = setTimeout( () => {
 					const foundClickable = this.level?.onMouseMove( this.getScaledCursor() );
 					timeoutMove = null;
