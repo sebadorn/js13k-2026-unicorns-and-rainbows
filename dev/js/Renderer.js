@@ -169,19 +169,18 @@ export const Renderer = {
 	 * @returns {[HTMLCanvasElement, CanvasRenderingContext2D]}
 	 */
 	getTrimmedCanvasCopy( canvas ) {
+		let left = canvas.width;
+		let top = canvas.height;
+		let right = 0;
+		let bottom = 0;
+
 		const ctx = canvas.getContext( '2d', { alpha: true } );
+		const imageData = ctx.getImageData( 0, 0, left, top );
 
-		let left = 0;
-		let top = 0;
-		let right = canvas.width;
-		let bottom = canvas.height;
-
-		const pixels = ctx.getImageData( 0, 0, right, bottom );
-
-		for( let y = 0; y < canvas.height; y++ ) {
-			for( let x = 0; x < canvas.width; x++ ) {
-				const pxIndex = ( y * canvas.width + x ) * 4;
-				const pxAlpha = pixels[pxIndex + 3];
+		for( let y = 0; y < imageData.height; y++ ) {
+			for( let x = 0; x < imageData.width; x++ ) {
+				const pxIndex = ( y * imageData.width + x ) * 4;
+				const pxAlpha = imageData.data[pxIndex + 3];
 
 				if( pxAlpha === 0 ) {
 					continue;
@@ -200,7 +199,7 @@ export const Renderer = {
 		const [copyCnv, copyCtx] = this.getOffscreenCanvas( newWidth, newHeight );
 		copyCtx.drawImage(
 			canvas,
-			left, top, right, bottom,
+			left, top, newWidth, newHeight,
 			0, 0, newWidth, newHeight,
 		);
 
