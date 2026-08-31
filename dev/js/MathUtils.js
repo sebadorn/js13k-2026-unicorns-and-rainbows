@@ -26,7 +26,7 @@ export function euclidDistance( a, b ) {
 
 /**
  *
- * @param {number[]} pos - [x, y]
+ * @param {Position} pos
  * @param {object}   aabb
  * @param {number}   aabb.x
  * @param {number}   aabb.y
@@ -35,8 +35,8 @@ export function euclidDistance( a, b ) {
  * @returns {boolean}
  */
 export function isInside( pos, aabb ) {
-	return pos[0] >= aabb.x &&
-		pos[0] <= aabb.x + aabb.w &&
-		pos[1] >= aabb.y &&
-		pos[1] <= aabb.y + aabb.h;
+	return pos.x >= aabb.x &&
+		pos.x <= aabb.x + aabb.w &&
+		pos.y >= aabb.y &&
+		pos.y <= aabb.y + aabb.h;
 };

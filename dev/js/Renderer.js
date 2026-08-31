@@ -1,4 +1,3 @@
-import { Animation } from './Animation.js';
 import { targetFPS } from './Config.js';
 import { Input } from './Input.js';
 import { clamp } from './MathUtils.js';
@@ -244,11 +243,11 @@ export const Renderer = {
 			this.animTransition?.do();
 
 			// Draw FPS info
-			this.ctxUI.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
-			this.ctxUI.fillStyle = '#000';
-			this.ctxUI.font = '600 12px ' + fontFamily;
-			this.ctxUI.textAlign = 'left';
-			this.ctxUI.fillText(
+			this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
+			this.ctx.fillStyle = '#fff';
+			this.ctx.font = '600 12px ' + fontFamily;
+			this.ctx.textAlign = 'left';
+			this.ctx.fillText(
 				String( Math.round( targetFPS / dt ) ).padStart( 3, '0' ) + ' FPS, ' + this.scale.toFixed( 5 ),
 				10, 20
 			);
