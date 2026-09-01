@@ -40,3 +40,18 @@ export function isInside( pos, aabb ) {
 		pos.y >= aabb.y &&
 		pos.y <= aabb.y + aabb.h;
 };
+
+
+/**
+ *
+ * @param {Position} v
+ * @returns {Position}
+ */
+export function normalizeVector( v ) {
+	const length = euclidDistance( { x: 0, y: 0 }, v );
+
+	return {
+		x: v.x / length,
+		y: v.y / length,
+	};
+};

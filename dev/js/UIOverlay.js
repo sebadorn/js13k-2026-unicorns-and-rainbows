@@ -16,6 +16,8 @@ export class UIOverlay {
 	/** @type {LevelObject[]} */
 	_objects = [];
 
+	_showPaintingArea = false;
+
 
 	/**
 	 *
@@ -31,6 +33,7 @@ export class UIOverlay {
 				() => {
 					this.paintingArea?.clear();
 					this.paintingArea = new PaintingArea( 400, 140, 400, 600 );
+					this._showPaintingArea = true;
 				},
 			),
 			new UIButton(
@@ -40,6 +43,7 @@ export class UIOverlay {
 					const painting = this.paintingArea?.getPainting( this.level );
 					this.addPainting( painting );
 					this.paintingArea?.clear();
+					this._showPaintingArea = false;
 				},
 			),
 			...this._getColorButtons(),
@@ -57,8 +61,8 @@ export class UIOverlay {
 			return;
 		}
 
-		const xBase = 200;
-		const yBase = Renderer.drawHeight - 300;
+		const xBase = 400;
+		const yBase = Renderer.drawHeight - 260;
 
 		const w = 160;
 		const scale = w / this.paintingArea.w;
@@ -72,6 +76,12 @@ export class UIOverlay {
 			ctx.strokeStyle = '#fff';
 			ctx.strokeRect( x, y, w, h );
 
+			// Update painting hitBox for check in onClick()
+			p.galleryHitBox.x = x;
+			p.galleryHitBox.y = y;
+			p.galleryHitBox.w = w;
+			p.galleryHitBox.h = h;
+
 			const pwScale = p.w * scale;
 			const phScale = p.h * scale;
 
@@ -80,6 +90,41 @@ export class UIOverlay {
 
 			ctx.drawImage( p.canvas, x, y, pwScale, phScale );
 		} );
+	}
+
+
+	/**
+	 *
+	 * @private
+	 * @param {CanvasRenderingContext2D} ctx
+	 */
+	_drawUnicorn( ctx ) {
+		const height = Renderer.drawHeight;
+
+		// Dark circle background
+		ctx.fillStyle = '#000';
+		ctx.beginPath();
+		ctx.arc( 0, height, 300, 0, Math.PI * 2 );
+		ctx.closePath();
+		ctx.fill();
+
+		// Unicorn head form
+		ctx.fillStyle = '#fff';
+
+		ctx.beginPath();
+		ctx.moveTo( -2, height - 140 );
+		ctx.lineTo( 100, height - 290 );
+		ctx.lineTo( 240, height - 200 );
+		ctx.lineTo( 140, height - 100 );
+		ctx.lineTo( 150, height + 2 );
+		ctx.lineTo( -2, height + 2 );
+		ctx.closePath();
+		ctx.fill();
+
+		ctx.beginPath();
+		ctx.ellipse( 220, height - 200, 150, 90, Math.PI * 0.2, 0, Math.PI * 2 );
+		ctx.closePath();
+		ctx.fill();
 	}
 
 
@@ -132,7 +177,9 @@ export class UIOverlay {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
-		if( this.paintingArea ) {
+		this._drawUnicorn( ctx );
+
+		if( this._showPaintingArea && this.paintingArea ) {
 			ctx.strokeStyle = '#fff';
 			ctx.lineWidth = 2;
 			ctx.strokeRect( this.paintingArea.x, this.paintingArea.y, this.paintingArea.w, this.paintingArea.h );
@@ -156,6 +203,15 @@ export class UIOverlay {
 
 			if( isInside( pos, o ) ) {
 				o.onClick?.();
+				return;
+			}
+		}
+
+		for( let i = 0; i < this.paintings.length; i++ ) {
+			const p = this.paintings[i];
+
+			if( isInside( pos, p.galleryHitBox ) ) {
+				this.level.spawnPainting( p.shallowCopy() );
 				return;
 			}
 		}

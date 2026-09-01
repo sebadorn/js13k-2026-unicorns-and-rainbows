@@ -1,3 +1,5 @@
+import { paintingOnMapWidth } from './Config.js';
+import { euclidDistance } from './MathUtils.js';
 import { Renderer } from './Renderer.js';
 import { UIOverlay } from './UIOverlay.js';
 
@@ -52,6 +54,28 @@ export class Level {
 	/**
 	 *
 	 * @param {Position} pos
+	 * @returns {import('./LevelObject').LevelObject}
+	 */
+	getClosestEnemy( pos ) {
+		let closestValue = Infinity;
+		let closestEnemy = null;
+
+		this.enemies.forEach( enemy => {
+			const distance = euclidDistance( enemy, pos );
+
+			if( distance < closestValue ) {
+				closestValue = distance;
+				closestEnemy = enemy;
+			}
+		} );
+
+		return closestEnemy;
+	}
+
+
+	/**
+	 *
+	 * @param {Position} pos
 	 */
 	onClick( pos ) {
 		this.uiOverlay.onClick( pos );
@@ -84,16 +108,32 @@ export class Level {
 
 	/**
 	 *
+	 * @param {import('./Painting').Painting} painting
+	 */
+	spawnPainting( painting ) {
+		painting.isOnMap = true;
+		painting.x = Renderer.drawWidth / 2;
+		painting.y = Renderer.drawHeight / 2;
+
+		const scale = paintingOnMapWidth / painting.w;
+		painting.w = paintingOnMapWidth;
+		painting.h *= scale;
+
+		this.friends.push( painting );
+	}
+
+
+	/**
+	 *
 	 * @param {number} dt
 	 */
 	update( dt ) {
 		this.timer += dt;
+
 		this.enemies.forEach( o => o.update( dt ) );
 		this.friends.forEach( o => o.update( dt ) );
-		this.uiOverlay.update( dt );
 
-		// TODO: decide actions for enemy units
-		// TODO: decide actions for own units
+		this.uiOverlay.update( dt );
 	}
 
 
