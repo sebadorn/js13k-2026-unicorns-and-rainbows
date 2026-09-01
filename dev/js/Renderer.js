@@ -292,6 +292,7 @@ export const Renderer = {
 
 			// Drawing with the mouse.
 			if( ev.buttons === 1 ) {
+				clearTimeout( timeoutMove );
 				this.level?.onMouseDrawing( this.getScaledCursor() );
 			}
 			// Slow down mousemove event related actions for better performance.

@@ -149,6 +149,8 @@ export class UIOverlay {
 	 * @param {Position} pos
 	 */
 	onClick( pos ) {
+		this.paintingArea?.brushUp();
+
 		for( let i = 0; i < this._objects.length; i++ ) {
 			const o = this._objects[i];
 
@@ -165,11 +167,7 @@ export class UIOverlay {
 	 * @param {Position} pos
 	 */
 	onMouseDrawing( pos ) {
-		if( !this.paintingArea ) {
-			return;
-		}
-
-		this.paintingArea.brushDown( pos );
+		this.paintingArea?.brushDown( pos );
 	}
 
 
