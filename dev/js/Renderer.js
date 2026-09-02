@@ -1,9 +1,6 @@
-import { targetFPS } from './Config.js';
+import { fontFamily, targetFPS } from './Config.js';
 import { Input } from './Input.js';
 import { clamp } from './MathUtils.js';
-
-
-const fontFamily = 'Arial, sans-serif';
 
 
 export const Renderer = {
