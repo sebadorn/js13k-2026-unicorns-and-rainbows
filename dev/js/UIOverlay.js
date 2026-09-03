@@ -1,3 +1,4 @@
+import { Colors } from './Config.js';
 import { LevelObject } from './LevelObject.js';
 import { isInside } from './MathUtils.js';
 import { PaintingArea } from './PaintingArea.js';
@@ -16,8 +17,6 @@ export class UIOverlay {
 	/** @type {LevelObject[]} */
 	_objects = [];
 
-	_showPaintingArea = false;
-
 
 	/**
 	 *
@@ -33,17 +32,20 @@ export class UIOverlay {
 				() => {
 					this.paintingArea?.clear();
 					this.paintingArea = new PaintingArea( 400, 140, 400, 600 );
-					this._showPaintingArea = true;
 				},
 			),
 			new UIButton(
 				level,
 				{ x: 100, y: 160, w: 100, h: 40, text: 'Save' },
 				() => {
-					const painting = this.paintingArea?.getPainting( this.level );
+					if( !this.paintingArea ) {
+						return;
+					}
+
+					const painting = this.paintingArea.getPainting( this.level );
 					this.addPainting( painting );
-					this.paintingArea?.clear();
-					this._showPaintingArea = false;
+					this.paintingArea.clear();
+					this.paintingArea.visible = false;
 				},
 			),
 			...this._getColorButtons(),
@@ -116,13 +118,22 @@ export class UIOverlay {
 		ctx.lineTo( 100, height - 290 );
 		ctx.lineTo( 240, height - 200 );
 		ctx.lineTo( 140, height - 100 );
-		ctx.lineTo( 150, height + 2 );
+		ctx.lineTo( 160, height + 2 );
 		ctx.lineTo( -2, height + 2 );
 		ctx.closePath();
 		ctx.fill();
 
 		ctx.beginPath();
 		ctx.ellipse( 220, height - 200, 150, 90, Math.PI * 0.2, 0, Math.PI * 2 );
+		ctx.closePath();
+		ctx.fill();
+
+		// Unicorn horn
+		ctx.fillStyle = '#b39647';
+		ctx.beginPath();
+		ctx.moveTo( 210, height - 290 );
+		ctx.lineTo( 290, height - 380 );
+		ctx.lineTo( 240, height - 270 );
 		ctx.closePath();
 		ctx.fill();
 	}
@@ -134,15 +145,7 @@ export class UIOverlay {
 	 * @returns {UIButton[]}
 	 */
 	_getColorButtons() {
-		const colors = [
-			'red',
-			'orange',
-			'yellow',
-			'green',
-			'cyan',
-			'blue',
-			'violet',
-		];
+		const colors = Object.values( Colors );
 		const y = 220;
 
 		return colors.map( ( c, i ) => {
@@ -179,12 +182,7 @@ export class UIOverlay {
 	draw( ctx ) {
 		this._drawUnicorn( ctx );
 
-		if( this._showPaintingArea && this.paintingArea ) {
-			ctx.strokeStyle = '#fff';
-			ctx.lineWidth = 2;
-			ctx.strokeRect( this.paintingArea.x, this.paintingArea.y, this.paintingArea.w, this.paintingArea.h );
-			this.paintingArea.drawOnParent( ctx );
-		}
+		this.paintingArea?.drawOnParent( ctx );
 
 		this._objects.forEach( o => o.draw( ctx ) );
 		this._drawPaintingsList( ctx );
@@ -196,6 +194,16 @@ export class UIOverlay {
 	 * @param {Position} pos
 	 */
 	onClick( pos ) {
+		if(
+			this.paintingArea?.visible &&
+			isInside( pos, this.paintingArea )
+		) {
+			this.paintingArea.brushDown( pos );
+			this.paintingArea?.brushUp();
+
+			return;
+		}
+
 		this.paintingArea?.brushUp();
 
 		for( let i = 0; i < this._objects.length; i++ ) {
@@ -248,7 +256,7 @@ export class UIOverlay {
 };
 
 
-class UIButton extends LevelObject {
+export class UIButton extends LevelObject {
 
 
 	/**

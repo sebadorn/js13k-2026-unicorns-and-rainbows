@@ -27,6 +27,7 @@ export class PaintingArea {
 		this.w = w;
 		this.h = h;
 		this.brushSize = 5;
+		this.visible = true;
 
 		this._history = [];
 		this._lastPos = null;
@@ -53,6 +54,10 @@ export class PaintingArea {
 	 * @param {boolean} isFromHistory
 	 */
 	brushDown( pos, isFromHistory ) {
+		if( !this.visible ) {
+			return;
+		}
+
 		let isLine = false;
 
 		if( this._lastPos ) {
@@ -102,7 +107,7 @@ export class PaintingArea {
 	 * @param {boolean} isFromHistory
 	 */
 	brushUp( _, isFromHistory ) {
-		if( this._lastPos ) {
+		if( this.visible && this._lastPos ) {
 			this._lastPos = null;
 
 			if( !isFromHistory ) {
@@ -129,6 +134,15 @@ export class PaintingArea {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	drawOnParent( ctx ) {
+		if( !this.visible ) {
+			return;
+		}
+
+		// border
+		ctx.strokeStyle = '#fff';
+		ctx.lineWidth = 2;
+		ctx.strokeRect( this.x, this.y, this.w, this.h );
+
 		ctx.drawImage( this.canvas, this.x, this.y );
 	}
 

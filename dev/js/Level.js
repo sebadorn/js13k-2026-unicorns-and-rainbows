@@ -1,6 +1,10 @@
 export class Level {
 
 
+	/** @type {import('../Animation').Animation[]} */
+	animations = [];
+
+
 	/**
 	 *
 	 */
@@ -48,6 +52,7 @@ export class Level {
 	 */
 	update( dt ) {
 		this.timer += dt;
+		this.animations.forEach( a => a.do() );
 	}
 
 

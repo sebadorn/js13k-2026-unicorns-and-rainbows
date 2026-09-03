@@ -40,23 +40,10 @@ export const Renderer = {
 	scale: 1,
 	zoom: 0,
 
-
-	/**
-	 *
-	 * @returns {number}
-	 */
-	get drawHeight() {
-		return this.cnv.height / ( this.scale + this.zoom );
-	},
-
-
-	/**
-	 *
-	 * @returns {number}
-	 */
-	get drawWidth() {
-		return this.cnv.width / ( this.scale + this.zoom );
-	},
+	/** @type {number} */
+	drawHeight: 0,
+	/** @type {number} */
+	drawWidth: 0,
 
 
 	/**
@@ -354,6 +341,9 @@ export const Renderer = {
 
 		this.cnvUI.width = width;
 		this.cnvUI.height = height;
+
+		this.drawHeight = height / ( this.scale + this.zoom );
+		this.drawWidth = width / ( this.scale + this.zoom );
 
 		if( this.isPaused ) {
 			clearTimeout( this._timeoutDrawPause );
