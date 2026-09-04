@@ -1,4 +1,3 @@
-import { Colors } from './Config.js';
 import { LevelObject } from './LevelObject.js';
 import { isInside } from './MathUtils.js';
 import { PaintingArea } from './PaintingArea.js';
@@ -8,14 +7,11 @@ import { Renderer } from './Renderer.js';
 export class UIOverlay {
 
 
-	/** @type {PaintingArea?} */
+	/** @type {PaintingArea} */
 	paintingArea;
 
 	/** @type {import('./Painting').Painting[]} */
 	paintings = [];
-
-	/** @type {LevelObject[]} */
-	_objects = [];
 
 
 	/**
@@ -25,30 +21,16 @@ export class UIOverlay {
 	constructor( level ) {
 		this.level = level;
 
-		this._objects.push(
-			new UIButton(
-				level,
-				{ x: 100, y: 100, w: 100, h: 40, text: 'Paint' },
-				() => {
-					this.paintingArea?.clear();
-					this.paintingArea = new PaintingArea( 400, 140, 400, 600 );
-				},
-			),
-			new UIButton(
-				level,
-				{ x: 100, y: 160, w: 100, h: 40, text: 'Save' },
-				() => {
-					if( !this.paintingArea ) {
-						return;
-					}
-
-					const painting = this.paintingArea.getPainting( this.level );
-					this.addPainting( painting );
-					this.paintingArea.clear();
-					this.paintingArea.visible = false;
-				},
-			),
-			...this._getColorButtons(),
+		this.paintingArea = new PaintingArea(
+			Renderer.drawWidth / 2 - 250,
+			Renderer.drawHeight / 2 - 250,
+			500, 500,
+			() => {
+				const painting = this.paintingArea.getPainting( this.level );
+				this.addPainting( painting );
+				this.paintingArea.clear();
+				this.paintingArea.visible = false;
+			},
 		);
 	}
 
@@ -96,75 +78,6 @@ export class UIOverlay {
 
 
 	/**
-	 *
-	 * @private
-	 * @param {CanvasRenderingContext2D} ctx
-	 */
-	_drawUnicorn( ctx ) {
-		const height = Renderer.drawHeight;
-
-		// Dark circle background
-		ctx.fillStyle = '#000';
-		ctx.beginPath();
-		ctx.arc( 0, height, 300, 0, Math.PI * 2 );
-		ctx.closePath();
-		ctx.fill();
-
-		// Unicorn head form
-		ctx.fillStyle = '#fff';
-
-		ctx.beginPath();
-		ctx.moveTo( -2, height - 140 );
-		ctx.lineTo( 100, height - 290 );
-		ctx.lineTo( 240, height - 200 );
-		ctx.lineTo( 140, height - 100 );
-		ctx.lineTo( 160, height + 2 );
-		ctx.lineTo( -2, height + 2 );
-		ctx.closePath();
-		ctx.fill();
-
-		ctx.beginPath();
-		ctx.ellipse( 220, height - 200, 150, 90, Math.PI * 0.2, 0, Math.PI * 2 );
-		ctx.closePath();
-		ctx.fill();
-
-		// Unicorn horn
-		ctx.fillStyle = '#b39647';
-		ctx.beginPath();
-		ctx.moveTo( 210, height - 290 );
-		ctx.lineTo( 290, height - 380 );
-		ctx.lineTo( 240, height - 270 );
-		ctx.closePath();
-		ctx.fill();
-	}
-
-
-	/**
-	 *
-	 * @private
-	 * @returns {UIButton[]}
-	 */
-	_getColorButtons() {
-		const colors = Object.values( Colors );
-		const y = 220;
-
-		return colors.map( ( c, i ) => {
-			return new UIButton(
-				this.level,
-				{
-					x: 100,
-					y: y + i * 25,
-					w: 40,
-					h: 20,
-					color: c,
-				},
-				() => this.paintingArea?.changeColor( c ),
-			);
-		} );
-	}
-
-
-	/**
 	 * Add a new painting to the selection.
 	 * @param {import('./Painting'.Painting)?} painting
 	 */
@@ -180,11 +93,7 @@ export class UIOverlay {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
-		this._drawUnicorn( ctx );
-
 		this.paintingArea?.drawOnParent( ctx );
-
-		this._objects.forEach( o => o.draw( ctx ) );
 		this._drawPaintingsList( ctx );
 	}
 
@@ -205,15 +114,7 @@ export class UIOverlay {
 		}
 
 		this.paintingArea?.brushUp();
-
-		for( let i = 0; i < this._objects.length; i++ ) {
-			const o = this._objects[i];
-
-			if( isInside( pos, o ) ) {
-				o.onClick?.();
-				return;
-			}
-		}
+		this.paintingArea?.onClick( pos );
 
 		for( let i = 0; i < this.paintings.length; i++ ) {
 			const p = this.paintings[i];
@@ -244,15 +145,6 @@ export class UIOverlay {
 	}
 
 
-	/**
-	 *
-	 * @param {number} dt
-	 */
-	update( dt ) {
-		this._objects.forEach( o => o.update( dt ) );
-	}
-
-
 };
 
 
@@ -272,7 +164,7 @@ export class UIButton extends LevelObject {
 	 * @param {function} onClick
 	 */
 	constructor( level, options, onClick ) {
-		super( level, options.x, options.y, options.w, options.h );
+		super( level, options.x || 0, options.y || 0, options.w, options.h );
 		this.text = options.text;
 		this.color = options.color || '#ddd';
 		this._clickEvent = onClick;

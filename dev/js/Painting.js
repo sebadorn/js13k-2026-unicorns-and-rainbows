@@ -42,6 +42,7 @@ export class Painting extends LevelObject {
 
 		const rotation = Math.sin( this.timerWalking / 10 ) / 5;
 		const center = this.getCenter();
+		center.y += this.h / 2;
 
 		Renderer.rotateCenter( ctx, rotation, center );
 		ctx.drawImage( this.canvas, this.x, this.y, this.w, this.h );
