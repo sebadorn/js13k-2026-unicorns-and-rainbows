@@ -145,6 +145,15 @@ export class UIOverlay {
 	}
 
 
+	/**
+	 *
+	 * @param {number} _dt
+	 */
+	update( _dt ) {
+		// pass
+	}
+
+
 };
 
 

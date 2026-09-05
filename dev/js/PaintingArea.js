@@ -159,7 +159,7 @@ export class PaintingArea {
 		this._lastPos = pos;
 
 		if( !isFromHistory ) {
-			this._history.push( [this.brushDown.bind( this ), pos] );
+			this._history.push( pos );
 		}
 	}
 
@@ -174,7 +174,7 @@ export class PaintingArea {
 			this._lastPos = null;
 
 			if( !isFromHistory ) {
-				this._history.push( [this.brushUp.bind( this ), null] );
+				this._history.push( null );
 			}
 		}
 	}
@@ -185,12 +185,15 @@ export class PaintingArea {
 	 * @param {string} newColor
 	 */
 	changeColor( newColor ) {
+		const oldColor = this._color;
 		this._color = newColor;
 
 		// In "single" color mode repaint everything in the new color.
 		// In "multi" color mode we just continue with the new color from on.
 		if( this.colorMode === 'single' ) {
 			this.repaintFromHistory();
+			this._history.push( oldColor );
+			this._history.push( null );
 		}
 	}
 
@@ -271,7 +274,22 @@ export class PaintingArea {
 	 */
 	repaintFromHistory() {
 		this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height );
-		this._history.forEach( h => h[0]( h[1], true ) );
+
+		const isMultiColorMode = this.colorMode === 'multi';
+
+		this._history.forEach( h => {
+			if( typeof h === 'string' ) {
+				if( isMultiColorMode ) {
+					this._color = h;
+				}
+			}
+			else if( h ) {
+				this.brushDown( h, true );
+			}
+			else {
+				this.brushUp( h, true );
+			}
+		} );
 	}
 
 
@@ -280,22 +298,41 @@ export class PaintingArea {
 	 */
 	undo() {
 		let index = -1;
+		let color = null;
 
+		// We are searching for the last interval between two "brushUp" actions to undo.
 		for( let i = this._history.length - 1; i >= 0; i-- ) {
 			const action = this._history[i];
 
-			// Skip brushUp() actions, undo everything starting
-			// from the latest brushDown() action
-			if( action[1] ) {
+			if( typeof action === 'string' ) {
+				color = action;
+				index = i;
+				break;
+			}
+
+			if( i < this._history.length - 1 && !action ) {
 				index = i;
 				break;
 			}
 		}
 
-		if( index >= 0 ) {
+		if( color ) {
+			this.changeColor( color );
 			this._history.splice( index );
+		}
+		else {
+			this._history.splice( index >= 0 ? index : 0 );				
 			this.repaintFromHistory();
 		}
+
+		// Even with an empty history it just returns
+		// undefined which evaluates as falsy.
+		// We want the history to end on a brushUp().
+		if( this._history[this._history.length - 1] ) {
+			this._history.push( null );
+		}
+
+		this._lastPos = null;
 	}
 
 
