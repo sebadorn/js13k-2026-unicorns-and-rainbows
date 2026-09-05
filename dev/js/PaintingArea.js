@@ -30,7 +30,7 @@ export class PaintingArea {
 		this.h = h;
 		this.onDone = onDone;
 
-		this.brushSize = 5;
+		this.brushSize = 3;
 		this.colorMode = 'single';
 		this.visible = true;
 		this.showColorSelection = true;
@@ -153,6 +153,7 @@ export class PaintingArea {
 			if( dist > this.brushSize * 0.5 ) {
 				isLine = true;
 
+				this.ctx.lineWidth = this.brushSize;
 				this.ctx.strokeStyle = this._color;
 				this.ctx.beginPath();
 				this.ctx.moveTo(

@@ -33,21 +33,10 @@ export class LevelOutro extends Level {
 		this._paintingArea = new PaintingArea(
 			Renderer.drawWidth / 2 - 100,
 			Renderer.drawHeight / 2 - 200,
-			200, 400
-		);
-		this._paintingArea.changeColor( this._steps[0].color );
-
-		this._btnDone = new UIButton(
-			this,
-			{
-				x: Renderer.drawWidth / 2 - 50,
-				y: this._paintingArea.y + this._paintingArea.h + 20,
-				w: 100,
-				h: 60,
-				text: 'Done',
-			},
+			200, 400,
 			() => {
 				this._paintings[this._step] = this._paintingArea.getPainting( this );
+				this._paintingArea.clear();
 				this._paintingArea.visible = false;
 	
 				this.animations.push( new Animation(
@@ -59,11 +48,16 @@ export class LevelOutro extends Level {
 					anim => {
 						removeItem( this.animations, anim );
 						this._step++;
-						this._paintingArea.visible = true;
+
+						if( this._step < this._steps.length ) {
+							this._paintingArea.changeColor( this._steps[this._step].color );
+							this._paintingArea.visible = true;
+						}
 					},
 				) );
 			},
 		);
+		this._paintingArea.changeColor( this._steps[0].color );
 	}
 
 
@@ -141,10 +135,7 @@ export class LevelOutro extends Level {
 			ctx.font = `500 32px ${fontFamilySerif}`;
 			ctx.fillText( this._steps[this._step].text, w / 2, this._paintingArea.y - 32 );
 
-			if( this._paintingArea.visible ) {
-				this._btnDone.draw( ctx );
-				this._paintingArea.drawOnParent( ctx );
-			}
+			this._paintingArea.drawOnParent( ctx );
 		}
 	}
 

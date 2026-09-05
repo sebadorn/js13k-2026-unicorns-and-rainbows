@@ -1,11 +1,11 @@
 import { Input } from './Input.js';
-import { LevelMain } from './levels/LevelMain.js';
+import { LevelIntro } from './levels/LevelIntro.js';
 import { Renderer } from './Renderer.js';
 
 
 window.addEventListener( 'load', async () => {
 	Input.init();
 	Renderer.init();
-	Renderer.level = new LevelMain();
+	Renderer.level = new LevelIntro();
 	Renderer.mainLoop();
 } );

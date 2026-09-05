@@ -90,10 +90,12 @@ export const Renderer = {
 		this.clear();
 
 		this.ctx.font = `500 32px ${fontFamilySerif}`;
+		this.ctx.shadowBlur = 0;
 		this.ctx.textAlign = 'left';
 		this.ctx.textBaseline = 'top';
 
 		this.ctxUI.font = `500 24px ${fontFamilySerif}`;
+		this.ctxUI.shadowBlur = 0;
 		this.ctxUI.textAlign = 'left';
 		this.ctxUI.textBaseline = 'middle';
 
