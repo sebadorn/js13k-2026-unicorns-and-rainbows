@@ -1,4 +1,4 @@
-import { fontFamily } from '../Config.js';
+import { fontFamilySerif } from '../Config.js';
 import { Level } from '../Level.js';
 import { Renderer } from '../Renderer.js';
 import { Timer } from '../Timer.js';
@@ -40,7 +40,7 @@ export class LevelIntro extends Level {
 
 		ctx.fillStyle = '#fff';
 		ctx.textAlign = 'center';
-		ctx.font = `500 32px ${fontFamily}`;
+		ctx.font = `500 32px ${fontFamilySerif}`;
 
 		const lines = this._texts[this._step].split( '\n' );
 

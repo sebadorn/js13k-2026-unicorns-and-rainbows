@@ -1,4 +1,4 @@
-import { fontFamily, targetFPS } from './Config.js';
+import { fontFamilySerif, targetFPS } from './Config.js';
 import { Input } from './Input.js';
 import { clamp } from './MathUtils.js';
 
@@ -88,9 +88,15 @@ export const Renderer = {
 	 */
 	draw() {
 		this.clear();
-		this.ctx.font = `500 32px ${fontFamily}`;
+
+		this.ctx.font = `500 32px ${fontFamilySerif}`;
 		this.ctx.textAlign = 'left';
-		this.ctx.textBaseline = 'alphabetic';
+		this.ctx.textBaseline = 'top';
+
+		this.ctxUI.font = `500 24px ${fontFamilySerif}`;
+		this.ctxUI.textAlign = 'left';
+		this.ctxUI.textBaseline = 'middle';
+
 		this.resetTransform();
 
 		this.level?.draw( this.ctx, this.ctxUI );
@@ -107,7 +113,7 @@ export const Renderer = {
 		this.ctxUI.fillRect( 0, 0, this.drawWidth, this.drawHeight );
 
 		this.ctxUI.fillStyle = '#000';
-		this.ctxUI.font = '600 56px ' + fontFamily;
+		this.ctxUI.font = '600 56px ' + fontFamilySerif;
 		this.ctxUI.textAlign = 'center';
 		this.ctxUI.textBaseline = 'top';
 		this.ctxUI.fillText( 'PAUSED', this.center.x, this.center.y - 56 );
@@ -126,8 +132,6 @@ export const Renderer = {
 		canvas.height = h;
 
 		const ctx = canvas.getContext( '2d', { alpha: true } );
-		// ctx.lineCap = 'round';
-		// ctx.lineJoin = 'round';
 
 		return [canvas, ctx];
 	},
@@ -229,7 +233,7 @@ export const Renderer = {
 			// Draw FPS info
 			this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
 			this.ctx.fillStyle = '#fff';
-			this.ctx.font = '600 12px ' + fontFamily;
+			this.ctx.font = '600 12px ' + fontFamilySerif;
 			this.ctx.textAlign = 'left';
 			this.ctx.fillText(
 				String( Math.round( targetFPS / dt ) ).padStart( 3, '0' ) + ' FPS, ' + this.scale.toFixed( 5 ),
@@ -277,6 +281,8 @@ export const Renderer = {
 			// Drawing with the mouse.
 			if( ev.buttons === 1 ) {
 				clearTimeout( timeoutMove );
+				timeoutMove = null;
+
 				this.level?.onMouseDrawing( this.getScaledCursor() );
 			}
 			// Slow down mousemove event related actions for better performance.
@@ -291,7 +297,7 @@ export const Renderer = {
 					else {
 						this.cnv.classList.remove( 'p' );
 					}
-				}, 66 );
+				}, 33 );
 			}
 		} );
 

@@ -2,7 +2,7 @@ import { Colors } from './Config.js';
 import { euclidDistance, isInside } from './MathUtils.js';
 import { Painting } from './Painting.js';
 import { Renderer } from './Renderer.js';
-import { UIButton } from './UIOverlay.js';
+import { UIButton } from './UIButton.js';
 
 
 export class PaintingArea {
@@ -77,13 +77,20 @@ export class PaintingArea {
 			return new UIButton(
 				Renderer.level,
 				{
-					w: 40,
-					h: 20,
+					w: 50,
+					h: 50,
 					color: c,
 				},
 				() => this.changeColor( c ),
 			);
 		} );
+
+		this._allButtons = [
+			...this._colorButtons,
+			this._clearButton,
+			this._doneButton,
+			this._undoButton,
+		];
 	}
 
 
@@ -95,9 +102,26 @@ export class PaintingArea {
 	_drawColorButtons( ctx ) {
 		this._colorButtons.forEach( ( btn, i ) => {
 			btn.x = this.x - btn.w - 10;
-			btn.y = this.y + i * ( btn.h + 10 );
+			btn.y = this.y + i * ( btn.h + 5 );
 			btn.draw( ctx );
 		} );
+	}
+
+
+	/**
+	 *
+	 * @private
+	 * @param {Position} pos
+	 * @returns {UIButton?}
+	 */
+	_getButtonAtPos( pos ) {
+		for( let i = 0; i < this._allButtons.length; i++ ) {
+			const btn = this._allButtons[i];
+
+			if( isInside( pos, btn ) ) {
+				return btn;
+			}
+		}
 	}
 
 
@@ -210,7 +234,10 @@ export class PaintingArea {
 		// border
 		ctx.strokeStyle = '#fff';
 		ctx.lineWidth = 2;
-		ctx.strokeRect( this.x, this.y, this.w, this.h );
+		ctx.beginPath();
+		ctx.roundRect( this.x, this.y, this.w, this.h, 4 );
+		ctx.closePath();
+		ctx.stroke();
 
 		if( this.showColorSelection ) {
 			this._drawColorButtons( ctx );
@@ -248,24 +275,32 @@ export class PaintingArea {
 	 * @param {Position} pos
 	 */
 	onClick( pos ) {
-		for( let i = 0; i < this._colorButtons.length; i++ ) {
-			const btn = this._colorButtons[i];
+		const btn = this._getButtonAtPos( pos );
+		btn?.onClick();
+	}
 
-			if( isInside( pos, btn ) ) {
-				btn.onClick();
-				return;
-			}
+
+	/**
+	 *
+	 * @param {Position} pos
+	 * @returns {boolean}
+	 */
+	onMouseMove( pos ) {
+		if( !this.visible ) {
+			return false;
 		}
 
-		if( isInside( pos, this._doneButton ) ) {
-			this._doneButton.onClick();
+		this.brushUp();
+
+		this._allButtons.forEach( btn => btn.isHovered = false );
+
+		const btn = this._getButtonAtPos( pos );
+
+		if( btn ) {
+			btn.isHovered = true;
 		}
-		else if( isInside( pos, this._undoButton ) ) {
-			this._undoButton.onClick();
-		}
-		else if( isInside( pos, this._clearButton ) ) {
-			this._clearButton.onClick();
-		}
+
+		return !!btn;
 	}
 
 

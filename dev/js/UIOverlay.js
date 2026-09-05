@@ -1,4 +1,3 @@
-import { LevelObject } from './LevelObject.js';
 import { isInside } from './MathUtils.js';
 import { PaintingArea } from './PaintingArea.js';
 import { Renderer } from './Renderer.js';
@@ -138,10 +137,11 @@ export class UIOverlay {
 
 	/**
 	 *
-	 * @param {Position} _pos
+	 * @param {Position} pos
+	 * @returns {boolean}
 	 */
-	onMouseMove( _pos ) {
-		this.paintingArea?.brushUp();
+	onMouseMove( pos ) {
+		return !!this.paintingArea?.onMouseMove( pos );
 	}
 
 
@@ -151,56 +151,6 @@ export class UIOverlay {
 	 */
 	update( _dt ) {
 		// pass
-	}
-
-
-};
-
-
-export class UIButton extends LevelObject {
-
-
-	/**
-	 *
-	 * @param {import('./Level').Level} level
-	 * @param {object} options
-	 * @param {number} options.x
-	 * @param {number} options.y
-	 * @param {number} options.w
-	 * @param {number} options.h
-	 * @param {string} options.color
-	 * @param {string} options.text
-	 * @param {function} onClick
-	 */
-	constructor( level, options, onClick ) {
-		super( level, options.x || 0, options.y || 0, options.w, options.h );
-		this.text = options.text;
-		this.color = options.color || '#ddd';
-		this._clickEvent = onClick;
-	}
-
-
-	/**
-	 *
-	 * @param {CanvasRenderingContext2D} ctx
-	 */
-	draw( ctx ) {
-		ctx.fillStyle = this.color;
-		ctx.fillRect( this.x, this.y, this.w, this.h );
-
-		if( this.text ) {
-			ctx.fillStyle = '#000';
-			ctx.textAlign = 'center';
-			ctx.fillText( this.text, this.x + this.w / 2, this.y + this.h / 2 );
-		}
-	}
-
-
-	/**
-	 *
-	 */
-	onClick() {
-		this._clickEvent?.();
 	}
 
 

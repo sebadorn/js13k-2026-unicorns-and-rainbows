@@ -115,11 +115,7 @@ export class LevelMain extends Level {
 	 * @returns {boolean}
 	 */
 	onMouseMove( pos ) {
-		// TODO: check for clickable element to maybe highlight it
-
-		this.uiOverlay.onMouseMove( pos );
-
-		return false;
+		return this.uiOverlay.onMouseMove( pos );
 	}
 
 

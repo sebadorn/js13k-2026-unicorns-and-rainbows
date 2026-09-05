@@ -1,6 +1,6 @@
 import { Animation } from '../Animation.js';
 import { removeItem } from '../ArrayUtils.js';
-import { Colors, fontFamily } from '../Config.js';
+import { Colors, fontFamilySerif } from '../Config.js';
 import { Level } from '../Level.js';
 import { PaintingArea } from '../PaintingArea.js';
 import { Renderer } from '../Renderer.js';
@@ -138,7 +138,7 @@ export class LevelOutro extends Level {
 		if( this.step < this._steps.length ) {
 			ctx.fillStyle = '#fff';
 			ctx.textAlign = 'center';
-			ctx.font = `500 32px ${fontFamily}`;
+			ctx.font = `500 32px ${fontFamilySerif}`;
 			ctx.fillText( this._steps[this._step].text, w / 2, this._paintingArea.y - 32 );
 
 			if( this._paintingArea.visible ) {
