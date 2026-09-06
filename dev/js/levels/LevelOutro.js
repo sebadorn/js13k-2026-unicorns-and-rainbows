@@ -4,11 +4,13 @@ import { Colors, fontFamilySerif } from '../Config.js';
 import { Level } from '../Level.js';
 import { PaintingArea } from '../PaintingArea.js';
 import { Renderer } from '../Renderer.js';
-import { UIButton } from '../UIOverlay.js';
 
 
 export class LevelOutro extends Level {
 
+
+	/** @type {import('../Painting').Painting} */
+	unicornPainting;
 
 	/** @type {import('../Painting').Painting[]} */
 	_paintings = [];
@@ -18,7 +20,7 @@ export class LevelOutro extends Level {
 		{ text: 'What did grass look like?', color: Colors.Green },
 		{ text: 'A bird, flying in the sky.', color: Colors.Blue },
 		{ text: 'The sun shedding warmth.', color: Colors.Yellow },
-		{ text: 'You', color: 'white' },
+		{ text: 'You', color: Colors.White },
 	];
 
 
@@ -50,8 +52,12 @@ export class LevelOutro extends Level {
 						this._step++;
 
 						if( this._step < this._steps.length ) {
-							this._paintingArea.changeColor( this._steps[this._step].color );
-							this._paintingArea.visible = true;
+							const stepInfo = this._steps[this._step];
+
+							if( stepInfo?.color ) {
+								this._paintingArea.changeColor( stepInfo.color );
+								this._paintingArea.visible = true;
+							}
 						}
 					},
 				) );
@@ -130,10 +136,12 @@ export class LevelOutro extends Level {
 		}
 
 		if( this.step < this._steps.length ) {
+			const stepInfo = this._steps[this._step];
+
 			ctx.fillStyle = '#fff';
 			ctx.textAlign = 'center';
 			ctx.font = `500 32px ${fontFamilySerif}`;
-			ctx.fillText( this._steps[this._step].text, w / 2, this._paintingArea.y - 32 );
+			ctx.fillText( stepInfo.text, w / 2, this._paintingArea.y - 32 );
 
 			this._paintingArea.drawOnParent( ctx );
 		}

@@ -9,25 +9,26 @@ export class Painting extends LevelObject {
 	/** @type {HTMLCanvasElement} */
 	canvas;
 
+	/** @type {MagicColor} */
+	color;
+
 
 	/**
 	 * 
-	 * @param {import('./Level.js').Level} level
+	 * @param {import('./Level').Level} level
 	 * @param {HTMLCanvasElement} canvas
+	 * @param {MagicColor} color
 	 */
-	constructor( level, canvas ) {
+	constructor( level, canvas, color ) {
 		super( level, 0, 0, canvas.width, canvas.height );
-		this.canvas = canvas;
 
-		this.galleryHitBox = {
-			x: 0,
-			y: 0,
-			w: this.w,
-			h: this.h,
-		};
+		this.canvas = canvas;
+		this.color = color;
 
 		this.isOnMap = false;
-		this.timerWalking = false;
+		this.isTower = false;
+
+		this.timerWalking = 0;
 	}
 
 
@@ -56,16 +57,10 @@ export class Painting extends LevelObject {
 	 */
 	shallowCopy() {
 		const copy = new Painting( this.level, this.canvas );
-
 		copy.x = this.x;
 		copy.y = this.y;
-
-		copy.galleryHitBox.x = this.galleryHitBox.x;
-		copy.galleryHitBox.y = this.galleryHitBox.y;
-		copy.galleryHitBox.w = this.galleryHitBox.w;
-		copy.galleryHitBox.h = this.galleryHitBox.h;
-
 		copy.isOnMap = this.isOnMap;
+		copy.isTower = this.isTower;
 
 		return copy;
 	}
@@ -80,18 +75,28 @@ export class Painting extends LevelObject {
 			return;
 		}
 
-		const enemy = this.level.getClosestEnemy( this );
+		if( this.health <= 0 ) {
+			return;
+		}
 
-		// Either walk towards closest enemy or otherwise
-		// the top right corner (enemy spawn point)
-		const target = enemy || { x: Renderer.drawWidth, y: 0 };
+		const enemy = this.level.wave?.getClosestEnemy( this );
+
+		// TODO: check if healer and search for healing target instead
+
+		// Walk towards closest enemy or if a healer
+		// towards closest friend in need of healing.
+		const target = enemy;
+
+		if( !target ) {
+			return;
+		}
 
 		const direction = normalizeVector( {
 			x: target.x - this.x,
 			y: target.y - this.y,
 		} );
 
-		const speed = 0.5 * dt;
+		const speed = this.moveSpeed * dt;
 		this.x += direction.x * speed;
 		this.y += direction.y * speed;
 

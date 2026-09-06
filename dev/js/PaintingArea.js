@@ -14,6 +14,9 @@ export class PaintingArea {
 	/** @type {CanvasRenderingContext2D} */
 	ctx;
 
+	/** @type {MagicColor} */
+	_color;
+
 
 	/**
 	 *
@@ -73,17 +76,19 @@ export class PaintingArea {
 			() => this.onDone(),
 		);
 
-		this._colorButtons = Object.values( Colors ).map( ( c, _i ) => {
-			return new UIButton(
-				Renderer.level,
-				{
-					w: 50,
-					h: 50,
-					color: c,
-				},
-				() => this.changeColor( c ),
-			);
-		} );
+		this._colorButtons = Object.values( Colors )
+			.filter( c => !c.hidden )
+			.map( ( c, _i ) => {
+				return new UIButton(
+					Renderer.level,
+					{
+						w: 50,
+						h: 50,
+						color: c.color,
+					},
+					() => this.changeColor( c ),
+				);
+			} );
 
 		this._allButtons = [
 			...this._colorButtons,
@@ -115,13 +120,25 @@ export class PaintingArea {
 	 * @returns {UIButton?}
 	 */
 	_getButtonAtPos( pos ) {
+		let hit = null;
+
 		for( let i = 0; i < this._allButtons.length; i++ ) {
 			const btn = this._allButtons[i];
 
 			if( isInside( pos, btn ) ) {
-				return btn;
+				hit = btn;
+				break;
 			}
 		}
+
+		if(
+			!this.showColorSelection &&
+			this._colorButtons.includes( hit )
+		) {
+			return null;
+		}
+
+		return hit;
 	}
 
 
@@ -207,7 +224,7 @@ export class PaintingArea {
 
 	/**
 	 *
-	 * @param {string} newColor
+	 * @param {MagicColor} newColor
 	 */
 	changeColor( newColor ) {
 		const oldColor = this._color;
@@ -232,12 +249,14 @@ export class PaintingArea {
 			return;
 		}
 
-		// border
+		// border and background
+		ctx.fillStyle = '#000';
 		ctx.strokeStyle = '#fff';
 		ctx.lineWidth = 2;
 		ctx.beginPath();
 		ctx.roundRect( this.x, this.y, this.w, this.h, 4 );
 		ctx.closePath();
+		ctx.fill();
 		ctx.stroke();
 
 		if( this.showColorSelection ) {
@@ -266,8 +285,9 @@ export class PaintingArea {
 	 */
 	getPainting( level ) {
 		const [copyCanvas, _copyCtx] = Renderer.getTrimmedCanvasCopy( this.canvas );
+		this._color.used++;
 
-		return new Painting( level, copyCanvas );
+		return new Painting( level, copyCanvas, this._color );
 	}
 
 
@@ -276,8 +296,10 @@ export class PaintingArea {
 	 * @param {Position} pos
 	 */
 	onClick( pos ) {
-		const btn = this._getButtonAtPos( pos );
-		btn?.onClick();
+		if( this.visible ) {
+			const btn = this._getButtonAtPos( pos );
+			btn?.onClick();
+		}
 	}
 
 
@@ -314,7 +336,7 @@ export class PaintingArea {
 		const isMultiColorMode = this.colorMode === 'multi';
 
 		this._history.forEach( h => {
-			if( typeof h === 'string' ) {
+			if( h?.color ) {
 				if( isMultiColorMode ) {
 					this._color = h;
 				}
@@ -340,7 +362,7 @@ export class PaintingArea {
 		for( let i = this._history.length - 1; i >= 0; i-- ) {
 			const action = this._history[i];
 
-			if( typeof action === 'string' ) {
+			if( action?.color ) {
 				color = action;
 				index = i;
 				break;

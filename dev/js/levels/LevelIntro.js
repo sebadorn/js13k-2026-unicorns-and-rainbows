@@ -1,4 +1,4 @@
-import { fontFamilySerif } from '../Config.js';
+import { Colors, fontFamilySerif } from '../Config.js';
 import { Level } from '../Level.js';
 import { PaintingArea } from '../PaintingArea.js';
 import { Renderer } from '../Renderer.js';
@@ -26,19 +26,20 @@ export class LevelIntro extends Level {
 		super();
 
 		this._paintingArea = new PaintingArea(
-			Renderer.drawWidth / 2 - 150,
+			Renderer.drawWidth / 2 - 100,
 			Renderer.drawHeight / 2,
-			300, 300,
+			200, 200,
 			() => {
 				const nextLevel = new LevelMain();
 				nextLevel.unicornPainting = this._paintingArea.getPainting( nextLevel );
+				nextLevel.unicornPainting.isOnMap = true;
 
 				Renderer.changeLevel( nextLevel );
 			},
 		);
 		this._paintingArea.showColorSelection = false;
 		this._paintingArea.visible = false;
-		this._paintingArea.changeColor( '#fff' );
+		this._paintingArea.changeColor( Colors.White );
 
 		this._step = 0;
 	}
@@ -81,7 +82,7 @@ export class LevelIntro extends Level {
 			return;
 		}
 
-		this._blockUntil = new Timer( this, 0.5 );
+		this._blockUntil = new Timer( this, 0.3 );
 
 		if( this._step >= this._texts.length - 1 ) {
 			this._paintingArea.visible = true;

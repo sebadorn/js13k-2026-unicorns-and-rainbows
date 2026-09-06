@@ -19,6 +19,11 @@ export class LevelObject {
 		this.y = y;
 		this.w = w;
 		this.h = h;
+
+		this.attackDamage = 10;
+		this.attackSpeed = 1;
+		this.health = 100;
+		this.moveSpeed = 0.5;
 	}
 
 

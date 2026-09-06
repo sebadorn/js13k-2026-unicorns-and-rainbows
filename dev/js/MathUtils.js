@@ -27,11 +27,7 @@ export function euclidDistance( a, b ) {
 /**
  *
  * @param {Position} pos
- * @param {object}   aabb
- * @param {number}   aabb.x
- * @param {number}   aabb.y
- * @param {number}   aabb.w
- * @param {number}   aabb.h
+ * @param {Area} aabb
  * @returns {boolean}
  */
 export function isInside( pos, aabb ) {
@@ -54,4 +50,17 @@ export function normalizeVector( v ) {
 		x: v.x / length,
 		y: v.y / length,
 	};
+};
+
+
+/**
+ * Return a random (rounded) number from the interval [start, end].
+ * @param {number} start
+ * @param {number} end
+ * @returns {number}
+ */
+export function randInt( start, end ) {
+	const diff = end - start;
+
+	return Math.round( Math.random() * diff + start );
 };
