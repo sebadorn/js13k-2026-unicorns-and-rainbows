@@ -2,7 +2,7 @@ import { Level } from '../Level.js';
 import { isInside } from '../MathUtils.js';
 import { PaintingArea } from '../PaintingArea.js';
 import { Renderer } from '../Renderer.js';
-import { Wave } from '../Wave';
+import { Wave } from '../Wave.js';
 import { Waves } from '../Waves.js';
 import { LevelOutro } from './LevelOutro.js';
 
@@ -151,6 +151,24 @@ export class LevelMain extends Level {
 
 	/**
 	 *
+	 * @private
+	 * @param {function} cb
+	 */
+	_getItemForPainting( cb ) {
+		this.paintingArea.clear();
+
+		this.paintingArea.onDone = () => {
+			const item = this.paintingArea.getPainting( this );
+			this.paintingArea.clear();
+			this.paintingArea.visible = false;
+
+			cb( item );
+		};
+	}
+
+
+	/**
+	 *
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {CanvasRenderingContext2D} ctxUI
 	 */
@@ -162,7 +180,7 @@ export class LevelMain extends Level {
 			return;
 		}
 
-		this.paintingArea.draw( ctxUI );
+		this.paintingArea.drawOnParent( ctxUI );
 	}
 
 
@@ -180,11 +198,12 @@ export class LevelMain extends Level {
 				if( tba ) {
 					if( this.towers.length < this.numMaxTowers ) {
 						this.paintingArea.onDone = () => {
-							const painting = this.paintingArea.getPainting( this );
-							this.addTower( painting, tba );
+							const newTower = this.paintingArea.getPainting( this );
 
-							this.paintingArea.clear();
-							this.paintingArea.visible = false;
+							this._getItemForPainting( item => {
+								newTower.item = item;
+								this.addTower( newTower, tba );
+							} );
 						};
 
 						this.paintingArea.visible = true;
@@ -196,11 +215,12 @@ export class LevelMain extends Level {
 					if( fsa ) {
 						if( this.fighters.length < this.numMaxFighters ) {
 							this.paintingArea.onDone = () => {
-								const painting = this.paintingArea.getPainting( this );
-								this.addFighter( painting );
+								const newFighter = this.paintingArea.getPainting( this );
 
-								this.paintingArea.clear();
-								this.paintingArea.visible = false;
+								this._getItemForPainting( item => {
+									newFighter.item = item;
+									this.addFighter( newFighter, fsa );
+								} );
 							};
 
 							this.paintingArea.visible = true;
@@ -217,7 +237,7 @@ export class LevelMain extends Level {
 	 * @param {Position} pos
 	 */
 	onMouseDrawing( pos ) {
-		this.paintingArea.onMouseDrawing( pos );
+		this.paintingArea.brushDown( pos );
 	}
 
 
@@ -307,8 +327,11 @@ export class LevelMain extends Level {
 
 		// Game Over: Either the unicorn lost all health or all units have been destroyed
 		if(
-			this.unicornHealth <= 0 ||
-			( this.towers.length === 0 && this.fighters.length === 0 )
+			this.wave.phase === Wave.PhaseFight &&
+			(
+				this.unicornHealth <= 0 ||
+				( this.towers.length === 0 && this.fighters.length === 0 )
+			)
 		) {
 			this.isGameOver = true;
 			return;

@@ -45,6 +45,7 @@ export class PaintingArea {
 		[this.canvas, this.ctx] = Renderer.getOffscreenCanvas( w, h );
 		this.ctx.lineWidth = this.brushSize - 0.5;
 		this.ctx.lineCap = 'butt';
+		this.clear();
 
 		this._undoButton = new UIButton(
 			Renderer.level,
@@ -84,7 +85,7 @@ export class PaintingArea {
 					{
 						w: 50,
 						h: 50,
-						color: c.color,
+						magicColor: c,
 					},
 					() => this.changeColor( c ),
 				);
@@ -146,7 +147,9 @@ export class PaintingArea {
 	 *
 	 */
 	clear() {
-		this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height );
+		this.ctx.fillStyle = '#000';
+		this.ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
+
 		this._history = [];
 		this._lastPos = null;
 	}
@@ -171,7 +174,7 @@ export class PaintingArea {
 				isLine = true;
 
 				this.ctx.lineWidth = this.brushSize;
-				this.ctx.strokeStyle = this._color;
+				this.ctx.strokeStyle = this._color.color;
 				this.ctx.beginPath();
 				this.ctx.moveTo(
 					this._lastPos.x - this.x,
@@ -194,7 +197,7 @@ export class PaintingArea {
 			const x = pos.x - this.x - offset;
 			const y = pos.y - this.y - offset;
 
-			this.ctx.fillStyle = this._color;
+			this.ctx.fillStyle = this._color.color;
 			this.ctx.fillRect( x, y, this.brushSize, this.brushSize );
 		}
 
@@ -250,13 +253,11 @@ export class PaintingArea {
 		}
 
 		// border and background
-		ctx.fillStyle = '#000';
 		ctx.strokeStyle = '#fff';
 		ctx.lineWidth = 2;
 		ctx.beginPath();
 		ctx.roundRect( this.x, this.y, this.w, this.h, 4 );
 		ctx.closePath();
-		ctx.fill();
 		ctx.stroke();
 
 		if( this.showColorSelection ) {
@@ -331,7 +332,8 @@ export class PaintingArea {
 	 * Repaint the painting from history.
 	 */
 	repaintFromHistory() {
-		this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height );
+		this.ctx.fillStyle = '#000';
+		this.ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
 
 		const isMultiColorMode = this.colorMode === 'multi';
 
