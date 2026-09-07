@@ -28,6 +28,7 @@ export class Painting extends LevelObject {
 		this.canvas = canvas;
 		this.color = color;
 
+		this.addedInWave = 0;
 		this.spawnLocation = -1;
 		this.isOnMap = false;
 		this.isTower = false;
@@ -66,6 +67,27 @@ export class Painting extends LevelObject {
 
 	/**
 	 *
+	 * @private
+	 * @param {CanvasRenderingContext2D} ctx
+	 */
+	_drawWeapon( ctx ) {
+		if( !this.item || this.isTower ) {
+			return;
+		}
+
+		// TODO: attack animation
+
+		ctx.drawImage(
+			this.item.canvas,
+			this.x + this.w,
+			this.y + this.h / 2 - this.item.h,
+			this.item.w, this.item.h
+		);
+	}
+
+
+	/**
+	 *
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
@@ -86,17 +108,7 @@ export class Painting extends LevelObject {
 
 		ctx.drawImage( this.canvas, this.x, this.y, this.w, this.h );
 
-		if( this.item && !this.isTower ) {
-			let itemW = this.item.w;
-			let itemH = this.item.h;
-
-			ctx.drawImage(
-				this.item.canvas,
-				this.x + this.w,
-				this.y + this.h / 2,
-				itemW, itemH
-			);
-		}
+		this._drawWeapon( ctx );
 
 		if( rotation ) {
 			Renderer.rotateCenter( ctx, -rotation, center );
@@ -120,6 +132,16 @@ export class Painting extends LevelObject {
 	/**
 	 *
 	 */
+	freeColor() {
+		if( this.color ) {
+			this.color.used = Math.max( 0, this.color.used - 1 );
+		}
+	}
+
+
+	/**
+	 *
+	 */
 	reset() {
 		super.reset();
 
@@ -130,6 +152,23 @@ export class Painting extends LevelObject {
 				this.x = fsa.x;
 				this.y = fsa.y - this.h + fsa.h;
 			}
+		}
+	}
+
+
+	/**
+	 *
+	 * @param {Painting?} item
+	 */
+	setItem( item ) {
+		this.item = item;
+
+		if( item ) {
+			const w = this.w / 2;
+			const scale = w / item.w;
+
+			item.w = w;
+			item.h *= scale;
 		}
 	}
 

@@ -1,14 +1,18 @@
 export class Level {
 
 
-	/** @type {import('../Animation').Animation[]} */
-	animations = [];
+	/** @type {import('./PaintingArea').PaintingArea?} */
+	paintingArea;
+
+	/** @type {import('./Painting').Painting} */
+	unicornPainting;
 
 
 	/**
 	 *
 	 */
 	constructor() {
+		this.isGameOver = false;
 		this.timer = 0;
 	}
 
@@ -30,9 +34,11 @@ export class Level {
 
 	/**
 	 *
-	 * @param {Position} _pos
+	 * @param {Position} pos
 	 */
-	onMouseDrawing( _pos ) {}
+	onMouseDrawing( pos ) {
+		this.paintingArea?.brushDown( pos );
+	}
 
 
 	/**
@@ -52,7 +58,6 @@ export class Level {
 	 */
 	update( dt ) {
 		this.timer += dt;
-		this.animations.forEach( a => a.do( dt ) );
 	}
 
 

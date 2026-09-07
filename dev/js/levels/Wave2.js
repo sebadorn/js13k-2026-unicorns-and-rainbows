@@ -5,15 +5,14 @@ import { Wave } from '../Wave.js';
 export class Wave2 extends Wave {
 
 
-	index = 2;
+	index = 1;
 	newFighters = 1;
 
 
 	/**
 	 *
-	 * @private
 	 */
-	_createEnemies() {
+	createEnemies() {
 		// TODO:
 	}
 
@@ -45,8 +44,8 @@ export class Wave2 extends Wave {
 		super.update( dt );
 
 		if( this.phase === Wave.PhasePrepare ) {
-			if( this.level.fighters.length > 0 ) {
-				this._createEnemies();
+			if( this.level.hasAllUnits() ) {
+				this.createEnemies();
 				this.phase = Wave.PhaseFight;
 			}
 		}

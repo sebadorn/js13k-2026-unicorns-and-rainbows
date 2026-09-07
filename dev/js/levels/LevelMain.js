@@ -18,9 +18,6 @@ export class LevelMain extends Level {
 	/** @type {import('../Painting').Painting[]} */
 	towers = [];
 
-	/** @type {import('../Painting').Painting} */
-	unicornPainting;
-
 	/** @type {import('../Wave').Wave} */
 	wave;
 
@@ -31,7 +28,7 @@ export class LevelMain extends Level {
 	constructor() {
 		super();
 
-		this.isGameOver = false;
+		this._allUnits = [];
 
 		this.wave = Waves.getWave( this, 0 );
 		this.numMaxFighters = this.wave.newFighters;
@@ -45,43 +42,7 @@ export class LevelMain extends Level {
 		);
 		this.paintingArea.visible = false;
 
-		const dw = Renderer.drawWidth;
-		const dh = Renderer.drawHeight;
-		const tbaW = 100;
-		const tbaH = 100;
-
-		/** @type {Area[]} */
-		this.towerBuildAreas = [
-			{
-				x: dw / 2 - tbaW - 100,
-				y: dh / 2 - tbaH - 100,
-				w: tbaW,
-				h: tbaH,
-			},
-			{
-				x: dw / 2 + 100,
-				y: dh / 2 - tbaH - 100,
-				w: tbaW,
-				h: tbaH,
-			},
-			{
-				x: dw / 2 - tbaW - 100,
-				y: dh / 2 + 100,
-				w: tbaW,
-				h: tbaH,
-			},
-			{
-				x: dw / 2 + 100,
-				y: dh / 2 + 100,
-				w: tbaW,
-				h: tbaH,
-			},
-		];
-
-		/** @type {Area[]} */
-		this.fighterStartAreas = [
-			// TODO: available fighter start areas
-		];
+		this._setupStartAreas();
 
 		this._btnTryAgain = new UIButton(
 			this,
@@ -90,16 +51,7 @@ export class LevelMain extends Level {
 				h: 40,
 				text: 'Again',
 			},
-			() => {
-				this.unicornPainting.health = 100;
-				this.towers.forEach( t => t.reset() );
-				this.fighters.forEach( f => f.reset() );
-				this.wave.restart();
-
-				// TODO: update MagicColor usages
-
-				this.isGameOver = false;
-			},
+			() => this._tryAgain(),
 		);
 
 		// TODO: remove, only used as shortcut in development
@@ -158,8 +110,7 @@ export class LevelMain extends Level {
 		this.unicornPainting.y = ( h - this.unicornPainting.h ) / 2;
 		this.unicornPainting.draw( ctx );
 
-		this.towers.forEach( p => p.draw( ctx ) );
-		this.fighters.forEach( p => p.draw( ctx ) );
+		this._allUnits.forEach( u => u.draw( ctx ) );
 		this.wave.draw( ctx );
 	}
 
@@ -186,7 +137,7 @@ export class LevelMain extends Level {
 		if( this.numMaxFighters > 0 ) {
 			this.fighterStartAreas.forEach( fsa => {
 				ctx.beginPath();
-				ctx.arc( fsa.x + fsa.w / 2, fsa.y + fsa.h / 2, 0, Math.PI * 2 );
+				ctx.arc( fsa.x + fsa.w / 2, fsa.y + fsa.h / 2, fsa.w / 2, 0, Math.PI * 2 );
 				ctx.closePath();
 				ctx.stroke();
 			} );
@@ -216,10 +167,184 @@ export class LevelMain extends Level {
 
 	/**
 	 *
+	 * @private
+	 * @param {Position} pos
+	 */
+	_onClickCheckAreas( pos ) {
+		const tba = this.towerBuildAreas.find( tba => isInside( pos, tba ) );
+
+		if( tba ) {
+			if( this.towers.length < this.numMaxTowers ) {
+				this.paintingArea.onDone = () => {
+					const newTower = this.paintingArea.getPainting( this );
+					newTower.spawnLocation = this.towerBuildAreas.indexOf( tba );
+
+					this._getItemForPainting( item => {
+						this.addTower( newTower, tba );
+						newTower.setItem( item );
+					} );
+				};
+
+				this.paintingArea.visible = true;
+			}
+		}
+		else {
+			const fsa = this.fighterStartAreas.find( fsa => isInside( pos, fsa ) );
+
+			if( fsa ) {
+				if( this.fighters.length < this.numMaxFighters ) {
+					this.paintingArea.onDone = () => {
+						const newFighter = this.paintingArea.getPainting( this );
+						newFighter.spawnLocation = this.fighterStartAreas.indexOf( fsa );
+
+						this._getItemForPainting( item => {
+							this.addFighter( newFighter, fsa );
+							newFighter.setItem( item );
+						} );
+					};
+
+					this.paintingArea.visible = true;
+				}
+			}
+		}
+	}
+
+
+	/**
+	 *
+	 * @private
+	 */
+	_proceedToNextWaveOrLevel() {
+		this.wave = Waves.getWave( this, this.wave.index + 1 );
+		this.numMaxFighters += this.wave.newFighters;
+		this.numMaxTowers += this.wave.newTowers;
+
+		this._allUnits = [];
+		this.towers.forEach( t => t.reset() );
+		this.fighters.forEach( f => f.reset() );
+
+		// Last wave done, proceed to outro
+		if( !this.wave ) {
+			const outro = new LevelOutro();
+			outro.unicornPainting = this.unicornPainting;
+
+			Renderer.changeLevel( outro );
+		}
+	}
+
+
+	/**
+	 *
+	 * @private
+	 */
+	_setupStartAreas() {
+		const dw = Renderer.drawWidth;
+		const dh = Renderer.drawHeight;
+		const tbaSize = 100;
+		const fsaSize = 80;
+
+		/** @type {Area[]} */
+		this.towerBuildAreas = [
+			{
+				x: dw / 2 - tbaSize - 100,
+				y: dh / 2 - tbaSize - 100,
+				w: tbaSize,
+				h: tbaSize,
+			},
+			{
+				x: dw / 2 + 100,
+				y: dh / 2 - tbaSize - 100,
+				w: tbaSize,
+				h: tbaSize,
+			},
+			{
+				x: dw / 2 - tbaSize - 100,
+				y: dh / 2 + 100,
+				w: tbaSize,
+				h: tbaSize,
+			},
+			{
+				x: dw / 2 + 100,
+				y: dh / 2 + 100,
+				w: tbaSize,
+				h: tbaSize,
+			},
+		];
+
+		/** @type {Area[]} */
+		this.fighterStartAreas = [
+			{
+				x: dw / 2 - fsaSize / 2,
+				y: dh / 2 - fsaSize - 100,
+				w: fsaSize,
+				h: fsaSize,
+			},
+			{
+				x: dw / 2 + 100,
+				y: dh / 2 - fsaSize / 2,
+				w: fsaSize,
+				h: fsaSize,
+			},
+			{
+				x: dw / 2 - fsaSize / 2,
+				y: dh / 2 + 100,
+				w: fsaSize,
+				h: fsaSize,
+			},
+			{
+				x: dw / 2 - fsaSize - 100,
+				y: dh / 2 - fsaSize / 2,
+				w: fsaSize,
+				h: fsaSize,
+			},
+		];
+	}
+
+
+	/**
+	 *
+	 * @private
+	 */
+	_tryAgain() {
+		this._allUnits = [];
+
+		for( let i = this.fighters.length - 1; i >= 0; i-- ) {
+			const unit = this.fighters[i];
+
+			if( unit.addedInWave === this.wave.index ) {
+				this.fighters.splice( i, 1 );
+				unit.freeColor();
+			}
+			else {
+				unit.reset();
+			}
+		}
+
+		for( let i = this.towers.length - 1; i >= 0; i-- ) {
+			const unit = this.towers[i];
+
+			if( unit.addedInWave === this.wave.index ) {
+				this.towers.splice( i, 1 );
+				unit.freeColor();
+			}
+			else {
+				unit.reset();
+			}
+		}
+
+		this.unicornPainting.health = 100;
+		this.wave.restart();
+		this.isGameOver = false;
+	}
+
+
+	/**
+	 *
 	 * @param {import('../Painting').Painting} painting
 	 * @param {Area} area
 	 */
 	addFighter( painting, area ) {
+		painting.addedInWave = this.wave.index;
 		painting.isOnMap = true;
 		painting.isTower = false;
 
@@ -240,6 +365,7 @@ export class LevelMain extends Level {
 	 * @param {Area} area
 	 */
 	addTower( painting, area ) {
+		painting.addedInWave = this.wave.index;
 		painting.isOnMap = true;
 		painting.isTower = true;
 
@@ -276,59 +402,13 @@ export class LevelMain extends Level {
 
 	/**
 	 *
-	 * @param {Position} pos
+	 * @returns {boolean}
 	 */
-	onClick( pos ) {
-		if( this.isGameOver ) {
-			if( isInside( pos, this._btnTryAgain ) ) {
-				this._btnTryAgain.onClick();
-			}
-
-			return;
-		}
-
-		if( this.wave.phase === Wave.PhasePrepare ) {
-			this.paintingArea.onClick( pos );
-
-			if( !this.paintingArea.visible ) {
-				const tba = this.towerBuildAreas.find( tba => isInside( pos, tba ) );
-
-				if( tba ) {
-					if( this.towers.length < this.numMaxTowers ) {
-						this.paintingArea.onDone = () => {
-							const newTower = this.paintingArea.getPainting( this );
-							newTower.spawnLocation = this.towerBuildAreas.indexOf( tba );
-
-							this._getItemForPainting( item => {
-								newTower.item = item;
-								this.addTower( newTower, tba );
-							} );
-						};
-
-						this.paintingArea.visible = true;
-					}
-				}
-				else {
-					const fsa = this.fighterStartAreas.find( fsa => isInside( pos, fsa ) );
-
-					if( fsa ) {
-						if( this.fighters.length < this.numMaxFighters ) {
-							this.paintingArea.onDone = () => {
-								const newFighter = this.paintingArea.getPainting( this );
-								newFighter.spawnLocation = this.fighterStartAreas.indexOf( fsa );
-
-								this._getItemForPainting( item => {
-									newFighter.item = item;
-									this.addFighter( newFighter, fsa );
-								} );
-							};
-
-							this.paintingArea.visible = true;
-						}
-					}
-				}
-			}
-		}
+	hasAllUnits() {
+		return (
+			this.fighters.length === this.numMaxFighters &&
+			this.towers.length === this.numMaxTowers
+		);
 	}
 
 
@@ -336,8 +416,19 @@ export class LevelMain extends Level {
 	 *
 	 * @param {Position} pos
 	 */
-	onMouseDrawing( pos ) {
-		this.paintingArea.brushDown( pos );
+	onClick( pos ) {
+		if( this.isGameOver ) {
+			if( isInside( pos, this._btnTryAgain ) ) {
+				this._btnTryAgain.onClick();
+			}
+		}
+		else if( this.wave.phase === Wave.PhasePrepare ) {
+			this.paintingArea.onClick( pos );
+
+			if( !this.paintingArea.visible ) {
+				this._onClickCheckAreas( pos );
+			}
+		}
 	}
 
 
@@ -405,21 +496,14 @@ export class LevelMain extends Level {
 		}
 
 		if( this.wave.isDone() ) {
-			this.wave = Waves.getWave( this, this.wave.index + 1 );
-			this.numMaxFighters += this.wave.newFighters;
-			this.numMaxTowers += this.wave.newTowers;
-
-			this.towers.forEach( t => t.reset() );
-			this.fighters.forEach( f => f.reset() );
-
-			// Last wave done, proceed to outro
-			if( !this.wave ) {
-				const outro = new LevelOutro();
-				outro.unicornPainting = this.unicornPainting;
-
-				Renderer.changeLevel( outro );
-			}
+			this._proceedToNextWaveOrLevel();
 		}
+
+		this._allUnits = this.towers.concat( this.fighters ).concat( this.wave.enemies );
+
+		this._allUnits.sort( ( a, b ) => {
+			return a.getCenter().y - b.getCenter().y;
+		} );
 	}
 
 

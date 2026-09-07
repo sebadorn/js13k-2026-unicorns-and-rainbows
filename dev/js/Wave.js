@@ -28,11 +28,17 @@ export class Wave {
 
 	/**
 	 *
+	 */
+	createEnemies() {}
+
+
+	/**
+	 *
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
 		this.resetCtxStates( ctx );
-		this.enemies.forEach( e => e.draw( ctx ) );
+		// Enemy units are drawn in the main level
 	}
 
 
@@ -141,6 +147,7 @@ export class Wave {
 	 */
 	restart() {
 		this.phase = Wave.PhasePrepare;
+		this.enemies = [];
 	}
 
 

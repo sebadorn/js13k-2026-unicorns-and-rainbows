@@ -25,21 +25,21 @@ export class LevelIntro extends Level {
 	constructor() {
 		super();
 
-		this._paintingArea = new PaintingArea(
+		this.paintingArea = new PaintingArea(
 			Renderer.drawWidth / 2 - 100,
 			Renderer.drawHeight / 2,
 			200, 200,
 			() => {
 				const nextLevel = new LevelMain();
-				nextLevel.unicornPainting = this._paintingArea.getPainting( nextLevel );
+				nextLevel.unicornPainting = this.paintingArea.getPainting( nextLevel );
 				nextLevel.unicornPainting.isOnMap = true;
 
 				Renderer.changeLevel( nextLevel );
 			},
 		);
-		this._paintingArea.showColorSelection = false;
-		this._paintingArea.visible = false;
-		this._paintingArea.changeColor( Colors.White );
+		this.paintingArea.showColorSelection = false;
+		this.paintingArea.visible = false;
+		this.paintingArea.changeColor( Colors.White );
 
 		this._step = 0;
 	}
@@ -69,7 +69,7 @@ export class LevelIntro extends Level {
 		} );
 
 		ctx.shadowBlur = 0;
-		this._paintingArea.drawOnParent( ctx );
+		this.paintingArea.drawOnParent( ctx );
 	}
 
 
@@ -85,8 +85,8 @@ export class LevelIntro extends Level {
 		this._blockUntil = new Timer( this, 0.3 );
 
 		if( this._step >= this._texts.length - 1 ) {
-			this._paintingArea.visible = true;
-			this._paintingArea.onClick( pos );
+			this.paintingArea.visible = true;
+			this.paintingArea.onClick( pos );
 		}
 		else {
 			this._step++;
@@ -97,19 +97,10 @@ export class LevelIntro extends Level {
 	/**
 	 *
 	 * @param {Position} pos
-	 */
-	onMouseDrawing( pos ) {
-		this._paintingArea.brushDown( pos );
-	}
-
-
-	/**
-	 *
-	 * @param {Position} pos
 	 * @returns {boolean}
 	 */
 	onMouseMove( pos ) {
-		return this._paintingArea.onMouseMove( pos );
+		return this.paintingArea.onMouseMove( pos );
 	}
 
 

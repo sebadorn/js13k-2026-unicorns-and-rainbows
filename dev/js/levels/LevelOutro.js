@@ -9,9 +9,6 @@ import { Renderer } from '../Renderer.js';
 export class LevelOutro extends Level {
 
 
-	/** @type {import('../Painting').Painting} */
-	unicornPainting;
-
 	/** @type {import('../Painting').Painting[]} */
 	_paintings = [];
 
@@ -32,14 +29,14 @@ export class LevelOutro extends Level {
 
 		this._step = 0;
 
-		this._paintingArea = new PaintingArea(
+		this.paintingArea = new PaintingArea(
 			Renderer.drawWidth / 2 - 100,
 			Renderer.drawHeight / 2 - 200,
 			200, 400,
 			() => {
-				this._paintings[this._step] = this._paintingArea.getPainting( this );
-				this._paintingArea.clear();
-				this._paintingArea.visible = false;
+				this._paintings[this._step] = this.paintingArea.getPainting( this );
+				this.paintingArea.clear();
+				this.paintingArea.visible = false;
 	
 				this.animations.push( new Animation(
 					this,
@@ -55,15 +52,15 @@ export class LevelOutro extends Level {
 							const stepInfo = this._steps[this._step];
 
 							if( stepInfo?.color ) {
-								this._paintingArea.changeColor( stepInfo.color );
-								this._paintingArea.visible = true;
+								this.paintingArea.changeColor( stepInfo.color );
+								this.paintingArea.visible = true;
 							}
 						}
 					},
 				) );
 			},
 		);
-		this._paintingArea.changeColor( this._steps[0].color );
+		this.paintingArea.changeColor( this._steps[0].color );
 	}
 
 
@@ -141,9 +138,9 @@ export class LevelOutro extends Level {
 			ctx.fillStyle = '#fff';
 			ctx.textAlign = 'center';
 			ctx.font = `500 32px ${fontFamilySerif}`;
-			ctx.fillText( stepInfo.text, w / 2, this._paintingArea.y - 32 );
+			ctx.fillText( stepInfo.text, w / 2, this.paintingArea.y - 32 );
 
-			this._paintingArea.draw( ctx );
+			this.paintingArea.draw( ctx );
 		}
 	}
 
