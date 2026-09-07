@@ -1,4 +1,4 @@
-import { fontFamilySerif, targetFPS } from './Config.js';
+import { Colors, fontFamilySerif, targetFPS } from './Config.js';
 import { Input } from './Input.js';
 import { clamp } from './MathUtils.js';
 
@@ -110,15 +110,16 @@ export const Renderer = {
 	 * Draw the pause screen.
 	 */
 	drawPause() {
-		this.ctxUI.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
-		this.ctxUI.fillStyle = '#0006';
+		this.ctxUI.fillStyle = '#000a';
 		this.ctxUI.fillRect( 0, 0, this.drawWidth, this.drawHeight );
 
-		this.ctxUI.fillStyle = '#000';
-		this.ctxUI.font = '600 56px ' + fontFamilySerif;
+		this.ctxUI.fillStyle = Colors.White.color;
+		this.ctxUI.font = `600 56px ${fontFamilySerif}`;
 		this.ctxUI.textAlign = 'center';
 		this.ctxUI.textBaseline = 'top';
-		this.ctxUI.fillText( 'PAUSED', this.center.x, this.center.y - 56 );
+		this.ctxUI.fillText( 'PAUSED', this.drawWidth / 2, this.drawHeight / 2 - 56 );
+
+		this.ctx.drawImage( this.cnvUI, 0, 0 );
 	},
 
 
