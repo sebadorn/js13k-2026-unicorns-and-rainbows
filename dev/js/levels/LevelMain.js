@@ -110,13 +110,15 @@ export class LevelMain extends Level {
 
 		if( this.wave.phase === Wave.PhasePrepare ) {
 			ctx.lineWidth = 2;
-			ctx.strokeStyle = '#fff';
+			ctx.strokeStyle = Colors.White.color;
+			ctx.setLineDash( [5, 10] );
 
 			if( this.numMaxTowers > 0 ) {
 				this.towerBuildAreas.forEach( tba => {
 					ctx.beginPath();
 					ctx.roundRect( tba.x, tba.y, tba.w, tba.h, tba.h / 4 );
 					ctx.closePath();
+					ctx.stroke();
 				} );
 			}
 
@@ -125,10 +127,11 @@ export class LevelMain extends Level {
 					ctx.beginPath();
 					ctx.arc( fsa.x + fsa.w / 2, fsa.y + fsa.h / 2, 0, Math.PI * 2 );
 					ctx.closePath();
+					ctx.stroke();
 				} );
 			}
 
-			ctx.stroke();
+			ctx.setLineDash( [] );
 		}
 
 		if( this.unicornPainting ) {
