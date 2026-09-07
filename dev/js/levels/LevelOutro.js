@@ -143,7 +143,7 @@ export class LevelOutro extends Level {
 			ctx.font = `500 32px ${fontFamilySerif}`;
 			ctx.fillText( stepInfo.text, w / 2, this._paintingArea.y - 32 );
 
-			this._paintingArea.drawOnParent( ctx );
+			this._paintingArea.draw( ctx );
 		}
 	}
 

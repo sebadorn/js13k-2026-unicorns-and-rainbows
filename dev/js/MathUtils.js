@@ -39,6 +39,18 @@ export function isInside( pos, aabb ) {
 
 
 /**
+ * Linearly interpolate between two values.
+ * @param {number} a Start value.
+ * @param {number} b End value.
+ * @param {number} progress Progress as interval [0, 1].
+ * @returns {number}
+ */
+export function lerp( a, b, progress ) {
+	return progress * b + ( 1 - progress ) * a;
+};
+
+
+/**
  *
  * @param {Position} v
  * @returns {Position}

@@ -33,7 +33,7 @@ export class PaintingArea {
 		this.h = h;
 		this.onDone = onDone;
 
-		this.brushSize = 3;
+		this.brushSize = 5;
 		this.colorMode = 'single';
 		this.visible = true;
 		this.showColorSelection = true;
@@ -147,8 +147,7 @@ export class PaintingArea {
 	 *
 	 */
 	clear() {
-		this.ctx.fillStyle = '#000';
-		this.ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
+		this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height );
 
 		this._history = [];
 		this._lastPos = null;
@@ -247,12 +246,16 @@ export class PaintingArea {
 	 *
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
-	drawOnParent( ctx ) {
+	draw( ctx ) {
 		if( !this.visible ) {
 			return;
 		}
 
-		// border and background
+		// background
+		ctx.fillStyle = '#000';
+		ctx.fillRect( this.x, this.y, this.w, this.h );
+
+		// border
 		ctx.strokeStyle = '#fff';
 		ctx.lineWidth = 2;
 		ctx.beginPath();
@@ -332,8 +335,7 @@ export class PaintingArea {
 	 * Repaint the painting from history.
 	 */
 	repaintFromHistory() {
-		this.ctx.fillStyle = '#000';
-		this.ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
+		this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height );
 
 		const isMultiColorMode = this.colorMode === 'multi';
 
@@ -350,6 +352,19 @@ export class PaintingArea {
 				this.brushUp( h, true );
 			}
 		} );
+	}
+
+
+	/**
+	 * Resize the painting area. This will also clear its contents.
+	 * @param {number} w
+	 * @param {number} h
+	 */
+	resize( w, h ) {
+		this.canvas.width = w;
+		this.canvas.height = h;
+		this.w = w;
+		this.h = h;
 	}
 
 

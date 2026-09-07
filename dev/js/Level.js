@@ -52,7 +52,7 @@ export class Level {
 	 */
 	update( dt ) {
 		this.timer += dt;
-		this.animations.forEach( a => a.do() );
+		this.animations.forEach( a => a.do( dt ) );
 	}
 
 

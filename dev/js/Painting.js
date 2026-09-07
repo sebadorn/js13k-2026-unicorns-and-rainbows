@@ -1,5 +1,5 @@
 import { LevelObject } from './LevelObject.js';
-import { normalizeVector } from './MathUtils.js';
+import { lerp } from './MathUtils.js';
 import { Renderer } from './Renderer.js';
 
 
@@ -11,6 +11,9 @@ export class Painting extends LevelObject {
 
 	/** @type {MagicColor} */
 	color;
+
+	/** @type {import('./Painting').Painting?} */
+	item = null;
 
 
 	/**
@@ -25,10 +28,39 @@ export class Painting extends LevelObject {
 		this.canvas = canvas;
 		this.color = color;
 
+		this.spawnLocation = -1;
 		this.isOnMap = false;
 		this.isTower = false;
+	}
 
-		this.timerWalking = 0;
+
+	/**
+	 *
+	 * @private
+	 * @param {CanvasRenderingContext2D} ctx
+	 */
+	_drawProjectile( ctx ) {
+		if( !this.isTower || !this.attackAnimation || !this.item || !this.target ) {
+			return;
+		}
+
+		const progress = this.attackAnimation.timer.progress();
+
+		const xStart = this.x + this.w / 2;
+		// "this.w" is correct, the projectile is shot from the top and not the center
+		const yStart = this.y + this.w / 2;
+
+		const xEnd = this.target.x + this.target.w / 2;
+		const yEnd = this.target.y + this.target.h / 2;
+
+		const x = lerp( xStart, xEnd, progress );
+		const y = lerp( yStart, yEnd, progress );
+
+		ctx.drawImage(
+			this.item.canvas,
+			x, y,
+			30, 30
+		);
 	}
 
 
@@ -37,17 +69,68 @@ export class Painting extends LevelObject {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
-		if( !this.isOnMap ) {
+		if( !this.isOnMap || this.health <= 0 ) {
 			return;
 		}
 
-		const rotation = Math.sin( this.timerWalking / 10 ) / 5;
-		const center = this.getCenter();
-		center.y += this.h / 2;
+		let rotation = 0;
+		let center = null;
 
-		Renderer.rotateCenter( ctx, rotation, center );
+		if( this.moveAnimation ) {
+			rotation = Math.sin( this.level.timer / 10 ) / 5;
+			center = this.getCenter();
+			center.y += this.h / 2;
+
+			Renderer.rotateCenter( ctx, rotation, center );
+		}
+
 		ctx.drawImage( this.canvas, this.x, this.y, this.w, this.h );
-		Renderer.rotateCenter( ctx, -rotation, center );
+
+		if( this.item && !this.isTower ) {
+			let itemW = this.item.w;
+			let itemH = this.item.h;
+
+			ctx.drawImage(
+				this.item.canvas,
+				this.x + this.w,
+				this.y + this.h / 2,
+				itemW, itemH
+			);
+		}
+
+		if( rotation ) {
+			Renderer.rotateCenter( ctx, -rotation, center );
+		}
+
+		this._drawProjectile( ctx );
+
+		if( this.isTower ) {
+			// Attack range
+			const center = this.getCenter();
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = this.color.color;
+			ctx.beginPath();
+			ctx.arc( center.x, center.y, this.attackRange, 0, Math.PI * 2 );
+			ctx.closePath();
+			ctx.stroke();
+		}
+	}
+
+
+	/**
+	 *
+	 */
+	reset() {
+		super.reset();
+
+		if( !this.isTower && this.spawnLocation >= 0 ) {
+			const fsa = this.level.fighterStartAreas[this.spawnLocation];
+
+			if( fsa ) {
+				this.x = fsa.x;
+				this.y = fsa.y - this.h + fsa.h;
+			}
+		}
 	}
 
 
@@ -61,6 +144,8 @@ export class Painting extends LevelObject {
 		copy.y = this.y;
 		copy.isOnMap = this.isOnMap;
 		copy.isTower = this.isTower;
+		copy.color = this.color;
+		copy.item = this.item?.shallowCopy();
 
 		return copy;
 	}
@@ -71,36 +156,13 @@ export class Painting extends LevelObject {
 	 * @param {number} dt
 	 */
 	update( dt ) {
-		if( !this.isOnMap ) {
+		super.update( dt );
+
+		if( !this.isOnMap || !this.level.wave ) {
 			return;
 		}
 
-		if( this.health <= 0 ) {
-			return;
-		}
-
-		const enemy = this.level.wave?.getClosestEnemy( this );
-
-		// TODO: check if healer and search for healing target instead
-
-		// Walk towards closest enemy or if a healer
-		// towards closest friend in need of healing.
-		const target = enemy;
-
-		if( !target ) {
-			return;
-		}
-
-		const direction = normalizeVector( {
-			x: target.x - this.x,
-			y: target.y - this.y,
-		} );
-
-		const speed = this.moveSpeed * dt;
-		this.x += direction.x * speed;
-		this.y += direction.y * speed;
-
-		this.timerWalking = ( direction.x !== 0 || direction.y !== 0 ) ? this.timerWalking + dt : 0;
+		this.decideAction();
 	}
 
 

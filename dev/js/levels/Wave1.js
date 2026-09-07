@@ -27,14 +27,14 @@ export class Wave1 extends Wave {
 		this.enemies = [
 			new Enemy(
 				this.level,
-				( isLeft ? 0 : w ) + randInt( -20, 20 ),
-				( isTop ? 0 : h ) + randInt( -20, 20 ),
+				( isLeft ? 0 : w ) + randInt( -100, 100 ),
+				( isTop ? 0 : h ) + randInt( -100, 100 ),
 				60, 60
 			),
 			new Enemy(
 				this.level,
-				( isLeft ? 0 : w ) + randInt( -20, 20 ),
-				( isTop ? 0 : h ) + randInt( -20, 20 ),
+				( isLeft ? 0 : w ) + randInt( -100, 100 ),
+				( isTop ? 0 : h ) + randInt( -100, 100 ),
 				60, 60
 			),
 		];
@@ -52,10 +52,12 @@ export class Wave1 extends Wave {
 		super.draw( ctx );
 
 		if( this.phase === Wave.PhasePrepare ) {
-			ctx.fillText(
-				'Select a build field to paint your first tower',
-				w / 2, h / 2
-			);
+			if( !this.level.paintingArea.visible ) {
+				ctx.fillText(
+					'Select a field to paint your first tower',
+					w / 2, h * 0.2
+				);
+			}
 		}
 	}
 

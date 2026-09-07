@@ -38,64 +38,68 @@ export class Wave {
 
 	/**
 	 *
-	 * @param {Position} pos
-	 * @returns {import('./LevelObject').LevelObject}
+	 * @param {import('./LevelObject').LevelObject} lo
+	 * @returns {[import('./Enemy').Enemy, number]}
 	 */
-	getClosestEnemy( pos ) {
-		let closestValue = Infinity;
+	getClosestEnemy( lo ) {
+		let closestValue = lo.enemyDetectionRange;
 		let closestEnemy = null;
 
 		for( let i = 0; i < this.enemies.length; i++ ) {
 			const enemy = this.enemies[i];
-			const distance = euclidDistance( enemy, pos );
 
-			if( distance < closestValue ) {
+			if( enemy === lo || enemy.health <= 0 ) {
+				continue;
+			}
+
+			const distance = euclidDistance( enemy, lo );
+
+			if( distance <= closestValue ) {
 				closestValue = distance;
 				closestEnemy = enemy;
 
-				// TODO: use better value, better consider attack distance
-				// Close enough already, stop searching
-				if( closestValue < 10 ) {
+				// Towers should attack the closest enemy.
+				// Fighters can attack the first one within attack range.
+				if( !lo.isTower && closestValue <= lo.attackRange ) {
 					break;
 				}
 			}
 		}
 
-		return closestEnemy;
+		return [closestEnemy, closestValue];
 	}
 
 
 	/**
 	 *
-	 * @param {Position} pos
-	 * @returns {import('./Painting').Painting?}
+	 * @param {import('./LevelObject').LevelObject} lo
+	 * @returns {[import('./Painting').Painting?, number]}
 	 */
-	getClosestPlayerUnit( pos ) {
-		let closestValue = Infinity;
+	getClosestPlayerUnit( lo ) {
+		let closestValue = lo.enemyDetectionRange;
 		let closestUnit = null;
 
 		const checkDistance = unit => {
-			if( !unit ) {
+			if( !unit || unit === lo || unit.health <= 0 ) {
 				return;
 			}
 
-			const distance = euclidDistance( unit, pos );
+			const distance = euclidDistance( unit, lo );
 
-			if( distance < closestValue ) {
+			if( distance <= closestValue ) {
 				closestValue = distance;
 				closestUnit = unit;
 			}
 		};
 
 		const isCloseEnough = distance => {
-			// TODO: use better value, better consider attack distance
-			return distance < 10;
+			return !lo.isTower && distance <= lo.attackRange;
 		};
 
 		checkDistance( this.level.unicornPainting );
 
 		if( isCloseEnough( closestValue ) ) {
-			return closestUnit;
+			return [closestUnit, closestValue];
 		}
 
 		for( let i = 0; i < this.level.fighters.length; i++ ) {
@@ -103,7 +107,7 @@ export class Wave {
 			checkDistance( unit );
 
 			if( isCloseEnough( closestValue ) ) {
-				return closestUnit;
+				return [closestUnit, closestValue];
 			}
 		}
 
@@ -112,11 +116,11 @@ export class Wave {
 			checkDistance( tower );
 
 			if( isCloseEnough( closestValue ) ) {
-				return closestUnit;
+				return [closestUnit, closestValue];
 			}
 		}
 
-		return closestUnit;
+		return [closestUnit, closestValue];
 	}
 
 
@@ -129,6 +133,14 @@ export class Wave {
 			this.phase === Wave.PhaseFight &&
 			this.enemies.length === 0
 		);
+	}
+
+
+	/**
+	 *
+	 */
+	restart() {
+		this.phase = Wave.PhasePrepare;
 	}
 
 
@@ -148,11 +160,18 @@ export class Wave {
 
 	/**
 	 *
-	 * @param {number} _dt
+	 * @param {number} dt
 	 */
 	update( dt ) {
 		if( this.phase === Wave.PhaseFight ) {
-			this.enemies.forEach( e => e.update( dt ) );
+			for( let i = this.enemies.length - 1; i >= 0; i-- ) {
+				const enemy = this.enemies[i];
+				enemy.update( dt );
+
+				if( enemy.health <= 0 ) {
+					this.enemies.splice( i, 1 );
+				}
+			}
 		}
 	}
 

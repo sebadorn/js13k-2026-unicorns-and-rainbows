@@ -14,7 +14,7 @@ mkdir -p 'build/lib'
 
 cp 'dev/index-dev.html' 'build/'
 rsync -r 'dev/js/' 'build/'
-cp 'dev/img/'*.gif 'build/img'
+# cp 'dev/img/'*.gif 'build/img'
 
 cd 'build' > '/dev/null'
 
