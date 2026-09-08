@@ -48,7 +48,6 @@ export class PaintingArea {
 		this.clear();
 
 		this._undoButton = new UIButton(
-			Renderer.level,
 			{
 				w: 100,
 				h: 40,
@@ -58,7 +57,6 @@ export class PaintingArea {
 		);
 
 		this._clearButton = new UIButton(
-			Renderer.level,
 			{
 				w: 100,
 				h: 40,
@@ -68,7 +66,6 @@ export class PaintingArea {
 		);
 
 		this._doneButton = new UIButton(
-			Renderer.level,
 			{
 				w: 100,
 				h: 40,
@@ -81,7 +78,6 @@ export class PaintingArea {
 			.filter( c => !c.hidden )
 			.map( ( c, _i ) => {
 				return new UIButton(
-					Renderer.level,
 					{
 						w: 50,
 						h: 50,

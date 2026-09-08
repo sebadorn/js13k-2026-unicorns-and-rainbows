@@ -45,7 +45,6 @@ export class LevelMain extends Level {
 		this._setupStartAreas();
 
 		this._btnTryAgain = new UIButton(
-			this,
 			{
 				w: 100,
 				h: 40,

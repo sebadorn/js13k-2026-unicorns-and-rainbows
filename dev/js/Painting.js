@@ -75,14 +75,26 @@ export class Painting extends LevelObject {
 			return;
 		}
 
-		// TODO: attack animation
+		let rotate = 0;
+		let rotateCenter = null;
+
+		if( this.attackAnimation ) {
+			rotate = Math.sin( this.attackAnimation.timer.progress() * Math.PI ) * Math.PI / 2.5;
+			rotateCenter = this.getCenter();
+			rotateCenter.y += this.item.h / 2;
+			Renderer.rotateCenter( ctx, rotate, rotateCenter );
+		}
 
 		ctx.drawImage(
 			this.item.canvas,
-			this.x + this.w,
+			this.x + this.w * 0.9,
 			this.y + this.h / 2 - this.item.h,
 			this.item.w, this.item.h
 		);
+
+		if( rotate ) {
+			Renderer.rotateCenter( ctx, -rotate, rotateCenter );
+		}
 	}
 
 

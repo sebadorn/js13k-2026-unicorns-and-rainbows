@@ -1,8 +1,7 @@
 import { fontFamilySans, maxUsesMagicColor } from './Config.js';
-import { LevelObject } from './LevelObject.js';
 
 
-export class UIButton extends LevelObject {
+export class UIButton {
 
 
 	/** @type {boolean} */
@@ -11,7 +10,6 @@ export class UIButton extends LevelObject {
 
 	/**
 	 *
-	 * @param {import('./Level').Level} level
 	 * @param {object} options
 	 * @param {number} options.x
 	 * @param {number} options.y
@@ -22,8 +20,11 @@ export class UIButton extends LevelObject {
 	 * @param {string?} options.text
 	 * @param {function} onClick
 	 */
-	constructor( level, options, onClick ) {
-		super( level, options.x || 0, options.y || 0, options.w, options.h );
+	constructor( options, onClick ) {
+		this.x = options.x || 0;
+		this.y = options.y || 0;
+		this.w = options.w;
+		this.h = options.h;
 
 		this.text = options.text;
 		this.color = options.color || options.magicColor?.color || '#ddd';

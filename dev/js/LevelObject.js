@@ -1,5 +1,6 @@
 import { Animation } from './Animation.js';
 import { normalizeVector } from './MathUtils.js';
+import { Timer } from './Timer.js';
 
 
 export class LevelObject {
@@ -33,6 +34,8 @@ export class LevelObject {
 		this.w = w;
 		this.h = h;
 
+		this.cooldownAttack = new Timer( level );
+
 		this.attackDamage = 10;
 		this.attackRange = 20;
 		this.attackSpeed = 1; // seconds between attacks
@@ -48,14 +51,17 @@ export class LevelObject {
 	attack() {
 		if(
 			!this.target || this.target.health <= 0 ||
-			this.health <= 0 || this.hasActionInProgress()
+			this.health <= 0 ||
+			!this.cooldownAttack.elapsed()
 		) {
 			return;
 		}
 
+		this.cooldownAttack.set( this.attackSpeed );
+
 		this.attackAnimation = new Animation(
 			this.level,
-			this.attackSpeed,
+			0.5,
 			null,
 			_ => {
 				if( this.target && this.target.health > 0 ) {
@@ -77,7 +83,7 @@ export class LevelObject {
 			return;
 		}
 
-		if( this.hasActionInProgress() ) {
+		if( this.attackAnimation ) {
 			return;
 		}
 
@@ -132,15 +138,6 @@ export class LevelObject {
 			x: this.x + this.w / 2,
 			y: this.isTower ? this.y + this.h - this.w / 2 : this.y + this.h / 2,
 		};
-	}
-
-
-	/**
-	 *
-	 * @returns {boolean}
-	 */
-	hasActionInProgress() {
-		return !!this.attackAnimation;
 	}
 
 
