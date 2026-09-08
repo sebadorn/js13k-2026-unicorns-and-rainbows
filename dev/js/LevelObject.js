@@ -144,20 +144,11 @@ export class LevelObject {
 		const [target, distance] = this.findTarget();
 		this.target = target;
 
-		if( !target ) {
-			return;
-		}
-
-		if( this.isTower ) {
+		if( distance <= this.attackRange ) {
 			this.attack();
 		}
 		else {
-			if( distance <= this.attackRange ) {
-				this.attack();
-			}
-			else {
-				this.move();
-			}
+			this.move();
 		}
 	}
 
@@ -229,7 +220,7 @@ export class LevelObject {
 	 *
 	 */
 	move() {
-		if( this.moveAnimation || !this.target ) {
+		if( this.moveAnimation || !this.target || this.isTower ) {
 			return;
 		}
 

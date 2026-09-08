@@ -49,7 +49,9 @@ export class Wave {
 	 * @returns {[import('./Enemy').Enemy, number]}
 	 */
 	getClosestEnemy( lo ) {
-		let closestValue = lo.enemyDetectionRange;
+		const loCenter = lo.getCenter();
+
+		let closestValue = Math.max( lo.enemyDetectionRange, lo.attackRange );
 		let closestEnemy = null;
 
 		for( let i = 0; i < this.enemies.length; i++ ) {
@@ -59,7 +61,7 @@ export class Wave {
 				continue;
 			}
 
-			const distance = euclidDistance( enemy.getCenter(), lo );
+			const distance = euclidDistance( enemy.getCenter(), loCenter );
 
 			if( distance <= closestValue ) {
 				closestValue = distance;
@@ -83,7 +85,9 @@ export class Wave {
 	 * @returns {[import('./Painting').Painting?, number]}
 	 */
 	getClosestPlayerUnit( lo ) {
-		let closestValue = lo.enemyDetectionRange;
+		const loCenter = lo.getCenter();
+
+		let closestValue = Math.max( lo.enemyDetectionRange, lo.attackRange );
 		let closestUnit = null;
 
 		const checkDistance = unit => {
@@ -91,7 +95,7 @@ export class Wave {
 				return;
 			}
 
-			const distance = euclidDistance( unit.getCenter(), lo );
+			const distance = euclidDistance( unit.getCenter(), loCenter );
 
 			if( distance <= closestValue ) {
 				closestValue = distance;

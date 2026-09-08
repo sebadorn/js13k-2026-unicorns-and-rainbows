@@ -511,6 +511,7 @@ export class LevelMain extends Level {
 			return;
 		}
 
+		this.unicornPainting.update( dt );
 		this.towers.forEach( o => o.update( dt ) );
 		this.fighters.forEach( o => o.update( dt ) );
 		this.wave.update( dt );
