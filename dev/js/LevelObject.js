@@ -19,6 +19,18 @@ export class LevelObject {
 	moveAnimation = null;
 
 
+	static baseAttackDamage = 10;
+
+	static baseAttackRange = 20;
+	static baseAttackRangeTower = 200;
+
+	static baseAttackSpeed = 1; // seconds between attacks
+
+	static baseHealthMax = 100;
+
+	static baseMoveSpeed = 2;
+
+
 	/**
 	 *
 	 * @param {import('./Level').Level} level
@@ -35,13 +47,53 @@ export class LevelObject {
 		this.h = h;
 
 		this.cooldownAttack = new Timer( level );
-
-		this.attackDamage = 10;
-		this.attackRange = 20;
-		this.attackSpeed = 1; // seconds between attacks
 		this.enemyDetectionRange = 300;
 		this.health = 100;
-		this.moveSpeed = 2;
+	}
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get attackDamage() {
+		return LevelObject.baseAttackDamage;
+	}
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get attackRange() {
+		return LevelObject.baseAttackRange;
+	}
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get attackSpeed() {
+		return LevelObject.baseAttackSpeed;
+	}
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get healthMax() {
+		return LevelObject.baseHealthMax;
+	}
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get moveSpeed() {
+		return LevelObject.baseMoveSpeed;
 	}
 
 
@@ -121,7 +173,7 @@ export class LevelObject {
 	 * @param {string} color 
 	 */
 	drawHealthBar( ctx, color ) {
-		if( this.health === 100 ) {
+		if( this.health === this.healthMax ) {
 			return;
 		}
 
@@ -130,7 +182,7 @@ export class LevelObject {
 
 		const x = this.x - ( maxWidth - this.w ) / 2;
 		const y = this.y - 10;
-		const percent = this.health / 100;
+		const percent = this.health / this.healthMax;
 
 		// background bar
 		ctx.fillStyle = '#fff2';

@@ -1,5 +1,5 @@
-import { Colors } from './Config.js';
 import { LevelObject } from './LevelObject.js';
+import { Colors } from './MagicColors.js';
 import { Renderer } from './Renderer.js';
 
 
@@ -18,7 +18,15 @@ export class Enemy extends LevelObject {
 		super( level, x, y, w, h );
 
 		this.isEnemy = true;
-		this.enemyDetectionRange = 300;
+	}
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get attackDamage() {
+		return 5;
 	}
 
 

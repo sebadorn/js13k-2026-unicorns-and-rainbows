@@ -1,7 +1,8 @@
 import { Animation } from '../Animation.js';
 import { removeItem } from '../ArrayUtils.js';
-import { Colors, fontFamilySerif } from '../Config.js';
+import { fontFamilySerif } from '../Config.js';
 import { Level } from '../Level.js';
+import { Colors } from '../MagicColors.js';
 import { PaintingArea } from '../PaintingArea.js';
 import { Renderer } from '../Renderer.js';
 

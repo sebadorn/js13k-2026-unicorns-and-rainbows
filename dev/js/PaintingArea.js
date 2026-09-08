@@ -1,5 +1,7 @@
-import { Colors } from './Config.js';
-import { euclidDistance, isInside } from './MathUtils.js';
+import { fontFamilySans } from './Config.js';
+import { LevelObject } from './LevelObject.js';
+import { Colors } from './MagicColors.js';
+import { euclidDistance, isInside, numAsSignedStr } from './MathUtils.js';
 import { Painting } from './Painting.js';
 import { Renderer } from './Renderer.js';
 import { UIButton } from './UIButton.js';
@@ -14,7 +16,7 @@ export class PaintingArea {
 	/** @type {CanvasRenderingContext2D} */
 	ctx;
 
-	/** @type {MagicColor} */
+	/** @type {import('./MagicColors').MagicColor} */
 	_color;
 
 
@@ -35,6 +37,7 @@ export class PaintingArea {
 
 		this.brushSize = 5;
 		this.colorMode = 'single';
+		this.for = Painting.Unspecific;
 		this.visible = true;
 		this.showColorSelection = true;
 
@@ -107,6 +110,56 @@ export class PaintingArea {
 			btn.y = this.y + i * ( btn.h + 5 );
 			btn.draw( ctx );
 		} );
+	}
+
+
+	/**
+	 *
+	 * @private
+	 * @param {CanvasRenderingContext2D} ctx
+	 */
+	_drawColorMods( ctx ) {
+		const x = this.x + this.w + 20;
+		let y = this.y;
+		let text;
+
+		const addMod = mod => {
+			ctx.fillStyle = '#fff';
+
+			if( mod ) {
+				ctx.fillStyle = this._color.color;
+				text += numAsSignedStr( mod );
+			}
+
+			ctx.fillText( text, x, y += 30 );
+		};
+
+		ctx.textAlign = 'left';
+		ctx.font = `500 18px ${fontFamilySans}`;
+
+		if( this.for === Painting.FighterItem || this.for === Painting.TowerItem ) {
+			text = `Attack Dmg ${LevelObject.baseAttackDamage} `;
+			addMod( this._color.modAttackDamage );
+		}
+
+		if( this.for === Painting.Fighter || this.for === Painting.Tower ) {
+			const baseRange = this.for === Painting.Tower
+				? LevelObject.baseAttackRangeTower
+				: LevelObject.baseAttackRange;
+			text = `Attack Range ${baseRange} `;
+			addMod( this._color.modAttackRange );
+
+			text = `Attack Speed ${LevelObject.baseAttackSpeed} `;
+			addMod( this._color.modAttackSpeed );
+
+			text = `Health ${LevelObject.baseHealthMax} `;
+			addMod( this._color.modHealth );
+		}
+
+		if( this.for === Painting.Fighter ) {
+			text = `Move Speed ${LevelObject.baseMoveSpeed} `;
+			addMod( this._color.modMoveSpeed );
+		}
 	}
 
 
@@ -222,7 +275,7 @@ export class PaintingArea {
 
 	/**
 	 *
-	 * @param {MagicColor} newColor
+	 * @param {import('./MagicColors').MagicColor} newColor
 	 */
 	changeColor( newColor ) {
 		const oldColor = this._color;
@@ -261,6 +314,7 @@ export class PaintingArea {
 
 		if( this.showColorSelection ) {
 			this._drawColorButtons( ctx );
+			this._drawColorMods( ctx );
 		}
 
 		this._undoButton.x = this.x + this.w / 2 - this._undoButton.w - 10;

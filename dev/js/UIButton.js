@@ -16,7 +16,7 @@ export class UIButton {
 	 * @param {number} options.w
 	 * @param {number} options.h
 	 * @param {string?} options.color
-	 * @param {MagicColor?} options.magicColor
+	 * @param {import('./MagicColors').MagicColor?} options.magicColor
 	 * @param {string?} options.text
 	 * @param {function} onClick
 	 */

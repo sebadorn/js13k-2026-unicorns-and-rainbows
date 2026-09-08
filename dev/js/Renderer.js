@@ -1,5 +1,6 @@
-import { Colors, fontFamilySerif, targetFPS } from './Config.js';
+import { fontFamilySerif, targetFPS } from './Config.js';
 import { Input } from './Input.js';
+import { Colors } from './MagicColors.js';
 import { clamp } from './MathUtils.js';
 
 

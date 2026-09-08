@@ -1,4 +1,5 @@
-import { Colors, fontFamilySans } from './Config.js';
+import { fontFamilySans } from './Config.js';
+import { Colors } from './MagicColors.js';
 import { euclidDistance } from './MathUtils.js';
 
 

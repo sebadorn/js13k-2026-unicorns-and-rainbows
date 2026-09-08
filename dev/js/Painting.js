@@ -9,18 +9,25 @@ export class Painting extends LevelObject {
 	/** @type {HTMLCanvasElement} */
 	canvas;
 
-	/** @type {MagicColor} */
+	/** @type {import('./MagicColors').MagicColor} */
 	color;
 
 	/** @type {import('./Painting').Painting?} */
 	item = null;
 
 
+	static Unspecific = 0;
+	static Fighter = 1;
+	static Tower = 2;
+	static FighterItem = 3;
+	static TowerItem = 4;
+
+
 	/**
 	 * 
 	 * @param {import('./Level').Level} level
 	 * @param {HTMLCanvasElement} canvas
-	 * @param {MagicColor} color
+	 * @param {import('./MagicColors').MagicColor} color
 	 */
 	constructor( level, canvas, color ) {
 		super( level, 0, 0, canvas.width, canvas.height );
@@ -32,6 +39,59 @@ export class Painting extends LevelObject {
 		this.spawnLocation = -1;
 		this.isOnMap = false;
 		this.isTower = false;
+
+		this.health = this.healthMax;
+	}
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get attackDamage() {
+		if( this.item ) {
+			return this.item.attackDamage;
+		}
+
+		return LevelObject.baseAttackDamage + this.color.modAttackDamage;
+	}
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get attackRange() {
+		const value = this.isTower ? LevelObject.baseAttackRangeTower : LevelObject.baseAttackRange;
+
+		return value + this.color.modAttackRange;
+	}
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get attackSpeed() {
+		return LevelObject.baseAttackSpeed + this.color.modAttackSpeed;
+	}
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get healthMax() {
+		return LevelObject.baseHealthMax + this.color.modHealth;
+	}
+
+
+	/**
+	 *
+	 * @returns {number}
+	 */
+	get moveSpeed() {
+		return LevelObject.baseMoveSpeed + this.color.modMoveSpeed;
 	}
 
 
@@ -132,16 +192,16 @@ export class Painting extends LevelObject {
 
 		this._drawProjectile( ctx );
 
-		if( this.isTower ) {
-			// Attack range
-			const center = this.getCenter();
-			ctx.lineWidth = 1;
-			ctx.strokeStyle = this.color.color;
-			ctx.beginPath();
-			ctx.arc( center.x, center.y, this.attackRange, 0, Math.PI * 2 );
-			ctx.closePath();
-			ctx.stroke();
-		}
+		// if( this.isTower ) {
+		// 	// Attack range
+		// 	const center = this.getCenter();
+		// 	ctx.lineWidth = 1;
+		// 	ctx.strokeStyle = this.color.color;
+		// 	ctx.beginPath();
+		// 	ctx.arc( center.x, center.y, this.attackRange, 0, Math.PI * 2 );
+		// 	ctx.closePath();
+		// 	ctx.stroke();
+		// }
 	}
 
 
@@ -152,6 +212,8 @@ export class Painting extends LevelObject {
 		if( this.color ) {
 			this.color.used = Math.max( 0, this.color.used - 1 );
 		}
+
+		this.item?.freeColor();
 	}
 
 

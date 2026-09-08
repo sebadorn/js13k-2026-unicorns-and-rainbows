@@ -1,5 +1,6 @@
-import { Colors, fontFamilySerif } from '../Config.js';
+import { fontFamilySerif } from '../Config.js';
 import { Level } from '../Level.js';
+import { Colors } from '../MagicColors.js';
 import { isInside } from '../MathUtils.js';
 import { Painting } from '../Painting.js';
 import { PaintingArea } from '../PaintingArea.js';
@@ -201,12 +202,15 @@ export class LevelMain extends Level {
 					const newTower = this.paintingArea.getPainting( this );
 					newTower.spawnLocation = this.towerBuildAreas.indexOf( tba );
 
+					this.paintingArea.for = Painting.TowerItem;
+
 					this._getItemForPainting( item => {
 						this.addTower( newTower, tba );
 						newTower.setItem( item );
 					} );
 				};
 
+				this.paintingArea.for = Painting.Tower;
 				this.paintingArea.visible = true;
 			}
 		}
@@ -219,12 +223,15 @@ export class LevelMain extends Level {
 						const newFighter = this.paintingArea.getPainting( this );
 						newFighter.spawnLocation = this.fighterStartAreas.indexOf( fsa );
 
+						this.paintingArea.for = Painting.FighterItem;
+
 						this._getItemForPainting( item => {
 							this.addFighter( newFighter, fsa );
 							newFighter.setItem( item );
 						} );
 					};
 
+					this.paintingArea.for = Painting.Fighter;
 					this.paintingArea.visible = true;
 				}
 			}
@@ -390,8 +397,6 @@ export class LevelMain extends Level {
 		painting.addedInWave = this.wave.index;
 		painting.isOnMap = true;
 		painting.isTower = true;
-
-		painting.attackRange = 200;
 		painting.enemyDetectionRange = painting.attackRange;
 
 		const scale = area.w / painting.w;

@@ -66,6 +66,16 @@ export function normalizeVector( v ) {
 
 
 /**
+ *
+ * @param {number} v
+ * @returns {string}
+ */
+export function numAsSignedStr( v ) {
+	return ( v < 0 ? '' : '+' ) + v;
+};
+
+
+/**
  * Return a random (rounded) number from the interval [start, end].
  * @param {number} start
  * @param {number} end
