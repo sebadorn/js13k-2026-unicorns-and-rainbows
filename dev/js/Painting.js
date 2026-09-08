@@ -186,23 +186,6 @@ export class Painting extends LevelObject {
 
 
 	/**
-	 * Create a copy that still shares the same level and canvas.
-	 * @returns {Painting}
-	 */
-	shallowCopy() {
-		const copy = new Painting( this.level, this.canvas );
-		copy.x = this.x;
-		copy.y = this.y;
-		copy.isOnMap = this.isOnMap;
-		copy.isTower = this.isTower;
-		copy.color = this.color;
-		copy.item = this.item?.shallowCopy();
-
-		return copy;
-	}
-
-
-	/**
 	 *
 	 * @param {number} dt
 	 */
