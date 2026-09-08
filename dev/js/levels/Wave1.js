@@ -8,8 +8,7 @@ export class Wave1 extends Wave {
 
 
 	index = 0;
-	newTowers = 0; // TODO: set to 1
-	newFighters = 1; // TODO: remove
+	newTowers = 1;
 
 
 	/**
@@ -20,8 +19,7 @@ export class Wave1 extends Wave {
 		const w = Renderer.drawWidth;
 		const h = Renderer.drawHeight;
 
-		// TODO: remove "|| ..." part
-		const tower = this.level.towers[0] || this.level.fighters[0];
+		const tower = this.level.towers[0];
 		const isLeft = tower.x < w / 2;
 		const isTop = tower.y + tower.h < h / 2;
 

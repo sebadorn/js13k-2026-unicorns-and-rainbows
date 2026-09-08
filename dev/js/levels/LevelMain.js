@@ -69,23 +69,49 @@ export class LevelMain extends Level {
 	/**
 	 *
 	 * @private
-	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {CanvasRenderingContext2D} ctxUI
 	 */
-	_drawGameOver( ctx ) {
+	_drawGameOver( ctxUI ) {
 		const w = Renderer.drawWidth;
 		const h = Renderer.drawHeight;
 
-		ctx.fillStyle = '#0000007f';
-		ctx.fillRect( 0, 0, w, h );
+		ctxUI.fillStyle = '#0000007f';
+		ctxUI.fillRect( 0, 0, w, h );
 
-		ctx.fillStyle = Colors.White.color;
-		ctx.font = `500 56px ${fontFamilySerif}`;
-		ctx.textAlign = 'center';
-		ctx.fillText( 'Darkness covers all again', w / 2, h / 2 );
+		ctxUI.fillStyle = Colors.White.color;
+		ctxUI.font = `500 56px ${fontFamilySerif}`;
+		ctxUI.textAlign = 'center';
+		ctxUI.fillText( 'Darkness covers all again', w / 2, h / 2 );
 
 		this._btnTryAgain.x = ( w - this._btnTryAgain.w ) / 2;
 		this._btnTryAgain.y = h / 2 + 122;
-		this._btnTryAgain.draw( ctx );
+		this._btnTryAgain.draw( ctxUI );
+	}
+
+
+	/**
+	 *
+	 * @private
+	 * @param {CanvasRenderingContext2D} ctxUI
+	 */
+	_drawHealthBar( ctxUI ) {
+		if( this.wave.phase !== Wave.PhaseFight ) {
+			return;
+		}
+
+		const height = 20;
+		const maxWidth = Renderer.drawWidth * 0.4;
+		const x = ( Renderer.drawWidth - maxWidth ) / 2;
+		const y = Renderer.drawHeight - height - 100;
+		const percent = this.unicornPainting.health / 100;
+
+		// background bar
+		ctxUI.fillStyle = '#fff2';
+		ctxUI.fillRect( x, y, maxWidth, height );
+
+		// current state bar
+		ctxUI.fillStyle = Colors.White.color;
+		ctxUI.fillRect( x, y, percent * maxWidth, height );
 	}
 
 
@@ -389,6 +415,7 @@ export class LevelMain extends Level {
 	 */
 	draw( ctx, ctxUI ) {
 		this._drawMap( ctx );
+		this._drawHealthBar( ctxUI );
 
 		if( this.isGameOver ) {
 			this._drawGameOver( ctxUI );
