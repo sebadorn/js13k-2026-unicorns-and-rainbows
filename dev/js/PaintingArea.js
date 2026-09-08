@@ -36,7 +36,6 @@ export class PaintingArea {
 		this.onDone = onDone;
 
 		this.brushSize = 5;
-		this.colorMode = 'single';
 		this.for = Painting.Unspecific;
 		this.visible = true;
 		this.showColorSelection = true;
@@ -281,13 +280,9 @@ export class PaintingArea {
 		const oldColor = this._color;
 		this._color = newColor;
 
-		// In "single" color mode repaint everything in the new color.
-		// In "multi" color mode we just continue with the new color from on.
-		if( this.colorMode === 'single' ) {
-			this.repaintFromHistory();
-			this._history.push( oldColor );
-			this._history.push( null );
-		}
+		this.repaintFromHistory();
+		this._history.push( oldColor );
+		this._history.push( null );
 	}
 
 
@@ -394,15 +389,8 @@ export class PaintingArea {
 	repaintFromHistory() {
 		this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height );
 
-		const isMultiColorMode = this.colorMode === 'multi';
-
 		this._history.forEach( h => {
-			if( h?.color ) {
-				if( isMultiColorMode ) {
-					this._color = h;
-				}
-			}
-			else if( h ) {
+			if( h && !h.color ) {
 				this.brushDown( h, true );
 			}
 			else {
