@@ -296,7 +296,14 @@ export class PaintingArea {
 	 * @param {Position} pos
 	 */
 	onClick( pos ) {
-		if( this.visible ) {
+		if( !this.visible ) {
+			return;
+		}
+
+		if( isInside( pos, this ) ) {
+			this.brushDown( pos );
+		}
+		else {
 			const btn = this._getButtonAtPos( pos );
 			btn?.onClick();
 		}
