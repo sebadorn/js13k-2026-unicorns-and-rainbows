@@ -1,11 +1,11 @@
 /**
- * @typedef {object} Position
+ * @typedef {Object} Position
  * @property {number} x
  * @property {number} y
  */
 
 /**
- * @typedef {object} Area
+ * @typedef {Object} Area
  * @property {number} x
  * @property {number} y
  * @property {number} w

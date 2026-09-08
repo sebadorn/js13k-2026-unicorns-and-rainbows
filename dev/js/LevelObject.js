@@ -1,5 +1,8 @@
 import { Animation } from './Animation.js';
-import { normalizeVector } from './MathUtils.js';
+import { removeItem } from './ArrayUtils.js';
+import { fontFamilySans } from './Config.js';
+import { Colors } from './MagicColors.js';
+import { lerp, normalizeVector, numAsSignedStr } from './MathUtils.js';
 import { Timer } from './Timer.js';
 
 
@@ -111,18 +114,17 @@ export class LevelObject {
 
 		this.cooldownAttack.set( this.attackSpeed );
 
-		this.attackAnimation = new Animation(
-			this.level,
-			0.5,
-			null,
-			_ => {
+		this.attackAnimation = new Animation( {
+			level: this.level,
+			duration: 0.5,
+			onDone: _ => {
 				if( this.target && this.target.health > 0 ) {
-					this.target.health -= this.attackDamage;
+					this.target.takeDamage( this.attackDamage );
 				}
 
 				this.attackAnimation = null;
 			},
-		);
+		} );
 	}
 
 
@@ -163,8 +165,11 @@ export class LevelObject {
 	/**
 	 *
 	 * @param {CanvasRenderingContext2D} _ctx
+	 * @param {CanvasRenderingContext2D} ctxUI
 	 */
-	draw( _ctx ) {}
+	draw( _ctx, ctxUI ) {
+		this.animations.forEach( a => a.draw( ctxUI ) );
+	}
 
 
 	/**
@@ -228,10 +233,10 @@ export class LevelObject {
 			return;
 		}
 
-		this.moveAnimation = new Animation(
-			this.level,
-			1,
-			( _, dt ) => {
+		this.moveAnimation = new Animation( {
+			level: this.level,
+			duration: 1,
+			onUpdate: ( _progress, dt ) => {
 				if( !this.target ) {
 					this.moveAnimation = null;
 					return;
@@ -248,10 +253,10 @@ export class LevelObject {
 				this.x += direction.x * speed;
 				this.y += direction.y * speed;
 			},
-			_ => {
+			onDone: _ => {
 				this.moveAnimation = null;
 			},
-		);
+		} );
 	}
 
 
@@ -264,6 +269,38 @@ export class LevelObject {
 		this.moveAnimation = null;
 		this.health = 100;
 		this.target = null;
+	}
+
+
+	/**
+	 *
+	 * @param {number} dmg
+	 */
+	takeDamage( dmg ) {
+		this.health -= dmg;
+
+		const xStart = this.x + this.w * 0.8;
+		const yStart = this.y;
+		const yEnd = yStart - 60;
+		let y = yStart;
+		let alpha = 1;
+
+		this.animations.push( new Animation( {
+			level: this.level,
+			duration: 1,
+			onUpdate: progress => {
+				y = lerp( yStart, yEnd, progress );
+				alpha = 1 - progress * progress;
+			},
+			onDraw: ctx => {
+				ctx.globalAlpha = alpha;
+				ctx.font = `500 14px ${fontFamilySans}`;
+				ctx.fillStyle = dmg > 0 ? Colors.Red.color : Colors.Green.color;
+				ctx.fillText( numAsSignedStr( dmg ), xStart, y );
+				ctx.globalAlpha = 1;
+			},
+			onDone: a => removeItem( this.animations, a ),
+		} ) );
 	}
 
 

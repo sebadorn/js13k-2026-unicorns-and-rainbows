@@ -26,7 +26,7 @@ export class PaintingArea {
 	 * @param {number} y
 	 * @param {number} w
 	 * @param {number} h
-	 * @param {function} onDone
+	 * @param {Function} onDone
 	 */
 	constructor( x, y, w, h, onDone ) {
 		this.x = x;

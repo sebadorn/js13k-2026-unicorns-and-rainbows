@@ -117,8 +117,9 @@ export class LevelMain extends Level {
 	 *
 	 * @private
 	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {CanvasRenderingContext2D} ctxUI
 	 */
-	_drawMap( ctx ) {
+	_drawMap( ctx, ctxUI ) {
 		const w = Renderer.drawWidth;
 		const h = Renderer.drawHeight;
 
@@ -131,9 +132,9 @@ export class LevelMain extends Level {
 
 		this.unicornPainting.x = ( w - this.unicornPainting.w ) / 2;
 		this.unicornPainting.y = ( h - this.unicornPainting.h ) / 2;
-		this.unicornPainting.draw( ctx );
+		this.unicornPainting.draw( ctx, ctxUI );
 
-		this._allUnits.forEach( u => u.draw( ctx ) );
+		this._allUnits.forEach( u => u.draw( ctx, ctxUI ) );
 		this.wave.draw( ctx );
 	}
 
@@ -173,7 +174,7 @@ export class LevelMain extends Level {
 	/**
 	 *
 	 * @private
-	 * @param {function} cb
+	 * @param {Function} cb
 	 */
 	_getItemForPainting( cb ) {
 		this.paintingArea.clear();
@@ -416,7 +417,7 @@ export class LevelMain extends Level {
 	 * @param {CanvasRenderingContext2D} ctxUI
 	 */
 	draw( ctx, ctxUI ) {
-		this._drawMap( ctx );
+		this._drawMap( ctx, ctxUI );
 		this._drawHealthBar( ctxUI );
 
 		if( this.isGameOver ) {

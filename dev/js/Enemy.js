@@ -33,8 +33,11 @@ export class Enemy extends LevelObject {
 	/**
 	 *
 	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {CanvasRenderingContext2D} ctxUI
 	 */
-	draw( ctx ) {
+	draw( ctx, ctxUI ) {
+		super.draw( ctx, ctxUI );
+
 		this.drawHealthBar( ctx, Colors.White.color );
 
 		let rotation = 0;

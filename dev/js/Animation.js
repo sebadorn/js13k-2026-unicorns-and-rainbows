@@ -6,15 +6,18 @@ export class Animation {
 
 	/**
 	 *
-	 * @param {import('./Level').Level} level
-	 * @param {number}   duration - Duration in seconds.
-	 * @param {function?} onUpdate
-	 * @param {function?} onDone 
+	 * @param {Object} options
+	 * @param {import('./Level').Level} options.level
+	 * @param {number} options.duration - Duration in seconds.
+	 * @param {doneCallback?} options.onDone
+	 * @param {drawCallback?} options.onDraw
+	 * @param {updateCallback?} options.onUpdate
 	 */
-	constructor( level, duration, onUpdate, onDone ) {
-		this.timer = new Timer( level, duration );
-		this.onUpdate = onUpdate;
-		this.onDone = onDone;
+	constructor( options ) {
+		this.timer = new Timer( options.level, options.duration );
+		this.onUpdate = options.onUpdate;
+		this.onDone = options.onDone;
+		this.onDraw = options.onDraw;
 	}
 
 
@@ -37,4 +40,30 @@ export class Animation {
 	}
 
 
+	/**
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 */
+	draw( ctx ) {
+		this.onDraw?.( ctx );
+	}
+
+
 };
+
+
+/**
+ * @callback updateCallback
+ * @param {number} progress
+ * @param {number} dt
+ */
+
+/**
+ * @callback drawCallback
+ * @param {CanvasRenderingContext2D} ctx
+ */
+
+/**
+ * @callback doneCallback
+ * @param {Animation} animation
+ */

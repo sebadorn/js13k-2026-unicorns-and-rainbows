@@ -161,11 +161,14 @@ export class Painting extends LevelObject {
 	/**
 	 *
 	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {CanvasRenderingContext2D} ctxUI
 	 */
-	draw( ctx ) {
+	draw( ctx, ctxUI ) {
 		if( !this.isOnMap || this.health <= 0 ) {
 			return;
 		}
+
+		super.draw( ctx, ctxUI );
 
 		if( this !== this.level.unicornPainting ) {
 			this.drawHealthBar( ctx, this.color.color );
@@ -191,17 +194,6 @@ export class Painting extends LevelObject {
 		}
 
 		this._drawProjectile( ctx );
-
-		// if( this.isTower ) {
-		// 	// Attack range
-		// 	const center = this.getCenter();
-		// 	ctx.lineWidth = 1;
-		// 	ctx.strokeStyle = this.color.color;
-		// 	ctx.beginPath();
-		// 	ctx.arc( center.x, center.y, this.attackRange, 0, Math.PI * 2 );
-		// 	ctx.closePath();
-		// 	ctx.stroke();
-		// }
 	}
 
 

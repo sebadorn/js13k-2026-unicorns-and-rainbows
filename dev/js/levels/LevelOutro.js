@@ -13,7 +13,7 @@ export class LevelOutro extends Level {
 	/** @type {import('../Painting').Painting[]} */
 	_paintings = [];
 
-	/** @type {object[]} */
+	/** @type {Object[]} */
 	_steps = [
 		{ text: 'What did grass look like?', color: Colors.Green },
 		{ text: 'A bird, flying in the sky.', color: Colors.Blue },
@@ -39,13 +39,13 @@ export class LevelOutro extends Level {
 				this.paintingArea.clear();
 				this.paintingArea.visible = false;
 	
-				this.animations.push( new Animation(
-					this,
-					2,
-					progress => {
+				this.animations.push( new Animation( {
+					level: this,
+					duration: 2,
+					onUpdate: progress => {
 						// TODO:
 					},
-					anim => {
+					onDone: anim => {
 						removeItem( this.animations, anim );
 						this._step++;
 
@@ -58,7 +58,7 @@ export class LevelOutro extends Level {
 							}
 						}
 					},
-				) );
+				} ) );
 			},
 		);
 		this.paintingArea.changeColor( this._steps[0].color );

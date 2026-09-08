@@ -89,7 +89,7 @@ export const Input = {
 	/**
 	 * Add a listener for the keydown event.
 	 * @param {string|string[]} codes - Key code(s).
-	 * @param {function}        cb    - Callback.
+	 * @param {Function}        cb    - Callback.
 	 */
 	onKeyDown( codes, cb ) {
 		codes = !Array.isArray( codes ) ? [codes] : codes;
@@ -105,7 +105,7 @@ export const Input = {
 	/**
 	 * Add a listener for the keyup event.
 	 * @param {string|string[]} codes - Key code(s).
-	 * @param {function}        cb    - Callback.
+	 * @param {Function}        cb    - Callback.
 	 */
 	onKeyUp( codes, cb ) {
 		codes = !Array.isArray( codes ) ? [codes] : codes;

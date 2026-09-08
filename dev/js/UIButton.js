@@ -10,7 +10,7 @@ export class UIButton {
 
 	/**
 	 *
-	 * @param {object} options
+	 * @param {Object} options
 	 * @param {number} options.x
 	 * @param {number} options.y
 	 * @param {number} options.w
@@ -18,7 +18,7 @@ export class UIButton {
 	 * @param {string?} options.color
 	 * @param {import('./MagicColors').MagicColor?} options.magicColor
 	 * @param {string?} options.text
-	 * @param {function} onClick
+	 * @param {Function} onClick
 	 */
 	constructor( options, onClick ) {
 		this.x = options.x || 0;

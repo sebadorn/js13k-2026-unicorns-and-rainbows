@@ -4,7 +4,7 @@ export class MagicColor {
 	/**
 	 *
 	 * @param {string} color
-	 * @param {object} [mods = {}]
+	 * @param {Object} [mods = {}]
 	 * @param {number?} mods.attackDamage
 	 * @param {number?} mods.attackRange
 	 * @param {number?} mods.attackSpeed
