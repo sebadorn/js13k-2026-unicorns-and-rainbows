@@ -25,7 +25,7 @@ export class Animation {
 	 * Progress the animation.
 	 * @param {number} dt
 	 */
-	do( dt ) {
+	update( dt ) {
 		if( !this.timer ) {
 			return;
 		}

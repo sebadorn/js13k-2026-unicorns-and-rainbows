@@ -301,8 +301,8 @@ export class LevelObject {
 	 */
 	update( dt ) {
 		this.animations.forEach( a => a.do( dt ) );
-		this.attackAnimation?.do( dt );
-		this.moveAnimation?.do( dt );
+		this.attackAnimation?.update( dt );
+		this.moveAnimation?.update( dt );
 	}
 
 

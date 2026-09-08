@@ -330,6 +330,7 @@ export class PaintingArea {
 
 	/**
 	 *
+	 * @param {import('./Level').Level} level
 	 * @returns {Painting}
 	 */
 	getPainting( level ) {
