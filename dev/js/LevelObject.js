@@ -116,6 +116,33 @@ export class LevelObject {
 
 
 	/**
+	 * 
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {string} color 
+	 */
+	drawHealthBar( ctx, color ) {
+		if( this.health === 100 ) {
+			return;
+		}
+
+		const height = 6;
+		const maxWidth = 80;
+
+		const x = this.x - ( maxWidth - this.w ) / 2;
+		const y = this.y - 10;
+		const percent = this.health / 100;
+
+		// background bar
+		ctx.fillStyle = '#fff2';
+		ctx.fillRect( x, y, maxWidth, height );
+
+		// current state bar
+		ctx.fillStyle = color;
+		ctx.fillRect( x, y, percent * maxWidth, height );
+	}
+
+
+	/**
 	 *
 	 * @returns {[LevelObject?, number]}
 	 */
@@ -157,10 +184,12 @@ export class LevelObject {
 					this.moveAnimation = null;
 					return;
 				}
+				
+				const targetCenter = this.target.getCenter();
 
 				const direction = normalizeVector( {
-					x: this.target.x - this.x,
-					y: this.target.y - this.y,
+					x: targetCenter.x - this.x,
+					y: targetCenter.y - this.y,
 				} );
 
 				const speed = this.moveSpeed * dt;

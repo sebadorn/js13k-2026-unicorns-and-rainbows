@@ -107,6 +107,10 @@ export class Painting extends LevelObject {
 			return;
 		}
 
+		if( this !== this.level.unicornPainting ) {
+			this.drawHealthBar( ctx, this.color.color );
+		}
+
 		let rotation = 0;
 		let center = null;
 

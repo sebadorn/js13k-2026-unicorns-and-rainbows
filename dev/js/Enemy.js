@@ -27,6 +27,8 @@ export class Enemy extends LevelObject {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
+		this.drawHealthBar( ctx, Colors.White.color );
+
 		let rotation = 0;
 		let center = null;
 

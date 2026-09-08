@@ -58,7 +58,7 @@ export class Wave {
 				continue;
 			}
 
-			const distance = euclidDistance( enemy, lo );
+			const distance = euclidDistance( enemy.getCenter(), lo );
 
 			if( distance <= closestValue ) {
 				closestValue = distance;
@@ -90,7 +90,7 @@ export class Wave {
 				return;
 			}
 
-			const distance = euclidDistance( unit, lo );
+			const distance = euclidDistance( unit.getCenter(), lo );
 
 			if( distance <= closestValue ) {
 				closestValue = distance;

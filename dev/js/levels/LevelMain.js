@@ -1,6 +1,7 @@
 import { Colors, fontFamilySerif } from '../Config.js';
 import { Level } from '../Level.js';
 import { isInside } from '../MathUtils.js';
+import { Painting } from '../Painting.js';
 import { PaintingArea } from '../PaintingArea.js';
 import { Renderer } from '../Renderer.js';
 import { UIButton } from '../UIButton.js';
@@ -54,15 +55,11 @@ export class LevelMain extends Level {
 		);
 
 		// TODO: remove, only used as shortcut in development
-		this.unicornPainting = {
-			health: 100,
-			w: 80,
-			h: 80,
-			draw( ctx ) {
-				ctx.fillStyle = Colors.White.color;
-				ctx.fillRect( this.x, this.y, this.w, this.h );
-			},
-		};
+		const [tmpCanvas, tmpCtx] = Renderer.getOffscreenCanvas( 80, 80 );
+		tmpCtx.fillStyle = Colors.White.color;
+		tmpCtx.fillRect( 0, 0, 80, 80 );
+		this.unicornPainting = new Painting( this, tmpCanvas, Colors.White );
+		this.unicornPainting.isOnMap = true;
 	}
 
 
