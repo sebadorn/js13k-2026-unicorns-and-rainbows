@@ -22,15 +22,13 @@ export class PaintingArea {
 
 	/**
 	 *
-	 * @param {number} x
-	 * @param {number} y
 	 * @param {number} w
 	 * @param {number} h
 	 * @param {Function} onDone
 	 */
-	constructor( x, y, w, h, onDone ) {
-		this.x = x;
-		this.y = y;
+	constructor( w, h, onDone ) {
+		this.x = 0;
+		this.y = 0;
 		this.w = w;
 		this.h = h;
 		this.onDone = onDone;
@@ -299,6 +297,12 @@ export class PaintingArea {
 			return;
 		}
 
+		ctx.fillStyle = '#000a';
+		ctx.fillRect( 0, 0, Renderer.drawWidth, Renderer.drawHeight );
+
+		this.x = ( Renderer.drawWidth - this.w ) / 2;
+		this.y = ( Renderer.drawHeight - this.h ) / 2;
+
 		// background
 		ctx.fillStyle = '#000';
 		ctx.fillRect( this.x, this.y, this.w, this.h );
@@ -380,7 +384,23 @@ export class PaintingArea {
 			);
 		}
 
-		return new Painting( level, copyCanvas, this._color );
+		return new Painting( level, copyCanvas, this._color, this._history.slice() );
+	}
+
+
+	/**
+	 *
+	 * @param {Painting?} painting
+	 */
+	loadPainting( painting ) {
+		if( !painting ) {
+			return;
+		}
+
+		this.resize( painting.w, painting.h );
+		this._color = painting.color;
+		this._history = painting.history;
+		this.repaintFromHistory();
 	}
 
 
@@ -454,6 +474,8 @@ export class PaintingArea {
 		this.canvas.height = h;
 		this.w = w;
 		this.h = h;
+		this.x = ( Renderer.drawWidth - this.w ) / 2;
+		this.y = ( Renderer.drawHeight - this.h ) / 2;
 	}
 
 

@@ -1,3 +1,4 @@
+import { removeItem } from '../ArrayUtils.js';
 import { fontFamilySerif } from '../Config.js';
 import { Level } from '../Level.js';
 import { Colors } from '../MagicColors.js';
@@ -37,9 +38,7 @@ export class LevelMain extends Level {
 		this.numMaxTowers = this.wave.newTowers;
 
 		this.paintingArea = new PaintingArea(
-			Renderer.drawWidth / 2 - 250,
-			Renderer.drawHeight / 2 - 250,
-			500, 500,
+			400, 400,
 			() => {},
 		);
 		this.paintingArea.visible = false;
@@ -199,11 +198,23 @@ export class LevelMain extends Level {
 		const tba = this.towerBuildAreas.find( tba => isInside( pos, tba ) );
 
 		if( tba ) {
-			if( this.towers.length < this.numMaxTowers ) {
-				this.paintingArea.onDone = () => {
-					const newTower = this.paintingArea.getPainting( this );
-					newTower.spawnLocation = this.towerBuildAreas.indexOf( tba );
+			const index = this.towerBuildAreas.indexOf( tba );
+			const existing = this.towers.find( t => t.spawnLocation === index );
 
+			if( existing || this.towers.length < this.numMaxTowers ) {
+				this.paintingArea.resize( 300, 500 );
+				this.paintingArea.for = Painting.Tower;
+				this.paintingArea.loadPainting( existing );
+				this.paintingArea.visible = true;
+
+				this.paintingArea.onDone = () => {
+					existing?.freeColor();
+					removeItem( this.towers, existing );
+
+					const newTower = this.paintingArea.getPainting( this );
+					newTower.spawnLocation = index;
+
+					this.paintingArea.resize( 200, 200 );
 					this.paintingArea.for = Painting.TowerItem;
 
 					this._getItemForPainting( item => {
@@ -211,20 +222,30 @@ export class LevelMain extends Level {
 						newTower.setItem( item );
 					} );
 				};
-
-				this.paintingArea.for = Painting.Tower;
-				this.paintingArea.visible = true;
 			}
 		}
 		else {
 			const fsa = this.fighterStartAreas.find( fsa => isInside( pos, fsa ) );
 
 			if( fsa ) {
-				if( this.fighters.length < this.numMaxFighters ) {
-					this.paintingArea.onDone = () => {
-						const newFighter = this.paintingArea.getPainting( this );
-						newFighter.spawnLocation = this.fighterStartAreas.indexOf( fsa );
+				const index = this.fighterStartAreas.indexOf( fsa );
+				const existing = this.fighters.find( f => f.spawnLocation === index );
 
+				// Edit an existing one or add a new one (if under limit)
+				if( existing || this.fighters.length < this.numMaxFighters ) {
+					this.paintingArea.resize( 400, 400 );
+					this.paintingArea.for = Painting.Fighter;
+					this.paintingArea.loadPainting( existing );
+					this.paintingArea.visible = true;
+
+					this.paintingArea.onDone = () => {
+						existing?.freeColor();
+						removeItem( this.fighters, existing );
+
+						const newFighter = this.paintingArea.getPainting( this );
+						newFighter.spawnLocation = index;
+
+						this.paintingArea.resize( 200, 400 );
 						this.paintingArea.for = Painting.FighterItem;
 
 						this._getItemForPainting( item => {
@@ -232,9 +253,6 @@ export class LevelMain extends Level {
 							newFighter.setItem( item );
 						} );
 					};
-
-					this.paintingArea.for = Painting.Fighter;
-					this.paintingArea.visible = true;
 				}
 			}
 		}

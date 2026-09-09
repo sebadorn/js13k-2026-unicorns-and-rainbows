@@ -28,12 +28,14 @@ export class Painting extends LevelObject {
 	 * @param {import('./Level').Level} level
 	 * @param {HTMLCanvasElement} canvas
 	 * @param {import('./MagicColors').MagicColor} color
+	 * @param {any[]} [history = []]
 	 */
-	constructor( level, canvas, color ) {
+	constructor( level, canvas, color, history = [] ) {
 		super( level, 0, 0, canvas.width, canvas.height );
 
 		this.canvas = canvas;
 		this.color = color;
+		this.history = history;
 
 		this.addedInWave = 0;
 		this.spawnLocation = -1;
@@ -120,7 +122,7 @@ export class Painting extends LevelObject {
 		ctx.drawImage(
 			this.item.canvas,
 			x, y,
-			30, 30
+			80, 80
 		);
 	}
 

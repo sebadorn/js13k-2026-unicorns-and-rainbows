@@ -31,7 +31,7 @@ export class Wave3 extends Wave {
 		if( this.phase === Wave.PhasePrepare ) {
 			ctx.fillText(
 				'Prepare for the coming wave',
-				w / 2, h / 2
+				w / 2, h * 0.2
 			);
 		}
 	}

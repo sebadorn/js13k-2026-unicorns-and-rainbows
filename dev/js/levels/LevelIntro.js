@@ -27,8 +27,6 @@ export class LevelIntro extends Level {
 		super();
 
 		this.paintingArea = new PaintingArea(
-			Renderer.drawWidth / 2 - 100,
-			Renderer.drawHeight / 2,
 			200, 200,
 			() => {
 				const nextLevel = new LevelMain();

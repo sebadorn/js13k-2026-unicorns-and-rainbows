@@ -30,7 +30,7 @@ export class Wave2 extends Wave {
 		if( this.phase === Wave.PhasePrepare ) {
 			ctx.fillText(
 				'Select a spawn field to paint your first fighter',
-				w / 2, h / 2
+				w / 2, h * 0.2
 			);
 		}
 	}

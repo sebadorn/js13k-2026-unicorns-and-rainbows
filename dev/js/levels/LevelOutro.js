@@ -42,8 +42,6 @@ export class LevelOutro extends Level {
 		this._step = 0;
 
 		this.paintingArea = new PaintingArea(
-			Renderer.drawWidth / 2 - 110,
-			Renderer.drawHeight / 2 - 110,
 			220, 220,
 			() => {
 				const stepData = this._steps[this._step];
