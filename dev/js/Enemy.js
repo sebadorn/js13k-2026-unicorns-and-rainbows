@@ -6,6 +6,10 @@ import { Renderer } from './Renderer.js';
 export class Enemy extends LevelObject {
 
 
+	/** @type {HTMLCanvasElement?} */
+	static canvas = null;
+
+
 	/**
 	 *
 	 * @param {import('./levels/LevelMain').LevelMain} level
@@ -51,8 +55,13 @@ export class Enemy extends LevelObject {
 			Renderer.rotateCenter( ctx, rotation, center );
 		}
 
-		ctx.strokeStyle = Colors.White.color;
-		ctx.strokeRect( this.x, this.y, this.w, this.h );
+		if( Enemy.canvas ) {
+			ctx.drawImage( Enemy.canvas, this.x, this.y, this.w, this.h );
+		}
+		else {
+			ctx.strokeStyle = Colors.White.color;
+			ctx.strokeRect( this.x, this.y, this.w, this.h );
+		}
 
 		if( rotation ) {
 			Renderer.rotateCenter( ctx, -rotation, center );

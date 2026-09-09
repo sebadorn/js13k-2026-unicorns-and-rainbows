@@ -1,4 +1,5 @@
 import { fontFamilySerif } from '../Config.js';
+import { Enemy } from '../Enemy.js';
 import { Level } from '../Level.js';
 import { Colors } from '../MagicColors.js';
 import { PaintingArea } from '../PaintingArea.js';
@@ -16,6 +17,7 @@ export class LevelIntro extends Level {
 		'But some motes of magic still stirred',
 		'Colorful unicorn magic, painting on a dark canvas',
 		'Please guide the brush: Draw a small unicorn',
+		'Now give shape to the Darkness, something to defeat:',
 	];
 
 
@@ -25,15 +27,24 @@ export class LevelIntro extends Level {
 	constructor() {
 		super();
 
+		const nextLevel = new LevelMain();
+
 		this.paintingArea = new PaintingArea(
 			200, 200,
 			() => {
-				const nextLevel = new LevelMain();
 				nextLevel.unicornPainting = this.paintingArea.getPainting( nextLevel );
 				nextLevel.unicornPainting.isOnMap = true;
 				nextLevel.unicornPainting.canMove = false;
 
-				Renderer.changeLevel( nextLevel );
+				this.paintingArea.clear();
+				this.paintingArea.visible = false;
+
+				this._step++;
+
+				this.paintingArea.onDone = () => {
+					Enemy.canvas = this.paintingArea.getPainting( nextLevel ).canvas;
+					Renderer.changeLevel( nextLevel );
+				};
 			},
 		);
 		this.paintingArea.offsetY = 120;
@@ -85,7 +96,7 @@ export class LevelIntro extends Level {
 
 		this._blockUntil = new Timer( this, 0.3 );
 
-		if( this._step >= this._texts.length - 1 ) {
+		if( this._step === 3 || this._step === 4 ) {
 			this.paintingArea.visible = true;
 			this.paintingArea.onClick( pos );
 		}
