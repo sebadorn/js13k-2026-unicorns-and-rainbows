@@ -1,7 +1,6 @@
 import { fontFamilySerif, targetFPS } from './Config.js';
 import { Input } from './Input.js';
 import { Colors } from './MagicColors.js';
-import { clamp } from './MathUtils.js';
 
 
 export const Renderer = {
@@ -39,7 +38,6 @@ export const Renderer = {
 	offset: { x: 0, y: 0 },
 
 	scale: 1,
-	zoom: 0,
 
 	/** @type {number} */
 	drawHeight: 0,
@@ -56,19 +54,7 @@ export const Renderer = {
 			return;
 		}
 
-		// const [snapshotCnv, snapshotCtx] = this.getOffscreenCanvas( this.cnv.width, this.cnv.height );
-		// snapshotCtx.drawImage( this.cnv, 0, 0 );
-
 		this.level = newLevel;
-
-		// this.animTransition = new Animation(
-		// 	newLevel, 2,
-		// 	progress => {
-		// 		progress = 1 - progress * progress;
-		// 		this.ctx.drawImage( snapshotCnv, 0, 0, progress * this.drawWidth, this.drawHeight );
-		// 	},
-		// 	_ => this.animTransition = null,
-		// );
 	},
 
 
@@ -103,7 +89,7 @@ export const Renderer = {
 		this.resetTransform();
 
 		this.level?.draw( this.ctx, this.ctxUI );
-		this.ctx.drawImage( this.cnvUI, 0, 0 );
+		this.ctx.drawImage( this.cnvUI, 0, 0, this.drawWidth, this.drawHeight );
 	},
 
 
@@ -120,7 +106,7 @@ export const Renderer = {
 		this.ctxUI.textBaseline = 'top';
 		this.ctxUI.fillText( 'PAUSED', this.drawWidth / 2, this.drawHeight / 2 - 56 );
 
-		this.ctx.drawImage( this.cnvUI, 0, 0 );
+		this.ctx.drawImage( this.cnvUI, 0, 0, this.drawWidth, this.drawHeight );
 	},
 
 
@@ -147,8 +133,8 @@ export const Renderer = {
 	 */
 	getScaledCursor() {
 		return {
-			x: this.cursor.x / ( this.scale + this.zoom ),
-			y: this.cursor.y / ( this.scale + this.zoom ),
+			x: this.cursor.x / this.scale,
+			y: this.cursor.y / this.scale,
 		};
 	},
 
@@ -320,7 +306,8 @@ export const Renderer = {
 	 *
 	 */
 	resetTransform() {
-		this.ctx.setTransform( this.scale + this.zoom, 0, 0, this.scale + this.zoom, 0, 0 );
+		this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
+		this.ctxUI.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
 	},
 
 
@@ -340,8 +327,8 @@ export const Renderer = {
 
 		this.scale = height / 1080;
 
-		this.center.x = width / 2 / ( this.scale + this.zoom );
-		this.center.y = height / 2 / ( this.scale + this.zoom );
+		this.center.x = width / 2 / this.scale;
+		this.center.y = height / 2 / this.scale;
 
 		this.offset.x = ( window.innerWidth - width ) / 2;
 		this.offset.y = ( window.innerHeight - height ) / 2;
@@ -352,8 +339,8 @@ export const Renderer = {
 		this.cnvUI.width = width;
 		this.cnvUI.height = height;
 
-		this.drawHeight = height / ( this.scale + this.zoom );
-		this.drawWidth = width / ( this.scale + this.zoom );
+		this.drawHeight = height / this.scale;
+		this.drawWidth = width / this.scale;
 
 		if( this.isPaused ) {
 			clearTimeout( this._timeoutDrawPause );
@@ -387,16 +374,6 @@ export const Renderer = {
 		ctx.translate( c.x, c.y );
 		ctx.scale( sx, sy );
 		ctx.translate( -c.x, -c.y );
-	},
-
-
-	/**
-	 *
-	 * @param {number} newZoom
-	 */
-	setZoom( newZoom ) {
-		this.zoom = clamp( newZoom, -0.5, 2.5 );
-		this.resize();
 	},
 
 
