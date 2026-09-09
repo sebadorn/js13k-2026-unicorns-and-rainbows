@@ -1,6 +1,8 @@
 import { fontFamilySans } from './Config.js';
+import { Enemy } from './Enemy.js';
 import { Colors } from './MagicColors.js';
 import { euclidDistance } from './MathUtils.js';
+import { Renderer } from './Renderer.js';
 
 
 export class Wave {
@@ -29,8 +31,26 @@ export class Wave {
 
 	/**
 	 *
+	 * @param {number[]} nums
 	 */
-	createEnemies() {}
+	createEnemies( nums ) {
+		this.enemies = [];
+
+		for( let i = 0; i < nums.length; i++ ) {
+			const num = nums[i];
+			const stepY = Renderer.drawHeight / num;
+			const offsetY = stepY / 2;
+
+			for( let j = 0; j < num; j++ ) {
+				this.enemies.push( new Enemy(
+					this.level,
+					Renderer.drawWidth + i * 400,
+					offsetY + j * stepY,
+					60, 60
+				) );
+			}
+		}
+	}
 
 
 	/**

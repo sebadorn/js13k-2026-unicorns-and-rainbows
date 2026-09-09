@@ -11,14 +11,6 @@ export class Wave2 extends Wave {
 
 	/**
 	 *
-	 */
-	createEnemies() {
-		// TODO:
-	}
-
-
-	/**
-	 *
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
@@ -45,7 +37,7 @@ export class Wave2 extends Wave {
 
 		if( this.phase === Wave.PhasePrepare ) {
 			if( this.level.hasAllUnits() ) {
-				this.createEnemies();
+				this.createEnemies( [2] );
 				this.phase = Wave.PhaseFight;
 			}
 		}
