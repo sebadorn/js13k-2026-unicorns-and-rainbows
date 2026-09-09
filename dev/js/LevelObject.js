@@ -49,6 +49,7 @@ export class LevelObject {
 		this.w = w;
 		this.h = h;
 
+		this.canMove = true;
 		this.cooldownAttack = new Timer( level );
 		this.enemyDetectionRange = 300;
 		this.health = 100;
@@ -96,7 +97,7 @@ export class LevelObject {
 	 * @returns {number}
 	 */
 	get moveSpeed() {
-		return LevelObject.baseMoveSpeed;
+		return this.canMove ? LevelObject.baseMoveSpeed : 0;
 	}
 
 
@@ -164,9 +165,9 @@ export class LevelObject {
 
 
 	/**
-	 * 
+	 *
 	 * @param {CanvasRenderingContext2D} ctx
-	 * @param {string} color 
+	 * @param {string} color
 	 */
 	drawHealthBar( ctx, color ) {
 		if( this.health === this.healthMax ) {
@@ -220,7 +221,7 @@ export class LevelObject {
 	 *
 	 */
 	move() {
-		if( this.moveAnimation || !this.target || this.isTower ) {
+		if( this.moveAnimation || !this.target || this.isTower || !this.moveSpeed ) {
 			return;
 		}
 
@@ -232,7 +233,7 @@ export class LevelObject {
 					this.moveAnimation = null;
 					return;
 				}
-				
+
 				const targetCenter = this.target.getCenter();
 
 				const direction = normalizeVector( {

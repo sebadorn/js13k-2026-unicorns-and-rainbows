@@ -34,6 +34,7 @@ export class LevelIntro extends Level {
 				const nextLevel = new LevelMain();
 				nextLevel.unicornPainting = this.paintingArea.getPainting( nextLevel );
 				nextLevel.unicornPainting.isOnMap = true;
+				nextLevel.unicornPainting.canMove = false;
 
 				Renderer.changeLevel( nextLevel );
 			},

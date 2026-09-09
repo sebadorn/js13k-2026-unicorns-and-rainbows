@@ -24,7 +24,7 @@ export class Painting extends LevelObject {
 
 
 	/**
-	 * 
+	 *
 	 * @param {import('./Level').Level} level
 	 * @param {HTMLCanvasElement} canvas
 	 * @param {import('./MagicColors').MagicColor} color
@@ -91,7 +91,7 @@ export class Painting extends LevelObject {
 	 * @returns {number}
 	 */
 	get moveSpeed() {
-		return LevelObject.baseMoveSpeed + this.color.modMoveSpeed;
+		return this.canMove ? LevelObject.baseMoveSpeed + this.color.modMoveSpeed : 0;
 	}
 
 

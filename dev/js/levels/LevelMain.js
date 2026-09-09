@@ -61,6 +61,7 @@ export class LevelMain extends Level {
 		tmpCtx.fillRect( 0, 0, 80, 80 );
 		this.unicornPainting = new Painting( this, tmpCanvas, Colors.White );
 		this.unicornPainting.isOnMap = true;
+		this.unicornPainting.canMove = false;
 	}
 
 
