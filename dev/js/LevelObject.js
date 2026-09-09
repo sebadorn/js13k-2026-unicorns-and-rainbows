@@ -15,6 +15,9 @@ export class LevelObject {
 	/** @type {LevelObject?} */
 	target = null;
 
+	/** @type {Position?} */
+	targetStartPos = null;
+
 	/** @type {Animation?} */
 	attackAnimation = null;
 
@@ -113,11 +116,13 @@ export class LevelObject {
 			return;
 		}
 
+		this.targetStartPos = this.target.getCenter();
+
 		this.cooldownAttack.set( this.attackSpeed );
 
 		this.attackAnimation = new Animation( {
 			level: this.level,
-			duration: 0.5,
+			duration: 0.4,
 			onDone: _ => {
 				if( this.target && this.target.health > 0 ) {
 					this.target.takeDamage( this.attackDamage );

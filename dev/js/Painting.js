@@ -103,18 +103,19 @@ export class Painting extends LevelObject {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	_drawProjectile( ctx ) {
-		if( !this.isTower || !this.attackAnimation || !this.item || !this.target ) {
+		if( !this.isTower || !this.attackAnimation || !this.item || !this.targetStartPos ) {
 			return;
 		}
 
+		const projectileSize = 80;
 		const progress = this.attackAnimation.timer.progress();
 
-		const xStart = this.x + this.w / 2;
+		const xStart = this.x + this.w / 2 - projectileSize / 2;
 		// "this.w" is correct, the projectile is shot from the top and not the center
-		const yStart = this.y + this.w / 2;
+		const yStart = this.y + this.w / 2 - projectileSize / 2;
 
-		const xEnd = this.target.x + this.target.w / 2;
-		const yEnd = this.target.y + this.target.h / 2;
+		const xEnd = this.targetStartPos.x - projectileSize / 2;
+		const yEnd = this.targetStartPos.y - projectileSize / 2;
 
 		const x = lerp( xStart, xEnd, progress );
 		const y = lerp( yStart, yEnd, progress );
@@ -122,7 +123,7 @@ export class Painting extends LevelObject {
 		ctx.drawImage(
 			this.item.canvas,
 			x, y,
-			80, 80
+			projectileSize, projectileSize
 		);
 	}
 
