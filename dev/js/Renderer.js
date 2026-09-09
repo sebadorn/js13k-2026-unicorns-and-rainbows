@@ -232,7 +232,7 @@ export const Renderer = {
 
 			this.level.update( dt );
 			this.draw();
-			this.animTransition?.do( dt );
+			this.animTransition?.update( dt );
 
 			// Draw FPS info
 			this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
