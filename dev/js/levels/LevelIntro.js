@@ -15,7 +15,6 @@ export class LevelIntro extends Level {
 		'When the Darkness swallowed everything, it seemed like an end',
 		'But some motes of magic still stirred',
 		'Colorful unicorn magic, painting on a dark canvas',
-		'A final pushback',
 		'Please guide the brush: Draw a small unicorn',
 	];
 
@@ -37,6 +36,7 @@ export class LevelIntro extends Level {
 				Renderer.changeLevel( nextLevel );
 			},
 		);
+		this.paintingArea.offsetY = 120;
 		this.paintingArea.showColorSelection = false;
 		this.paintingArea.visible = false;
 		this.paintingArea.changeColor( Colors.White );
@@ -48,8 +48,9 @@ export class LevelIntro extends Level {
 	/**
 	 *
 	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {CanvasRenderingContext2D} ctxUI
 	 */
-	draw( ctx ) {
+	draw( ctx, ctxUI ) {
 		const w = Renderer.drawWidth;
 		const h = Renderer.drawHeight;
 
@@ -69,7 +70,7 @@ export class LevelIntro extends Level {
 		} );
 
 		ctx.shadowBlur = 0;
-		this.paintingArea.drawOnParent( ctx );
+		this.paintingArea.draw( ctxUI );
 	}
 
 

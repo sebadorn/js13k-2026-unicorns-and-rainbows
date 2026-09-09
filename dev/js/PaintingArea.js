@@ -35,8 +35,9 @@ export class PaintingArea {
 
 		this.brushSize = 5;
 		this.for = Painting.Unspecific;
-		this.visible = true;
+		this.offsetY = 0;
 		this.showColorSelection = true;
+		this.visible = true;
 
 		this._color = Colors.Red;
 		this._history = [];
@@ -301,7 +302,7 @@ export class PaintingArea {
 		ctx.fillRect( 0, 0, Renderer.drawWidth, Renderer.drawHeight );
 
 		this.x = ( Renderer.drawWidth - this.w ) / 2;
-		this.y = ( Renderer.drawHeight - this.h ) / 2;
+		this.y = ( Renderer.drawHeight - this.h ) / 2 + this.offsetY;
 
 		// background
 		ctx.fillStyle = '#000';
