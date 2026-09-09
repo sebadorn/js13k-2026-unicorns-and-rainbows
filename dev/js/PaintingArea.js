@@ -78,14 +78,18 @@ export class PaintingArea {
 
 		this._colorButtons = Object.values( Colors )
 			.filter( c => !c.hidden )
-			.map( ( c, _i ) => {
+			.map( c => {
 				return new UIButton(
 					{
 						w: 50,
 						h: 50,
 						magicColor: c,
 					},
-					() => this.changeColor( c ),
+					() => {
+						if( c.hasUsesLeft() ) {
+							this.changeColor( c );
+						}
+					},
 				);
 			} );
 

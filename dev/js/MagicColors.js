@@ -1,3 +1,6 @@
+import { maxUsesMagicColor } from './Config.js';
+
+
 export class MagicColor {
 
 
@@ -22,6 +25,15 @@ export class MagicColor {
 		this.modAttackSpeed = mods.attackSpeed || 0;
 		this.modHealth = mods.health || 0;
 		this.modMoveSpeed = mods.moveSpeed || 0;
+	}
+
+
+	/**
+	 *
+	 * @returns {boolean}
+	 */
+	hasUsesLeft() {
+		return this.hidden || this.used <= maxUsesMagicColor;
 	}
 
 
