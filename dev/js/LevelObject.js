@@ -27,8 +27,8 @@ export class LevelObject {
 
 	static baseAttackDamage = 10;
 
-	static baseAttackRange = 20;
-	static baseAttackRangeTower = 200;
+	static baseAttackRange = 30;
+	static baseAttackRangeTower = 250;
 
 	static baseAttackSpeed = 1; // seconds between attacks
 
@@ -150,7 +150,13 @@ export class LevelObject {
 		const [target, distance] = this.findTarget();
 		this.target = target;
 
-		if( distance <= this.attackRange ) {
+		if( !target ) {
+			return;
+		}
+
+		// The distance is between the centers, but for attacks
+		// we want to look at the distance between borders.
+		if( distance <= this.attackRange + ( this.w + target.w ) / 2 ) {
 			this.attack();
 		}
 		else {
