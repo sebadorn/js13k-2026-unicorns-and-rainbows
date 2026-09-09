@@ -24,11 +24,13 @@ export class LevelOutro extends Level {
 
 	/** @type {Object[]} */
 	_steps = [
-		{ text: 'What did grass look like?', color: Colors.Green },
+		{ text: 'What did grass look like?', color: Colors.Green, timer: 6 },
 		{ text: 'A bird, flying in the sky.', color: Colors.Blue },
-		{ text: 'The sun shedding warmth.', color: Colors.Yellow },
-		{ text: 'You', color: Colors.White },
+		{ text: 'The sun shedding warmth.', color: Colors.Yellow, timer: 4 },
+		{ text: 'You', color: Colors.White, type: Painting.Tower, timer: 6 },
 	];
+
+	_translateY = 0;
 
 
 	/**
@@ -40,28 +42,31 @@ export class LevelOutro extends Level {
 		this._step = 0;
 
 		this.paintingArea = new PaintingArea(
-			Renderer.drawWidth / 2 - 100,
-			Renderer.drawHeight / 2 - 200,
-			200, 200,
+			Renderer.drawWidth / 2 - 110,
+			Renderer.drawHeight / 2 - 110,
+			220, 220,
 			() => {
+				const stepData = this._steps[this._step];
+
 				this._paintings[this._step] = this.paintingArea.getPainting( this );
 				this.paintingArea.clear();
 				this.paintingArea.visible = false;
 
-				this._timers[this._step] = new Timer( this, 6 );
+				this._timers[this._step] = new Timer( this, stepData.timer || 0 );
 	
 				this.animations.push( new Animation( {
 					level: this,
-					duration: 2,
+					duration: 3,
 					onDone: a => {
 						removeItem( this.animations, a );
 						this._step++;
 
 						if( this._step < this._steps.length ) {
-							const stepInfo = this._steps[this._step];
+							const stepData = this._steps[this._step];
 
-							if( stepInfo?.color ) {
-								this.paintingArea.changeColor( stepInfo.color );
+							if( stepData?.color ) {
+								this.paintingArea.changeColor( stepData.color );
+								this.paintingArea.for = stepData.type || Painting.Unspecific;
 								this.paintingArea.visible = true;
 							}
 						}
@@ -95,8 +100,8 @@ export class LevelOutro extends Level {
 		}
 
 		const progress = this._timers[index].progress();
-		const step = 6;
-		const size = 40;
+		const step = 2;
+		const size = 80;
 		const tilesX = Renderer.drawWidth / size;
 		const tilesY = Renderer.drawHeight / size;
 
@@ -105,31 +110,12 @@ export class LevelOutro extends Level {
 
 			for( let x = 0; x < tilesX; x += step ) {
 				const xi = x * size - ( y % ( step + step ) ) * size / 2;
-				const yi = y * size;
+				const yi = y * size + this._translateY;
 
-				ctx.drawImage(
-					painting.canvas,
-					xi, yi,
-					size, size
-				);
+				ctx.drawImage( painting.canvas, xi, yi, size, size );
 			}
 
 			ctx.globalAlpha = 1;
-		}
-	}
-
-
-	/**
-	 *
-	 * @private
-	 * @param {CanvasRenderingContext2D} ctx
-	 */
-	_drawBirds( ctx ) {
-		const index = 1;
-		const painting = this._paintings[index];
-
-		if( !painting ) {
-			return;
 		}
 	}
 
@@ -146,6 +132,15 @@ export class LevelOutro extends Level {
 		if( !painting ) {
 			return;
 		}
+
+		if( this._translateY > 0 ) {
+			ctx.fillStyle = Colors.Cyan.color;
+			ctx.fillRect( 0, 0, Renderer.drawWidth, this._translateY );
+		}
+
+		ctx.globalAlpha = this._timers[index].progress();
+		ctx.drawImage( painting.canvas, Renderer.drawWidth - 220, 0, 220, 220 );
+		ctx.globalAlpha = 1;
 	}
 
 
@@ -161,6 +156,29 @@ export class LevelOutro extends Level {
 		if( !painting ) {
 			return;
 		}
+
+		const x = ( Renderer.drawWidth - painting.w ) / 2;
+		const y = this._translateY - painting.h;
+
+		ctx.lineWidth = 20;
+
+		Object.values( Colors ).reverse().forEach( ( c, i ) => {
+			if( c.hidden ) {
+				return;
+			}
+
+			ctx.strokeStyle = c.color;
+			ctx.beginPath();
+			ctx.arc( Renderer.drawWidth / 2, this._translateY, 120 + i * 19, Math.PI, 0 );
+			ctx.stroke();
+		} );
+
+		ctx.fillStyle = Colors.White.color;
+		ctx.font = `600 italic 56px ${fontFamilySerif}`;
+		ctx.textAlign = 'center';
+		ctx.fillText( 'Thanks for playing!', Renderer.drawWidth / 2, y - 100 );
+
+		ctx.drawImage( painting.canvas, x, y, painting.w, painting.h );
 	}
 
 
@@ -177,17 +195,18 @@ export class LevelOutro extends Level {
 		ctx.fillRect( 0, 0, w, h );
 
 		this._drawGrass( ctx );
-		this._drawBirds( ctx );
 		this._drawSun( ctx );
 		this._drawYou( ctx );
 
 		if( this._step < this._steps.length ) {
 			const stepInfo = this._steps[this._step];
 
-			ctx.fillStyle = '#fff';
-			ctx.textAlign = 'center';
-			ctx.font = `500 32px ${fontFamilySerif}`;
-			ctx.fillText( stepInfo.text, w / 2, this.paintingArea.y - 32 );
+			if( !this._paintings[this._step] ) {
+				ctx.fillStyle = '#fff';
+				ctx.textAlign = 'center';
+				ctx.font = `500 32px ${fontFamilySerif}`;
+				ctx.fillText( stepInfo.text, w / 2, this.paintingArea.y - 140 );
+			}
 
 			this.paintingArea.draw( ctxUI );
 		}
@@ -221,6 +240,34 @@ export class LevelOutro extends Level {
 	 */
 	update( dt ) {
 		super.update( dt );
+
+		if( this._paintings[1] && this._timers[1]?.elapsed() ) {
+			const bird = this._paintings[1];
+			const yStart = randInt( 0, Renderer.drawHeight );
+			let x = 0;
+			let y = yStart;
+
+			this._timers[1].set( 4 );
+
+			this.animations.push( new Animation( {
+				level: this,
+				duration: 4,
+				onDraw: ctx => {
+					ctx.drawImage( bird.canvas, x, y, 100, 100 );
+				},
+				onUpdate: progress => {
+					x = progress * Renderer.drawWidth;
+					y = yStart + Math.sin( progress * Math.PI * 6 ) * 30;
+				},
+				onDone: a => {
+					removeItem( this.animations, a );
+				},
+			} ) );
+		}
+
+		if( this._timers[3] ) {
+			this._translateY = this._timers[3].progress() * Renderer.drawHeight * 0.4;
+		}
 
 		this.animations.forEach( a => a.update( dt ) );
 		this.unicornPainting.update( dt );
