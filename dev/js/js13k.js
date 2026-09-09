@@ -8,6 +8,6 @@ import { Renderer } from './Renderer.js';
 window.addEventListener( 'load', async () => {
 	Input.init();
 	Renderer.init();
-	Renderer.level = new LevelOutro();
+	Renderer.level = new LevelMain();
 	Renderer.mainLoop();
 } );

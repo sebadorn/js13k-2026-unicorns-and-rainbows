@@ -1,4 +1,4 @@
-# js13k 2026
+# js13k 2026: Rainbow in the Dark
 
 ![Screenshot from the game.](cover_800x500.png?raw=true)
 
@@ -13,7 +13,7 @@ Theme: **Unicorns and Rainbows**
 
 ## Controls
 
-...
+Use your mouse to click and draw.
 
 
 ## Resources
