@@ -130,7 +130,7 @@ export class LevelMain extends Level {
 			this._drawStartAreas( ctx );
 		}
 
-		this.unicornPainting.x = ( w - this.unicornPainting.w ) / 2;
+		this.unicornPainting.x = 100;
 		this.unicornPainting.y = ( h - this.unicornPainting.h ) / 2;
 		this.unicornPainting.draw( ctx, ctxUI );
 
@@ -158,7 +158,7 @@ export class LevelMain extends Level {
 			} );
 		}
 
-		if( this.numMaxFighters > 0 ) {
+		if( this.numMaxFighters >= 0 ) {
 			this.fighterStartAreas.forEach( fsa => {
 				ctx.beginPath();
 				ctx.arc( fsa.x + fsa.w / 2, fsa.y + fsa.h / 2, fsa.w / 2, 0, Math.PI * 2 );
@@ -295,26 +295,20 @@ export class LevelMain extends Level {
 		/** @type {Area[]} */
 		this.towerBuildAreas = [
 			{
-				x: dw / 2 - tbaSize - 100,
-				y: dh / 2 - tbaSize - 100,
+				x: 650,
+				y: ( dh - tbaSize ) / 2,
 				w: tbaSize,
 				h: tbaSize,
 			},
 			{
-				x: dw / 2 + 100,
-				y: dh / 2 - tbaSize - 100,
+				x: 350,
+				y: 250,
 				w: tbaSize,
 				h: tbaSize,
 			},
 			{
-				x: dw / 2 - tbaSize - 100,
-				y: dh / 2 + 100,
-				w: tbaSize,
-				h: tbaSize,
-			},
-			{
-				x: dw / 2 + 100,
-				y: dh / 2 + 100,
+				x: 350,
+				y: dh - tbaSize - 250,
 				w: tbaSize,
 				h: tbaSize,
 			},
@@ -323,26 +317,26 @@ export class LevelMain extends Level {
 		/** @type {Area[]} */
 		this.fighterStartAreas = [
 			{
-				x: dw / 2 - fsaSize / 2,
-				y: dh / 2 - fsaSize - 100,
+				x: 550,
+				y: 350,
 				w: fsaSize,
 				h: fsaSize,
 			},
 			{
-				x: dw / 2 + 100,
-				y: dh / 2 - fsaSize / 2,
+				x: 550,
+				y: dh - fsaSize - 350,
 				w: fsaSize,
 				h: fsaSize,
 			},
 			{
-				x: dw / 2 - fsaSize / 2,
-				y: dh / 2 + 100,
+				x: 350,
+				y: 425,
 				w: fsaSize,
 				h: fsaSize,
 			},
 			{
-				x: dw / 2 - fsaSize - 100,
-				y: dh / 2 - fsaSize / 2,
+				x: 350,
+				y: dh - fsaSize - 425,
 				w: fsaSize,
 				h: fsaSize,
 			},
