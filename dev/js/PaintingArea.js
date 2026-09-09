@@ -334,8 +334,45 @@ export class PaintingArea {
 	 * @returns {Painting}
 	 */
 	getPainting( level ) {
-		const [copyCanvas, _copyCtx] = Renderer.getTrimmedCanvasCopy( this.canvas );
+		const [trimCanvas, _trimCtx] = Renderer.getTrimmedCanvasCopy( this.canvas );
 		this._color.used++;
+
+		const [copyCanvas, copyCtx] = Renderer.getOffscreenCanvas( this.w, this.h );
+		const trimW = trimCanvas.width;
+		const trimH = trimCanvas.height;
+
+		if( this.for === Painting.Tower ) {
+			copyCtx.drawImage(
+				trimCanvas, 0, 0, trimW, trimH,
+				( this.w - trimW ) / 2, // x: center
+				this.h - trimH, // y: bottom
+				trimW, trimH
+			);
+		}
+		else if( this.for === Painting.Fighter ) {
+			copyCtx.drawImage(
+				trimCanvas, 0, 0, trimW, trimH,
+				this.w - trimW, // x: right
+				this.h - trimH, // y: bottom
+				trimW, trimH
+			);
+		}
+		else if( this.for === Painting.TowerItem || this.for === Painting.Unspecific ) {
+			copyCtx.drawImage(
+				trimCanvas, 0, 0, trimW, trimH,
+				( this.w - trimW ) / 2, // x: center
+				( this.h - trimH ) / 2, // y: center
+				trimW, trimH
+			);
+		}
+		else if( this.for === Painting.FighterItem ) {
+			copyCtx.drawImage(
+				trimCanvas, 0, 0, trimW, trimH,
+				0, // x: left,
+				this.h - trimH, // y: bottom
+				trimW, trimH
+			);
+		}
 
 		return new Painting( level, copyCanvas, this._color );
 	}
