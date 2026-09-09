@@ -320,9 +320,11 @@ export class PaintingArea {
 		this._clearButton.y = this.y - this._clearButton.h - 10;
 		this._clearButton.draw( ctx );
 
-		this._doneButton.x = this.x + ( this.w - this._doneButton.w ) / 2;
-		this._doneButton.y = this.y + this.h + 10;
-		this._doneButton.draw( ctx );
+		if( this._history.length > 2 ) {
+			this._doneButton.x = this.x + ( this.w - this._doneButton.w ) / 2;
+			this._doneButton.y = this.y + this.h + 10;
+			this._doneButton.draw( ctx );
+		}
 
 		ctx.drawImage( this.canvas, this.x, this.y );
 	}
