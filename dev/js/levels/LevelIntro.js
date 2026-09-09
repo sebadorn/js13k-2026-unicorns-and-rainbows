@@ -97,8 +97,12 @@ export class LevelIntro extends Level {
 		this._blockUntil = new Timer( this, 0.3 );
 
 		if( this._step === 3 || this._step === 4 ) {
+			const wasVisible = this.paintingArea.visible;
 			this.paintingArea.visible = true;
-			this.paintingArea.onClick( pos );
+
+			if( wasVisible ) {
+				this.paintingArea.onClick( pos );
+			}
 		}
 		else {
 			this._step++;
