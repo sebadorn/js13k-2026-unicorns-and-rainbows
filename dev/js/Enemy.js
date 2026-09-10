@@ -47,11 +47,19 @@ export class Enemy extends LevelObject {
 		let rotation = 0;
 		let center = null;
 
-		if( this.moveAnimation ) {
+		if( this.deathTimer ) {
+			const progress = this.deathTimer.progress();
+			ctx.globalAlpha = 1 - progress;
+			rotation = -progress * Math.PI / 2;
+			center = this.getCenter();
+		}
+		else if( this.moveAnimation ) {
 			rotation = Math.sin( this.level.timer / 10 ) / 5;
 			center = this.getCenter();
 			center.y += this.h / 2;
+		}
 
+		if( rotation ) {
 			Renderer.rotateCenter( ctx, rotation, center );
 		}
 
@@ -88,6 +96,8 @@ export class Enemy extends LevelObject {
 		if( rotation ) {
 			Renderer.rotateCenter( ctx, -rotation, center );
 		}
+
+		ctx.globalAlpha = 1;
 	}
 
 

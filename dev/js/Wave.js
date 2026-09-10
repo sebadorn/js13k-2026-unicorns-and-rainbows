@@ -202,7 +202,7 @@ export class Wave {
 				const enemy = this.enemies[i];
 				enemy.update( dt );
 
-				if( enemy.health <= 0 ) {
+				if( enemy.health <= 0 && enemy.deathTimer?.elapsed() ) {
 					this.enemies.splice( i, 1 );
 				}
 			}

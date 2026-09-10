@@ -18,9 +18,13 @@ export const Waves = {
 	 *
 	 * @param {import('./Level').Level} level
 	 * @param {number} index
-	 * @returns {import('./Wave').Wave}
+	 * @returns {import('./Wave').Wave?}
 	 */
 	getWave( level, index ) {
+		if( index >= this._waves.length ) {
+			return null;
+		}
+
 		return new this._waves[index]( level );
 	}
 

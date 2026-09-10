@@ -26,6 +26,9 @@ export class LevelObject {
 	attackAnimation = null;
 
 	/** @type {Animation?} */
+	deathTimer = null;
+
+	/** @type {Animation?} */
 	moveAnimation = null;
 
 
@@ -235,7 +238,7 @@ export class LevelObject {
 	 * @param {string} color
 	 */
 	drawHealthBar( ctx, color ) {
-		if( this.health === this.healthMax ) {
+		if( this.health === this.healthMax || this.deathTimer ) {
 			return;
 		}
 
@@ -294,7 +297,7 @@ export class LevelObject {
 			level: this.level,
 			duration: 1,
 			onUpdate: ( _progress, dt ) => {
-				if( !this.target ) {
+				if( !this.target || this.health <= 0 ) {
 					this.moveAnimation = null;
 					return;
 				}
@@ -324,7 +327,7 @@ export class LevelObject {
 		this.animations = [];
 		this.attackAnimation = null;
 		this.moveAnimation = null;
-		this.health = LevelObject.baseHealthMax;
+		this.health = this.healthMax;
 		this.target = null;
 	}
 
@@ -362,6 +365,8 @@ export class LevelObject {
 			else {
 				Audio.play( Audio.fighterDestroyed );
 			}
+
+			this.deathTimer = new Timer( this.level, 1 );
 		}
 
 		const xStart = this.x + this.w * 0.8;
