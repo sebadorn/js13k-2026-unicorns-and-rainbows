@@ -115,56 +115,6 @@ export class PaintingArea {
 	}
 
 
-	// /**
-	//  *
-	//  * @private
-	//  * @param {CanvasRenderingContext2D} ctx
-	//  */
-	// _drawColorMods( ctx ) {
-	// 	const x = this.x + this.w + 20;
-	// 	let y = this.y;
-	// 	let text;
-
-	// 	const addMod = mod => {
-	// 		ctx.fillStyle = '#fff';
-
-	// 		if( mod ) {
-	// 			ctx.fillStyle = this._color.color;
-	// 			text += numAsSignedStr( mod );
-	// 		}
-
-	// 		ctx.fillText( text, x, y += 30 );
-	// 	};
-
-	// 	ctx.textAlign = 'left';
-	// 	ctx.font = `500 18px ${fontFamilySans}`;
-
-	// 	if( this.for === Painting.FighterItem || this.for === Painting.TowerItem ) {
-	// 		text = `Attack Dmg ${LevelObject.baseAttackDamage} `;
-	// 		addMod( this._color.modAttackDamage );
-	// 	}
-
-	// 	if( this.for === Painting.Fighter || this.for === Painting.Tower ) {
-	// 		const baseRange = this.for === Painting.Tower
-	// 			? LevelObject.baseAttackRangeTower
-	// 			: LevelObject.baseAttackRange;
-	// 		text = `Attack Range ${baseRange} `;
-	// 		addMod( this._color.modAttackRange );
-
-	// 		text = `Attack Speed ${LevelObject.baseAttackSpeed} `;
-	// 		addMod( this._color.modAttackSpeed );
-
-	// 		text = `Health ${LevelObject.baseHealthMax} `;
-	// 		addMod( this._color.modHealth );
-	// 	}
-
-	// 	if( this.for === Painting.Fighter ) {
-	// 		text = `Move Speed ${LevelObject.baseMoveSpeed} `;
-	// 		addMod( this._color.modMoveSpeed );
-	// 	}
-	// }
-
-
 	/**
 	 *
 	 * @private
@@ -345,7 +295,6 @@ export class PaintingArea {
 
 		if( this.showColorSelection ) {
 			this._drawColorButtons( ctx );
-			// this._drawColorMods( ctx );
 		}
 
 		if( this.showLabels ) {

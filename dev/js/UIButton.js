@@ -1,5 +1,5 @@
 import { Audio } from './Audio.js';
-import { fontFamilySans, maxUsesMagicColor } from './Config.js';
+import { fontFamilySans } from './Config.js';
 
 
 export class UIButton {
@@ -48,17 +48,24 @@ export class UIButton {
 		let usesLeft = 1;
 
 		if( this.magicColor ) {
-			usesLeft = ( maxUsesMagicColor - this.magicColor.used ) / maxUsesMagicColor;
+			usesLeft = this.magicColor.usesLeftPercent();
 		}
 
+		const offsetY = this.h * ( 1 - usesLeft );
+
 		ctx.fillStyle = this.color;
-		ctx.fillRect( this.x, this.y, this.w, this.h * usesLeft );
+		ctx.fillRect( this.x, this.y + offsetY, this.w, this.h * usesLeft );
 		ctx.restore();
 
-		if( this.isHovered ) {
-			ctx.strokeStyle = '#fff';
-			ctx.lineWidth = 3;
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = this.color;
+		ctx.beginPath();
+		ctx.roundRect( this.x + 1, this.y + 1, this.w - 2, this.h - 2, ( this.h - 2 ) / 4 );
+		ctx.stroke();
 
+		if( this.isHovered ) {
+			ctx.lineWidth = 3;
+			ctx.strokeStyle = '#fff';
 			ctx.beginPath();
 			ctx.roundRect( this.x, this.y, this.w, this.h, this.h / 4 );
 			ctx.closePath();

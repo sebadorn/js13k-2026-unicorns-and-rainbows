@@ -38,7 +38,7 @@ export class Wave3 extends Wave {
 
 		if( this.phase === Wave.PhasePrepare ) {
 			if( this.level.hasAllUnits() ) {
-				this.createEnemies( [2] );
+				this.createEnemies( [6, 8, 10] );
 				this.phase = Wave.PhaseFight;
 			}
 		}

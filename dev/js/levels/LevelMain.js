@@ -236,6 +236,7 @@ export class LevelMain extends Level {
 	/**
 	 *
 	 * @private
+	 * @returns {boolean} True if next wave is ready, false if no more waves.
 	 */
 	_proceedToNextWaveOrLevel() {
 		this.wave = Waves.getWave( this, this.wave.index + 1 );
@@ -247,7 +248,7 @@ export class LevelMain extends Level {
 
 			Renderer.changeLevel( outro );
 
-			return;
+			return false;
 		}
 
 		this.numMaxFighters = this.wave.numFighters;
@@ -257,6 +258,8 @@ export class LevelMain extends Level {
 		this.towers.forEach( t => t.reset() );
 		this.fighters.forEach( f => f.reset() );
 		this.unicornPainting.reset();
+
+		return true;
 	}
 
 
@@ -445,9 +448,10 @@ export class LevelMain extends Level {
 			}
 		}
 		else if( this.wave.phase === Wave.PhasePrepare ) {
-			this.paintingArea.onClick( pos );
-
-			if( !this.paintingArea.visible ) {
+			if( this.paintingArea.visible ) {
+				this.paintingArea.onClick( pos );
+			}
+			else {
 				this._onClickCheckAreas( pos );
 			}
 		}
@@ -519,7 +523,9 @@ export class LevelMain extends Level {
 		}
 
 		if( this.wave.isDone() ) {
-			this._proceedToNextWaveOrLevel();
+			if( !this._proceedToNextWaveOrLevel() ) {
+				return;
+			}
 		}
 
 		this._allUnits = this.towers.concat( this.fighters ).concat( this.wave.enemies );

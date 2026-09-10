@@ -6,7 +6,7 @@ export class Wave2 extends Wave {
 
 
 	index = 1;
-	numFighters = 1;
+	numFighters = 2;
 	numTowers = 1;
 
 
@@ -38,7 +38,7 @@ export class Wave2 extends Wave {
 
 		if( this.phase === Wave.PhasePrepare ) {
 			if( this.level.hasAllUnits() ) {
-				this.createEnemies( [2] );
+				this.createEnemies( [4, 6, 6] );
 				this.phase = Wave.PhaseFight;
 			}
 		}

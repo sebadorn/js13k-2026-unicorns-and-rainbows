@@ -37,6 +37,19 @@ export class MagicColor {
 	}
 
 
+	/**
+	 *
+	 * @returns {number} [0, 1]
+	 */
+	usesLeftPercent() {
+		if( this.hidden ) {
+			return 1;
+		}
+
+		return ( maxUsesMagicColor - this.used ) / maxUsesMagicColor;
+	}
+
+
 };
 
 
