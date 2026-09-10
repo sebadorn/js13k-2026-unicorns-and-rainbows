@@ -6,7 +6,8 @@ export class Wave2 extends Wave {
 
 
 	index = 1;
-	newFighters = 1;
+	numFighters = 1;
+	numTowers = 1;
 
 
 	/**

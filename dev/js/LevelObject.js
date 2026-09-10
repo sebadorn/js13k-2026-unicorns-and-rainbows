@@ -2,7 +2,7 @@ import { Animation } from './Animation.js';
 import { removeItem } from './ArrayUtils.js';
 import { fontFamilySans } from './Config.js';
 import { Colors } from './MagicColors.js';
-import { lerp, normalizeVector, numAsSignedStr } from './MathUtils.js';
+import { euclidDistance, lerp, normalizeVector } from './MathUtils.js';
 import { Timer } from './Timer.js';
 
 
@@ -11,6 +11,9 @@ export class LevelObject {
 
 	/** @type {import('../Animation').Animation[]} */
 	animations = [];
+
+	/** @type {import('./Painting').Painting?} */
+	item = null;
 
 	/** @type {LevelObject?} */
 	target = null;
@@ -25,16 +28,12 @@ export class LevelObject {
 	moveAnimation = null;
 
 
-	static baseAttackDamage = 10;
-
+	static baseAttackDamage = 20;
 	static baseAttackRange = 30;
-	static baseAttackRangeTower = 250;
-
-	static baseAttackSpeed = 1; // seconds between attacks
-
+	static baseAttackRangeTower = 300;
+	static baseAttackSpeed = 1.75; // seconds between attacks
 	static baseHealthMax = 100;
-
-	static baseMoveSpeed = 2;
+	static baseMoveSpeed = 1.75;
 
 
 	/**
@@ -53,7 +52,16 @@ export class LevelObject {
 		this.h = h;
 
 		this.canMove = true;
+		this.color = Colors.Black;
 		this.cooldownAttack = new Timer( level );
+		this.effects = {
+			isShielded: new Timer( level, 0 ),
+			isSlowed: new Timer( level, 0 ),
+			isSpedUp: new Timer( level, 0 ),
+			isStunned: new Timer( level, 0 ),
+			isTaunted: new Timer( level, 0 ),
+			isWeakened: new Timer( level, 0 ),
+		};
 		this.enemyDetectionRange = 300;
 		this.health = 100;
 	}
@@ -64,7 +72,11 @@ export class LevelObject {
 	 * @returns {number}
 	 */
 	get attackDamage() {
-		return LevelObject.baseAttackDamage;
+		if( this.item ) {
+			return this.item.attackDamage + this.color.modAttackDamage;
+		}
+
+		return LevelObject.baseAttackDamage + this.color.modAttackDamage;
 	}
 
 
@@ -73,7 +85,9 @@ export class LevelObject {
 	 * @returns {number}
 	 */
 	get attackRange() {
-		return LevelObject.baseAttackRange;
+		const value = this.isTower ? LevelObject.baseAttackRangeTower : LevelObject.baseAttackRange;
+
+		return value + this.color.modAttackRange;
 	}
 
 
@@ -82,7 +96,18 @@ export class LevelObject {
 	 * @returns {number}
 	 */
 	get attackSpeed() {
-		return LevelObject.baseAttackSpeed;
+		let speed = LevelObject.baseAttackSpeed + this.isTower ? 0 : this.color.modAttackSpeed;
+		let f = 1;
+
+		if( !this.effects.isSlowed.elapsed() ) {
+			f += 0.25;
+		}
+
+		if( !this.effects.isSpedUp.elapsed() ) {
+			f -= 0.25;
+		}
+
+		return speed * f;
 	}
 
 
@@ -91,7 +116,7 @@ export class LevelObject {
 	 * @returns {number}
 	 */
 	get healthMax() {
-		return LevelObject.baseHealthMax;
+		return LevelObject.baseHealthMax + this.color.modHealth;
 	}
 
 
@@ -100,7 +125,18 @@ export class LevelObject {
 	 * @returns {number}
 	 */
 	get moveSpeed() {
-		return this.canMove ? LevelObject.baseMoveSpeed : 0;
+		let speed = this.canMove ? LevelObject.baseMoveSpeed + this.color.modMoveSpeed : 0;
+		let f = 1;
+
+		if( !this.effects.isSlowed.elapsed() ) {
+			f -= 0.5;
+		}
+
+		if( !this.effects.isSpedUp.elapsed() ) {
+			f += 0.5;
+		}
+
+		return speed * f;
 	}
 
 
@@ -117,7 +153,6 @@ export class LevelObject {
 		}
 
 		this.targetStartPos = this.target.getCenter();
-
 		this.cooldownAttack.set( this.attackSpeed );
 
 		this.attackAnimation = new Animation( {
@@ -126,6 +161,7 @@ export class LevelObject {
 			onDone: _ => {
 				if( this.target && this.target.health > 0 ) {
 					this.target.takeDamage( this.attackDamage );
+					this.triggerAbility( this.target );
 				}
 
 				this.attackAnimation = null;
@@ -143,20 +179,28 @@ export class LevelObject {
 			return;
 		}
 
-		if( this.attackAnimation ) {
+		if( this.attackAnimation || !this.effects.isStunned.elapsed() ) {
 			return;
 		}
 
-		const [target, distance] = this.findTarget();
-		this.target = target;
+		let target;
+		let distance;
 
-		if( !target ) {
+		if( this.effects.isTaunted.elapsed() ) {
+			[target, distance] = this.findTarget();
+			this.target = target;
+		}
+		else {
+			distance = euclidDistance( this.target.getCenter(), this.getCenter() );
+		}
+
+		if( !this.target ) {
 			return;
 		}
 
 		// The distance is between the centers, but for attacks
 		// we want to look at the distance between borders.
-		if( distance <= this.attackRange + ( this.w + target.w ) / 2 ) {
+		if( distance <= this.attackRange + ( this.w + this.target.w ) / 2 ) {
 			this.attack();
 		}
 		else {
@@ -186,7 +230,7 @@ export class LevelObject {
 		}
 
 		const height = 6;
-		const maxWidth = 80;
+		const maxWidth = 60;
 
 		const x = this.x - ( maxWidth - this.w ) / 2;
 		const y = this.y - 10;
@@ -270,7 +314,7 @@ export class LevelObject {
 		this.animations = [];
 		this.attackAnimation = null;
 		this.moveAnimation = null;
-		this.health = 100;
+		this.health = LevelObject.baseHealthMax;
 		this.target = null;
 	}
 
@@ -278,8 +322,24 @@ export class LevelObject {
 	/**
 	 *
 	 * @param {number} dmg
+	 * @param {import('./MagicColors').MagicColor?} type
 	 */
-	takeDamage( dmg ) {
+	takeDamage( dmg, type ) {
+		if( this.health <= 0 ) {
+			return;
+		}
+
+		let f = 1;
+
+		if( !this.effects.isShielded.elapsed() ) {
+			f -= 0.5;
+		}
+
+		if( !this.effects.isWeakened.elapsed() ) {
+			f += 0.5;
+		}
+
+		dmg = Math.ceil( dmg * f );
 		this.health -= dmg;
 
 		const xStart = this.x + this.w * 0.8;
@@ -293,18 +353,24 @@ export class LevelObject {
 			duration: 1,
 			onUpdate: progress => {
 				y = lerp( yStart, yEnd, progress );
-				alpha = 1 - progress * progress;
+				alpha = 1 - progress;
 			},
 			onDraw: ctx => {
 				ctx.globalAlpha = alpha;
 				ctx.font = `500 14px ${fontFamilySans}`;
-				ctx.fillStyle = dmg > 0 ? Colors.Red.color : Colors.Green.color;
-				ctx.fillText( numAsSignedStr( dmg ), xStart, y );
+				ctx.fillStyle = type?.color || ( dmg > 0 ? Colors.Red.color : Colors.Green.color );
+				ctx.fillText( dmg, xStart, y );
 				ctx.globalAlpha = 1;
 			},
 			onDone: a => removeItem( this.animations, a ),
 		} ) );
 	}
+
+
+	/**
+	 *
+	 */
+	triggerAbility() {}
 
 
 	/**

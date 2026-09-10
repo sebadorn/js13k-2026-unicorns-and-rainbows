@@ -1,6 +1,11 @@
+import { Animation } from './Animation.js';
+import { removeItem } from './ArrayUtils.js';
 import { LevelObject } from './LevelObject.js';
-import { lerp } from './MathUtils.js';
+import { Colors } from './MagicColors.js';
+import { euclidDistance, lerp, randInt } from './MathUtils.js';
 import { Renderer } from './Renderer.js';
+import { Timer } from './Timer.js';
+import { Wave } from './Wave.js';
 
 
 export class Painting extends LevelObject {
@@ -8,12 +13,6 @@ export class Painting extends LevelObject {
 
 	/** @type {HTMLCanvasElement} */
 	canvas;
-
-	/** @type {import('./MagicColors').MagicColor} */
-	color;
-
-	/** @type {import('./Painting').Painting?} */
-	item = null;
 
 
 	static Unspecific = 0;
@@ -42,58 +41,8 @@ export class Painting extends LevelObject {
 		this.isOnMap = false;
 		this.isTower = false;
 
+		this.abilityCooldown = new Timer( level, 5 );
 		this.health = this.healthMax;
-	}
-
-
-	/**
-	 *
-	 * @returns {number}
-	 */
-	get attackDamage() {
-		if( this.item ) {
-			return this.item.attackDamage;
-		}
-
-		return LevelObject.baseAttackDamage + this.color.modAttackDamage;
-	}
-
-
-	/**
-	 *
-	 * @returns {number}
-	 */
-	get attackRange() {
-		const value = this.isTower ? LevelObject.baseAttackRangeTower : LevelObject.baseAttackRange;
-
-		return value + this.color.modAttackRange;
-	}
-
-
-	/**
-	 *
-	 * @returns {number}
-	 */
-	get attackSpeed() {
-		return LevelObject.baseAttackSpeed + this.color.modAttackSpeed;
-	}
-
-
-	/**
-	 *
-	 * @returns {number}
-	 */
-	get healthMax() {
-		return LevelObject.baseHealthMax + this.color.modHealth;
-	}
-
-
-	/**
-	 *
-	 * @returns {number}
-	 */
-	get moveSpeed() {
-		return this.canMove ? LevelObject.baseMoveSpeed + this.color.modMoveSpeed : 0;
 	}
 
 
@@ -120,11 +69,21 @@ export class Painting extends LevelObject {
 		const x = lerp( xStart, xEnd, progress );
 		const y = lerp( yStart, yEnd, progress );
 
+		const scaleX = xEnd < xStart ? -1 : 1;
+
+		if( scaleX === -1 ) {
+			Renderer.scaleCenter( ctx, scaleX, 1, { x, y } );
+		}
+
 		ctx.drawImage(
 			this.item.canvas,
 			x, y,
 			projectileSize, projectileSize
 		);
+
+		if( scaleX === -1 ) {
+			Renderer.scaleCenter( ctx, scaleX, 1, { x, y } );
+		}
 	}
 
 
@@ -172,10 +131,7 @@ export class Painting extends LevelObject {
 		}
 
 		super.draw( ctx, ctxUI );
-
-		if( this !== this.level.unicornPainting ) {
-			this.drawHealthBar( ctx, this.color.color );
-		}
+		this.drawHealthBar( ctx, this.color.color );
 
 		let rotation = 0;
 		let center = null;
@@ -222,7 +178,7 @@ export class Painting extends LevelObject {
 			const fsa = this.level.fighterStartAreas[this.spawnLocation];
 
 			if( fsa ) {
-				this.x = fsa.x;
+				this.x = fsa.x - this.w + fsa.w;
 				this.y = fsa.y - this.h + fsa.h;
 			}
 		}
@@ -248,16 +204,353 @@ export class Painting extends LevelObject {
 
 	/**
 	 *
+	 * @private
+	 * @param {LevelObject?} target
+	 * @returns {boolean}
+	 */
+	_abilityBurn( target ) {
+		const burnDamage = 10;
+
+		// Damage all enemies in range
+		if( !target && this.isTower ) {
+			const center = this.getCenter();
+
+			this.level.wave.enemies.forEach( e => {
+				if( euclidDistance( center, e.getCenter() ) <= this.attackRange ) {
+					// Repeating burn damage
+					for( let i = 1; i <= 3; i++ ) {
+						e.animations.push( new Animation( {
+							level: this.level,
+							duration: i,
+							onDone: a => {
+								e.takeDamage( burnDamage / 2, Colors.Red );
+								removeItem( e.animations, a );
+							},
+						} ) );
+					}
+				}
+			} );
+
+			this._drawEffectArea( center );
+
+			return true;
+		}
+
+		if( target ) {
+			// Repeating burn damage
+			for( let i = 1; i <= 5; i++ ) {
+				target.animations.push( new Animation( {
+					level: this.level,
+					duration: i,
+					onDone: a => {
+						target.takeDamage( burnDamage, Colors.Red );
+						removeItem( target.animations, a );
+					},
+				} ) );
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
+	 *
+	 * @private
+	 * @param {LevelObject?} target
+	 * @returns {boolean}
+	 */
+	_abilityHeal( target ) {
+		const heal = -10;
+
+		if( target ) {
+			target.takeDamage( heal * 3, Colors.Green );
+
+			return false;
+		}
+
+		// Heal all allies in range
+		if( this.isTower ) {
+			const center = this.getCenter();
+
+			this.level.fighters.forEach( f => {
+				if( euclidDistance( center, f.getCenter() ) <= this.attackRange ) {
+					f.takeDamage( heal, Colors.Green );
+				}
+			} );
+
+			this._drawEffectArea( center );
+		}
+		// Heal self
+		else {
+			this.takeDamage( heal, Colors.Green );
+		}
+
+		return true;
+	}
+
+
+	/**
+	 *
+	 * @private
+	 * @param {LevelObject?} target
+	 * @returns {boolean}
+	 */
+	_abilityLightning( target ) {
+		if( !target && this.isTower ) {
+			const center = this.getCenter();
+
+			this.level.fighters.forEach( f => {
+				if( euclidDistance( center, f.getCenter() ) <= this.attackRange ) {
+					if( f.effects.isSpedUp.left() < 2 ) {
+						f.effects.isSpedUp.set( 2 );
+					}
+				}
+			} );
+
+			this._drawEffectArea( center );
+
+			return true;
+		}
+
+		if( target ) {
+			const numTargets = 3;
+			const targets = [];
+			let current = target;
+
+			for( let i = 0; i < numTargets; i++ ) {
+				const [close, _distance] = this.level.wave.getClosestEnemy( current, 200, targets );
+
+				if( close ) {
+					targets.push( close );
+					current = close;
+				}
+				else {
+					break;
+				}
+			}
+
+			this.animations.push( new Animation( {
+				level: this.level,
+				duration: 0.2,
+				onDraw: ( ctx, progress ) => {
+					ctx.globalAlpha = Math.sin( progress * Math.PI );
+					ctx.strokeStyle = Colors.Yellow.color;
+					ctx.lineCap = 'butt';
+					ctx.lineJoin = 'round';
+					ctx.lineWidth = 3;
+					ctx.beginPath();
+
+					const c = target.getCenter();
+					ctx.moveTo( c.x, c.y );
+
+					targets.forEach( t => {
+						const c = t.getCenter();
+						ctx.lineTo( c.x, c.y );
+					} );
+
+					ctx.stroke();
+					ctx.globalAlpha = 1;
+				},
+				onDone: a => {
+					target.takeDamage( 10, Colors.Yellow );
+					targets.forEach( t => t.takeDamage( 5, Colors.Yellow ) );
+
+					removeItem( this.animations, a );
+				},
+			} ) );
+		}
+
+		return false;
+	}
+
+
+	/**
+	 *
+	 * @private
+	 * @param {LevelObject?} target
+	 * @returns {boolean}
+	 */
+	_abilityShield( target ) {
+		if( !target ) {
+			const center = this.getCenter();
+
+			if( this.isTower ) {
+				this.level.fighters.forEach( f => {
+					if( euclidDistance( center, f.getCenter() ) <= this.attackRange ) {
+						if( f.effects.isShielded.left() < 2 ) {
+							f.effects.isShielded.set( 2 );
+						}
+					}
+				} );
+
+				this._drawEffectArea( center );
+			}
+			else {
+				if( this.effects.isShielded.left() < 4 ) {
+					this.effects.isShielded.set( 4 );
+				}
+			}
+
+			return true;
+		}
+
+		if( target ) {
+			if( target.effects.isWeakened.left() < 3 ) {
+				target.effects.isWeakened.set( 3 );
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
+	 *
+	 * @private
+	 * @param {LevelObject?} target
+	 * @returns {boolean}
+	 */
+	_abilitySlow( target ) {
+		const slowTime = 2;
+
+		if( !target ) {
+			const center = this.getCenter();
+
+			this.level.wave.enemies.forEach( e => {
+				if( euclidDistance( center, e.getCenter() ) <= this.attackRange ) {
+					if( e.effects.isSlowed.left() < slowTime ) {
+						e.effects.isSlowed.set( slowTime );
+					}
+				}
+			} );
+
+			this._drawEffectArea( center );
+
+			return true;
+		}
+
+		if( target.effects.isSlowed.left() < slowTime * 2 ) {
+			target.effects.isSlowed.set( slowTime * 2 );
+		}
+
+		return false;
+	}
+
+
+	/**
+	 *
+	 * @private
+	 * @param {LevelObject?} target
+	 * @returns {boolean}
+	 */
+	_abilityTaunt( target ) {
+		const tauntTime = 4;
+
+		if( !target ) {
+			const center = this.getCenter();
+
+			this.level.wave.enemies.forEach( e => {
+				if( euclidDistance( center, e.getCenter() ) <= this.attackRange ) {
+					e.target = this;
+
+					if( e.effects.isTaunted.left() < tauntTime ) {
+						e.effects.isTaunted.set( tauntTime );
+					}
+				}
+			} );
+
+			this._drawEffectArea( center );
+
+			return true;
+		}
+
+		if( target.effects.isTaunted.left() < tauntTime ) {
+			target.effects.isTaunted.set( tauntTime );
+		}
+
+		if( target.effects.isStunned.left() < 1 ) {
+			target.effects.isStunned.set( 1 );
+		}
+
+		return false;
+	}
+
+
+	/**
+	 *
+	 * @private
+	 * @param {Position} center
+	 */
+	_drawEffectArea( center ) {
+		this.animations.push( new Animation( {
+			level: this.level,
+			duration: 0.5,
+			onDraw: ( ctx, progress ) => {
+				ctx.globalAlpha = Math.sin( progress * Math.PI ) * 0.5;
+				ctx.strokeStyle = this.color.color;
+				ctx.beginPath();
+				ctx.arc( center.x, center.y, this.attackRange, 0, Math.PI * 2 );
+				ctx.closePath();
+				ctx.stroke();
+				ctx.globalAlpha = 1;
+			},
+			onDone: a => removeItem( this.animations, a ),
+		} ) );
+	}
+
+
+	/**
+	 *
+	 * @param {LevelObject?} target
+	 * @returns {boolean} True if ability cooldown timer should restart.
+	 */
+	triggerAbility( target ) {
+		const map = {
+			[Colors.Red.color]: this._abilityBurn.bind( this ),
+			[Colors.Orange.color]: this._abilityTaunt.bind( this ),
+			[Colors.Yellow.color]: this._abilityLightning.bind( this ),
+			[Colors.Green.color]: this._abilityHeal.bind( this ),
+			[Colors.Cyan.color]: this._abilitySlow.bind( this ),
+			[Colors.Blue.color]: this._abilityShield.bind( this ),
+		};
+
+		const color = target ? ( this.item?.color || this.color ) : this.color;
+
+		// Random effect
+		if( color === Colors.Violet ) {
+			const keys = Object.keys( map );
+			const key = keys[randInt( 0, keys.length - 1 )];
+
+			return map[key]( target );
+		}
+
+		return map[color.color]?.( target );
+	}
+
+
+	/**
+	 *
 	 * @param {number} dt
 	 */
 	update( dt ) {
 		super.update( dt );
 
-		if( !this.isOnMap || !this.level.wave ) {
+		if(
+			!this.isOnMap ||
+			!this.level.wave ||
+			this.level.wave.phase !== Wave.PhaseFight
+		) {
 			return;
 		}
 
 		this.decideAction();
+
+		if( this.health > 0 && this.abilityCooldown.elapsed() ) {
+			if( this.triggerAbility() ) {
+				this.abilityCooldown.restart();
+			}
+		}
 	}
 
 

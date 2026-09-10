@@ -1,7 +1,6 @@
 import { fontFamilySans } from './Config.js';
-import { LevelObject } from './LevelObject.js';
 import { Colors } from './MagicColors.js';
-import { euclidDistance, isInside, numAsSignedStr } from './MathUtils.js';
+import { euclidDistance, isInside } from './MathUtils.js';
 import { Painting } from './Painting.js';
 import { Renderer } from './Renderer.js';
 import { UIButton } from './UIButton.js';
@@ -15,9 +14,6 @@ export class PaintingArea {
 
 	/** @type {CanvasRenderingContext2D} */
 	ctx;
-
-	/** @type {import('./MagicColors').MagicColor} */
-	_color;
 
 
 	/**
@@ -37,6 +33,7 @@ export class PaintingArea {
 		this.for = Painting.Unspecific;
 		this.offsetY = 0;
 		this.showColorSelection = true;
+		this.showLabels = true;
 		this.visible = true;
 
 		this._color = Colors.Red;
@@ -107,12 +104,65 @@ export class PaintingArea {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	_drawColorButtons( ctx ) {
+		const gap = 5;
+		const offsetY = ( this.h - this._colorButtons.length * ( this._colorButtons[0].h + gap ) ) / 2;
+
 		this._colorButtons.forEach( ( btn, i ) => {
-			btn.x = this.x - btn.w - 10;
-			btn.y = this.y + i * ( btn.h + 5 );
+			btn.x = this.x - btn.w - 15;
+			btn.y = this.y + i * ( btn.h + gap ) + offsetY;
 			btn.draw( ctx );
 		} );
 	}
+
+
+	// /**
+	//  *
+	//  * @private
+	//  * @param {CanvasRenderingContext2D} ctx
+	//  */
+	// _drawColorMods( ctx ) {
+	// 	const x = this.x + this.w + 20;
+	// 	let y = this.y;
+	// 	let text;
+
+	// 	const addMod = mod => {
+	// 		ctx.fillStyle = '#fff';
+
+	// 		if( mod ) {
+	// 			ctx.fillStyle = this._color.color;
+	// 			text += numAsSignedStr( mod );
+	// 		}
+
+	// 		ctx.fillText( text, x, y += 30 );
+	// 	};
+
+	// 	ctx.textAlign = 'left';
+	// 	ctx.font = `500 18px ${fontFamilySans}`;
+
+	// 	if( this.for === Painting.FighterItem || this.for === Painting.TowerItem ) {
+	// 		text = `Attack Dmg ${LevelObject.baseAttackDamage} `;
+	// 		addMod( this._color.modAttackDamage );
+	// 	}
+
+	// 	if( this.for === Painting.Fighter || this.for === Painting.Tower ) {
+	// 		const baseRange = this.for === Painting.Tower
+	// 			? LevelObject.baseAttackRangeTower
+	// 			: LevelObject.baseAttackRange;
+	// 		text = `Attack Range ${baseRange} `;
+	// 		addMod( this._color.modAttackRange );
+
+	// 		text = `Attack Speed ${LevelObject.baseAttackSpeed} `;
+	// 		addMod( this._color.modAttackSpeed );
+
+	// 		text = `Health ${LevelObject.baseHealthMax} `;
+	// 		addMod( this._color.modHealth );
+	// 	}
+
+	// 	if( this.for === Painting.Fighter ) {
+	// 		text = `Move Speed ${LevelObject.baseMoveSpeed} `;
+	// 		addMod( this._color.modMoveSpeed );
+	// 	}
+	// }
 
 
 	/**
@@ -120,48 +170,21 @@ export class PaintingArea {
 	 * @private
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
-	_drawColorMods( ctx ) {
-		const x = this.x + this.w + 20;
-		let y = this.y;
-		let text;
+	_drawLabels( ctx ) {
+		let top = '— top';
+		let bottom = '— bottom';
+		let direction = '→ orientation';
 
-		const addMod = mod => {
-			ctx.fillStyle = '#fff';
-
-			if( mod ) {
-				ctx.fillStyle = this._color.color;
-				text += numAsSignedStr( mod );
-			}
-
-			ctx.fillText( text, x, y += 30 );
-		};
-
+		ctx.font = `500 14px ${fontFamilySans}`;
+		ctx.fillStyle = Colors.White.color;
 		ctx.textAlign = 'left';
-		ctx.font = `500 18px ${fontFamilySans}`;
+		ctx.textBaseline = 'middle';
 
-		if( this.for === Painting.FighterItem || this.for === Painting.TowerItem ) {
-			text = `Attack Dmg ${LevelObject.baseAttackDamage} `;
-			addMod( this._color.modAttackDamage );
-		}
+		const x = this.x + this.w + 5;
 
-		if( this.for === Painting.Fighter || this.for === Painting.Tower ) {
-			const baseRange = this.for === Painting.Tower
-				? LevelObject.baseAttackRangeTower
-				: LevelObject.baseAttackRange;
-			text = `Attack Range ${baseRange} `;
-			addMod( this._color.modAttackRange );
-
-			text = `Attack Speed ${LevelObject.baseAttackSpeed} `;
-			addMod( this._color.modAttackSpeed );
-
-			text = `Health ${LevelObject.baseHealthMax} `;
-			addMod( this._color.modHealth );
-		}
-
-		if( this.for === Painting.Fighter ) {
-			text = `Move Speed ${LevelObject.baseMoveSpeed} `;
-			addMod( this._color.modMoveSpeed );
-		}
+		ctx.fillText( top, x, this.y );
+		ctx.fillText( bottom, x, this.y + this.h );
+		ctx.fillText( direction, x, this.y + this.h / 2 );
 	}
 
 
@@ -318,20 +341,24 @@ export class PaintingArea {
 
 		if( this.showColorSelection ) {
 			this._drawColorButtons( ctx );
-			this._drawColorMods( ctx );
+			// this._drawColorMods( ctx );
+		}
+
+		if( this.showLabels ) {
+			this._drawLabels( ctx );
 		}
 
 		this._undoButton.x = this.x + this.w / 2 - this._undoButton.w - 10;
-		this._undoButton.y = this.y - this._undoButton.h - 10;
+		this._undoButton.y = this.y - this._undoButton.h - 15;
 		this._undoButton.draw( ctx );
 
 		this._clearButton.x = this.x + this.w / 2 + 10;
-		this._clearButton.y = this.y - this._clearButton.h - 10;
+		this._clearButton.y = this.y - this._clearButton.h - 15;
 		this._clearButton.draw( ctx );
 
 		if( this._history.length > 2 ) {
 			this._doneButton.x = this.x + ( this.w - this._doneButton.w ) / 2;
-			this._doneButton.y = this.y + this.h + 10;
+			this._doneButton.y = this.y + this.h + 15;
 			this._doneButton.draw( ctx );
 		}
 
@@ -342,9 +369,10 @@ export class PaintingArea {
 	/**
 	 *
 	 * @param {import('./Level').Level} level
+	 * @param {boolean} [flipX = false]
 	 * @returns {Painting}
 	 */
-	getPainting( level ) {
+	getPainting( level, flipX = false ) {
 		const [trimCanvas, _trimCtx] = Renderer.getTrimmedCanvasCopy( this.canvas );
 		this._color.used++;
 
@@ -352,38 +380,32 @@ export class PaintingArea {
 		const trimW = trimCanvas.width;
 		const trimH = trimCanvas.height;
 
+		// Painting.TowerItem and Painting.Unspecific
+		const pos = {
+			x: ( this.w - trimW ) / 2, // x: center
+			y: ( this.h - trimH ) / 2, // y: center
+		};
+
 		if( this.for === Painting.Tower ) {
-			copyCtx.drawImage(
-				trimCanvas, 0, 0, trimW, trimH,
-				( this.w - trimW ) / 2, // x: center
-				this.h - trimH, // y: bottom
-				trimW, trimH
-			);
+			pos.y = this.h - trimH; // y: bottom
 		}
 		else if( this.for === Painting.Fighter ) {
-			copyCtx.drawImage(
-				trimCanvas, 0, 0, trimW, trimH,
-				this.w - trimW, // x: right
-				this.h - trimH, // y: bottom
-				trimW, trimH
-			);
-		}
-		else if( this.for === Painting.TowerItem || this.for === Painting.Unspecific ) {
-			copyCtx.drawImage(
-				trimCanvas, 0, 0, trimW, trimH,
-				( this.w - trimW ) / 2, // x: center
-				( this.h - trimH ) / 2, // y: center
-				trimW, trimH
-			);
+			pos.x = this.w - trimW; // x: right
+			pos.y = this.h - trimH; // y: bottom
 		}
 		else if( this.for === Painting.FighterItem ) {
-			copyCtx.drawImage(
-				trimCanvas, 0, 0, trimW, trimH,
-				0, // x: left,
-				this.h - trimH, // y: bottom
-				trimW, trimH
-			);
+			pos.x = 0; // x: left
+			pos.y = this.h - trimH; // y: bottom
 		}
+
+		if( flipX ) {
+			Renderer.scaleCenter( copyCtx, -1, 1, { x: this.w / 2, y: this.h / 2 } );
+		}
+
+		copyCtx.drawImage(
+			trimCanvas, 0, 0, trimW, trimH,
+			pos.x, pos.y, trimW, trimH
+		);
 
 		return new Painting( level, copyCanvas, this._color, this._history.slice() );
 	}

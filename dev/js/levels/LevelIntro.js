@@ -42,7 +42,7 @@ export class LevelIntro extends Level {
 				this._step++;
 
 				this.paintingArea.onDone = () => {
-					Enemy.canvas = this.paintingArea.getPainting( nextLevel ).canvas;
+					Enemy.canvas = this.paintingArea.getPainting( nextLevel, true ).canvas;
 					Renderer.changeLevel( nextLevel );
 				};
 			},

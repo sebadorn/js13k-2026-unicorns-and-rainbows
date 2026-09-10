@@ -9,8 +9,8 @@ export class Wave {
 
 
 	index = 0;
-	newFighters = 0;
-	newTowers = 0;
+	numFighters = 0;
+	numTowers = 0;
 
 	/** @type {import('./Enemy').Enemy[]} */
 	enemies = [];
@@ -66,18 +66,20 @@ export class Wave {
 	/**
 	 *
 	 * @param {import('./LevelObject').LevelObject} lo
+	 * @param {number?} range
+	 * @param {import('./LevelObject').LevelObject[]} [ignore = []]
 	 * @returns {[import('./Enemy').Enemy, number]}
 	 */
-	getClosestEnemy( lo ) {
+	getClosestEnemy( lo, range, ignore = [] ) {
 		const loCenter = lo.getCenter();
 
-		let closestValue = Math.max( lo.enemyDetectionRange, lo.attackRange );
+		let closestValue = range || Math.max( lo.enemyDetectionRange, lo.attackRange );
 		let closestEnemy = null;
 
 		for( let i = 0; i < this.enemies.length; i++ ) {
 			const enemy = this.enemies[i];
 
-			if( enemy === lo || enemy.health <= 0 ) {
+			if( enemy === lo || enemy.health <= 0 || ignore.includes( enemy ) ) {
 				continue;
 			}
 

@@ -63,6 +63,28 @@ export class Enemy extends LevelObject {
 			ctx.strokeRect( this.x, this.y, this.w, this.h );
 		}
 
+		ctx.globalCompositeOperation = 'multiply';
+
+		if( !this.effects.isSlowed.elapsed() ) {
+			ctx.fillStyle = Colors.Cyan.color;
+			ctx.fillRect( this.x, this.y, this.w, this.h );
+		}
+
+		if(
+			!this.effects.isTaunted.elapsed() ||
+			!this.effects.isStunned.elapsed()
+		) {
+			ctx.fillStyle = Colors.Orange.color;
+			ctx.fillRect( this.x, this.y, this.w, this.h );
+		}
+
+		if( !this.effects.isWeakened.elapsed() ) {
+			ctx.fillStyle = Colors.Blue.color;
+			ctx.fillRect( this.x, this.y, this.w, this.h );
+		}
+
+		ctx.globalCompositeOperation = 'source-over';
+
 		if( rotation ) {
 			Renderer.rotateCenter( ctx, -rotation, center );
 		}

@@ -34,8 +34,8 @@ export class LevelMain extends Level {
 		this._allUnits = [];
 
 		this.wave = Waves.getWave( this, 0 );
-		this.numMaxFighters = this.wave.newFighters;
-		this.numMaxTowers = this.wave.newTowers;
+		this.numMaxFighters = this.wave.numFighters;
+		this.numMaxTowers = this.wave.numTowers;
 
 		this.paintingArea = new PaintingArea(
 			400, 400,
@@ -90,32 +90,6 @@ export class LevelMain extends Level {
 	/**
 	 *
 	 * @private
-	 * @param {CanvasRenderingContext2D} ctxUI
-	 */
-	_drawHealthBar( ctxUI ) {
-		if( this.wave.phase !== Wave.PhaseFight ) {
-			return;
-		}
-
-		const height = 20;
-		const maxWidth = Renderer.drawWidth * 0.4;
-		const x = ( Renderer.drawWidth - maxWidth ) / 2;
-		const y = Renderer.drawHeight - height - 100;
-		const percent = this.unicornPainting.health / 100;
-
-		// background bar
-		ctxUI.fillStyle = '#fff2';
-		ctxUI.fillRect( x, y, maxWidth, height );
-
-		// current state bar
-		ctxUI.fillStyle = Colors.White.color;
-		ctxUI.fillRect( x, y, percent * maxWidth, height );
-	}
-
-
-	/**
-	 *
-	 * @private
 	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {CanvasRenderingContext2D} ctxUI
 	 */
@@ -130,7 +104,7 @@ export class LevelMain extends Level {
 			this._drawStartAreas( ctx );
 		}
 
-		this.unicornPainting.x = 100;
+		this.unicornPainting.x = 200;
 		this.unicornPainting.y = ( h - this.unicornPainting.h ) / 2;
 		this.unicornPainting.draw( ctx, ctxUI );
 
@@ -158,7 +132,7 @@ export class LevelMain extends Level {
 			} );
 		}
 
-		if( this.numMaxFighters >= 0 ) {
+		if( this.numMaxFighters > 0 ) {
 			this.fighterStartAreas.forEach( fsa => {
 				ctx.beginPath();
 				ctx.arc( fsa.x + fsa.w / 2, fsa.y + fsa.h / 2, fsa.w / 2, 0, Math.PI * 2 );
@@ -214,7 +188,7 @@ export class LevelMain extends Level {
 					const newTower = this.paintingArea.getPainting( this );
 					newTower.spawnLocation = index;
 
-					this.paintingArea.resize( 200, 200 );
+					this.paintingArea.resize( 220, 220 );
 					this.paintingArea.for = Painting.TowerItem;
 
 					this._getItemForPainting( item => {
@@ -245,7 +219,7 @@ export class LevelMain extends Level {
 						const newFighter = this.paintingArea.getPainting( this );
 						newFighter.spawnLocation = index;
 
-						this.paintingArea.resize( 200, 400 );
+						this.paintingArea.resize( 220, 400 );
 						this.paintingArea.for = Painting.FighterItem;
 
 						this._getItemForPainting( item => {
@@ -265,12 +239,6 @@ export class LevelMain extends Level {
 	 */
 	_proceedToNextWaveOrLevel() {
 		this.wave = Waves.getWave( this, this.wave.index + 1 );
-		this.numMaxFighters += this.wave.newFighters;
-		this.numMaxTowers += this.wave.newTowers;
-
-		this._allUnits = [];
-		this.towers.forEach( t => t.reset() );
-		this.fighters.forEach( f => f.reset() );
 
 		// Last wave done, proceed to outro
 		if( !this.wave ) {
@@ -278,7 +246,17 @@ export class LevelMain extends Level {
 			outro.unicornPainting = this.unicornPainting;
 
 			Renderer.changeLevel( outro );
+
+			return;
 		}
+
+		this.numMaxFighters = this.wave.numFighters;
+		this.numMaxTowers = this.wave.numTowers;
+
+		this._allUnits = [];
+		this.towers.forEach( t => t.reset() );
+		this.fighters.forEach( f => f.reset() );
+		this.unicornPainting.reset();
 	}
 
 
@@ -295,19 +273,19 @@ export class LevelMain extends Level {
 		/** @type {Area[]} */
 		this.towerBuildAreas = [
 			{
-				x: 650,
+				x: dw / 2 + 200,
 				y: ( dh - tbaSize ) / 2,
 				w: tbaSize,
 				h: tbaSize,
 			},
 			{
-				x: 350,
+				x: dw / 4 + 150,
 				y: 250,
 				w: tbaSize,
 				h: tbaSize,
 			},
 			{
-				x: 350,
+				x: dw / 4 + 150,
 				y: dh - tbaSize - 250,
 				w: tbaSize,
 				h: tbaSize,
@@ -317,26 +295,26 @@ export class LevelMain extends Level {
 		/** @type {Area[]} */
 		this.fighterStartAreas = [
 			{
-				x: 550,
+				x: dw / 2,
 				y: 350,
 				w: fsaSize,
 				h: fsaSize,
 			},
 			{
-				x: 550,
+				x: dw / 2,
 				y: dh - fsaSize - 350,
 				w: fsaSize,
 				h: fsaSize,
 			},
 			{
-				x: 350,
-				y: 425,
+				x: 400,
+				y: 400,
 				w: fsaSize,
 				h: fsaSize,
 			},
 			{
-				x: 350,
-				y: dh - fsaSize - 425,
+				x: 400,
+				y: dh - fsaSize - 400,
 				w: fsaSize,
 				h: fsaSize,
 			},
@@ -391,12 +369,13 @@ export class LevelMain extends Level {
 		painting.isOnMap = true;
 		painting.isTower = false;
 
-		const scale = 80 / painting.w;
-		painting.w = 80;
+		const newW = 100;
+		const scale = newW / painting.w;
+		painting.w = newW;
 		painting.h *= scale;
 
-		painting.x = area.x;
-		painting.y = area.y;
+		painting.x = area.x - newW + area.w;
+		painting.y = area.y - painting.h + area.h;
 
 		this.fighters.push( painting );
 	}
@@ -411,13 +390,15 @@ export class LevelMain extends Level {
 		painting.addedInWave = this.wave.index;
 		painting.isOnMap = true;
 		painting.isTower = true;
+		painting.canMove = false;
 		painting.enemyDetectionRange = painting.attackRange;
 
-		const scale = area.w / painting.w;
-		painting.w = area.w;
+		const newW = area.w * 1.5;
+		const scale = newW / painting.w;
+		painting.w = newW;
 		painting.h *= scale;
 
-		painting.x = area.x;
+		painting.x = area.x - newW + area.w;
 		painting.y = area.y + area.h - painting.h;
 
 		this.towers.push( painting );
@@ -431,7 +412,6 @@ export class LevelMain extends Level {
 	 */
 	draw( ctx, ctxUI ) {
 		this._drawMap( ctx, ctxUI );
-		this._drawHealthBar( ctxUI );
 
 		if( this.isGameOver ) {
 			this._drawGameOver( ctxUI );

@@ -46,7 +46,7 @@ export class LevelOutro extends Level {
 			() => {
 				const stepData = this._steps[this._step];
 
-				this._paintings[this._step] = this.paintingArea.getPainting( this );
+				this._paintings[this._step] = this.paintingArea.getPainting( this, this._step === 2 );
 				this.paintingArea.clear();
 				this.paintingArea.visible = false;
 

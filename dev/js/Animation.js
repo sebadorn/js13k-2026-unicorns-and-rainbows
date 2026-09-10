@@ -45,7 +45,7 @@ export class Animation {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
-		this.onDraw?.( ctx );
+		this.onDraw?.( ctx, this.timer.progress() );
 	}
 
 
@@ -61,6 +61,7 @@ export class Animation {
 /**
  * @callback drawCallback
  * @param {CanvasRenderingContext2D} ctx
+ * @param {number} progress
  */
 
 /**

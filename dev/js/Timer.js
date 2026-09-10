@@ -28,11 +28,20 @@ export class Timer {
 
 
 	/**
+	 *
+	 * @returns {number}
+	 */
+	left() {
+		return this.timeEnd - this.level.timer;
+	}
+
+
+	/**
 	 * 
 	 * @returns {number} Progress as [0, 1]
 	 */
 	progress() {
-		return Math.min( 1, 1 - ( this.timeEnd - this.level.timer ) / this.duration );
+		return Math.min( 1, 1 - this.left() / this.duration );
 	}
 
 
