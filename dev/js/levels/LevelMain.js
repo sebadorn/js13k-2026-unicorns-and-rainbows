@@ -374,7 +374,7 @@ export class LevelMain extends Level {
 		painting.w = newW;
 		painting.h *= scale;
 
-		painting.x = area.x - newW + area.w;
+		painting.x = area.x - ( newW - area.w ) / 2;
 		painting.y = area.y - painting.h + area.h;
 
 		this.fighters.push( painting );
@@ -398,7 +398,7 @@ export class LevelMain extends Level {
 		painting.w = newW;
 		painting.h *= scale;
 
-		painting.x = area.x - newW + area.w;
+		painting.x = area.x - ( newW - area.w ) / 2;
 		painting.y = area.y + area.h - painting.h;
 
 		this.towers.push( painting );

@@ -306,9 +306,13 @@ export class PaintingArea {
 		const oldColor = this._color;
 		this._color = newColor;
 
-		this.repaintFromHistory();
-		this._history.push( oldColor );
-		this._history.push( null );
+		// No point adding a color change to an empty painting
+		if( this._history.length > 0 ) {
+			this.repaintFromHistory();
+
+			this._history.push( oldColor );
+			this._history.push( null );
+		}
 	}
 
 

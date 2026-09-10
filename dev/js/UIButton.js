@@ -1,3 +1,4 @@
+import { Audio } from './Audio.js';
 import { fontFamilySans, maxUsesMagicColor } from './Config.js';
 
 
@@ -78,6 +79,7 @@ export class UIButton {
 	 *
 	 */
 	onClick() {
+		Audio.play( Audio.click );
 		this._clickEvent?.();
 	}
 

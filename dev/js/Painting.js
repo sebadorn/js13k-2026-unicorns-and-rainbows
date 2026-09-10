@@ -1,5 +1,6 @@
 import { Animation } from './Animation.js';
 import { removeItem } from './ArrayUtils.js';
+import { Audio } from './Audio.js';
 import { LevelObject } from './LevelObject.js';
 import { Colors } from './MagicColors.js';
 import { euclidDistance, lerp, randInt } from './MathUtils.js';
@@ -178,7 +179,7 @@ export class Painting extends LevelObject {
 			const fsa = this.level.fighterStartAreas[this.spawnLocation];
 
 			if( fsa ) {
-				this.x = fsa.x - this.w + fsa.w;
+				this.x = fsa.x - ( this.w - fsa.w ) / 2;
 				this.y = fsa.y - this.h + fsa.h;
 			}
 		}
@@ -216,13 +217,14 @@ export class Painting extends LevelObject {
 			const center = this.getCenter();
 
 			this.level.wave.enemies.forEach( e => {
-				if( euclidDistance( center, e.getCenter() ) <= this.attackRange ) {
+				if( euclidDistance( center, e.getCenter() ) <= this.attackRange + e.w / 2 ) {
 					// Repeating burn damage
 					for( let i = 1; i <= 3; i++ ) {
 						e.animations.push( new Animation( {
 							level: this.level,
 							duration: i,
 							onDone: a => {
+								Audio.play( Audio.burnDmg );
 								e.takeDamage( burnDamage / 2, Colors.Red );
 								removeItem( e.animations, a );
 							},
@@ -243,6 +245,7 @@ export class Painting extends LevelObject {
 					level: this.level,
 					duration: i,
 					onDone: a => {
+						Audio.play( Audio.burnDmg );
 						target.takeDamage( burnDamage, Colors.Red );
 						removeItem( target.animations, a );
 					},
@@ -274,7 +277,7 @@ export class Painting extends LevelObject {
 			const center = this.getCenter();
 
 			this.level.fighters.forEach( f => {
-				if( euclidDistance( center, f.getCenter() ) <= this.attackRange ) {
+				if( euclidDistance( center, f.getCenter() ) <= this.attackRange + f.w / 2 ) {
 					f.takeDamage( heal, Colors.Green );
 				}
 			} );
@@ -301,7 +304,7 @@ export class Painting extends LevelObject {
 			const center = this.getCenter();
 
 			this.level.fighters.forEach( f => {
-				if( euclidDistance( center, f.getCenter() ) <= this.attackRange ) {
+				if( euclidDistance( center, f.getCenter() ) <= this.attackRange + f.w / 2 ) {
 					if( f.effects.isSpedUp.left() < 2 ) {
 						f.effects.isSpedUp.set( 2 );
 					}
@@ -353,6 +356,7 @@ export class Painting extends LevelObject {
 					ctx.globalAlpha = 1;
 				},
 				onDone: a => {
+					Audio.play( Audio.lightning );
 					target.takeDamage( 10, Colors.Yellow );
 					targets.forEach( t => t.takeDamage( 5, Colors.Yellow ) );
 
@@ -377,7 +381,7 @@ export class Painting extends LevelObject {
 
 			if( this.isTower ) {
 				this.level.fighters.forEach( f => {
-					if( euclidDistance( center, f.getCenter() ) <= this.attackRange ) {
+					if( euclidDistance( center, f.getCenter() ) <= this.attackRange + f.w / 2 ) {
 						if( f.effects.isShielded.left() < 2 ) {
 							f.effects.isShielded.set( 2 );
 						}
@@ -418,7 +422,7 @@ export class Painting extends LevelObject {
 			const center = this.getCenter();
 
 			this.level.wave.enemies.forEach( e => {
-				if( euclidDistance( center, e.getCenter() ) <= this.attackRange ) {
+				if( euclidDistance( center, e.getCenter() ) <= this.attackRange + e.w / 2 ) {
 					if( e.effects.isSlowed.left() < slowTime ) {
 						e.effects.isSlowed.set( slowTime );
 					}
@@ -448,10 +452,11 @@ export class Painting extends LevelObject {
 		const tauntTime = 4;
 
 		if( !target ) {
+			const range = this.isTower ? this.attackRange : LevelObject.baseAttackRangeTower * 0.75;
 			const center = this.getCenter();
 
 			this.level.wave.enemies.forEach( e => {
-				if( euclidDistance( center, e.getCenter() ) <= this.attackRange ) {
+				if( euclidDistance( center, e.getCenter() ) <= range + e.w / 2 ) {
 					e.target = this;
 
 					if( e.effects.isTaunted.left() < tauntTime ) {

@@ -27,4 +27,4 @@ Use your mouse to click and draw.
 
 ## Resources
 
-...
+* [ZzFX – Zuper Zmall Zound Zynth](https://github.com/KilledByAPixel/ZzFX)

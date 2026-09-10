@@ -1,5 +1,6 @@
 import { Animation } from './Animation.js';
 import { removeItem } from './ArrayUtils.js';
+import { Audio } from './Audio.js';
 import { fontFamilySans } from './Config.js';
 import { Colors } from './MagicColors.js';
 import { euclidDistance, lerp, normalizeVector } from './MathUtils.js';
@@ -28,10 +29,10 @@ export class LevelObject {
 	moveAnimation = null;
 
 
-	static baseAttackDamage = 20;
+	static baseAttackDamage = 40;
 	static baseAttackRange = 30;
 	static baseAttackRangeTower = 300;
-	static baseAttackSpeed = 1.75; // seconds between attacks
+	static baseAttackSpeed = 2.5; // seconds between attacks
 	static baseHealthMax = 100;
 	static baseMoveSpeed = 1.75;
 
@@ -154,6 +155,15 @@ export class LevelObject {
 
 		this.targetStartPos = this.target.getCenter();
 		this.cooldownAttack.set( this.attackSpeed );
+
+		if( !this.isTower && !this.isEnemy ) {
+			Audio.play( Audio.fighterHit );
+		}
+		else if( this.isTower ) {
+			if( this.color !== Colors.Yellow ) {
+				Audio.play( Audio.towerHit );
+			}
+		}
 
 		this.attackAnimation = new Animation( {
 			level: this.level,
@@ -341,6 +351,18 @@ export class LevelObject {
 
 		dmg = Math.ceil( dmg * f );
 		this.health -= dmg;
+
+		if( this.health <= 0 ) {
+			if( this.isTower ) {
+				Audio.play( Audio.towerDestroyed );
+			}
+			else if( this.isEnemy ) {
+				Audio.play( Audio.shriek );
+			}
+			else {
+				Audio.play( Audio.fighterDestroyed );
+			}
+		}
 
 		const xStart = this.x + this.w * 0.8;
 		const yStart = this.y;
