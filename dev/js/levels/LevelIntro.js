@@ -30,15 +30,13 @@ export class LevelIntro extends Level {
 		const nextLevel = new LevelMain();
 
 		this.paintingArea = new PaintingArea(
-			200, 200,
+			220, 220,
 			() => {
 				nextLevel.unicornPainting = this.paintingArea.getPainting( nextLevel );
 				nextLevel.unicornPainting.isOnMap = true;
 				nextLevel.unicornPainting.canMove = false;
 
 				this.paintingArea.clear();
-				this.paintingArea.visible = false;
-
 				this._step++;
 
 				this.paintingArea.onDone = () => {
@@ -47,7 +45,8 @@ export class LevelIntro extends Level {
 				};
 			},
 		);
-		this.paintingArea.offsetY = 120;
+		this.paintingArea.offsetY = 160;
+		this.paintingArea.titleGap = 120;
 		this.paintingArea.showColorSelection = false;
 		this.paintingArea.visible = false;
 		this.paintingArea.changeColor( Colors.White );
@@ -81,6 +80,8 @@ export class LevelIntro extends Level {
 		} );
 
 		ctx.shadowBlur = 0;
+
+		this.paintingArea.title = this._texts[this._step];
 		this.paintingArea.draw( ctxUI );
 	}
 
@@ -90,23 +91,23 @@ export class LevelIntro extends Level {
 	 * @param {Position} pos
 	 */
 	onClick( pos ) {
+		if( this.paintingArea.visible ) {
+			this.paintingArea.onClick( pos );
+			return;
+		}
+
 		if( this._blockUntil && !this._blockUntil.elapsed() ) {
 			return;
 		}
 
 		this._blockUntil = new Timer( this, 0.3 );
-
-		if( this._step === 3 || this._step === 4 ) {
-			const wasVisible = this.paintingArea.visible;
-			this.paintingArea.visible = true;
-			this.paintingArea.title = this._texts[this._step];
-
-			if( wasVisible ) {
-				this.paintingArea.onClick( pos );
-			}
-		}
-		else {
+		
+		if( !this.paintingArea.visible && this._step < this._texts.length ) {
 			this._step++;
+		}
+
+		if( this._step === 3 ) {
+			this.paintingArea.visible = true;
 		}
 	}
 

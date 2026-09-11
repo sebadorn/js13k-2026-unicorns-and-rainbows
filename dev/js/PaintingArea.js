@@ -36,6 +36,7 @@ export class PaintingArea {
 		this.showColorSelection = true;
 		this.showLabels = true;
 		this.title = null;
+		this.titleGap = 150;
 
 		this._color = Colors.Red;
 		this._history = [];
@@ -259,11 +260,11 @@ export class PaintingArea {
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 		ctx.fillStyle = Colors.White.color;
-		ctx.fillText( text, Renderer.drawWidth / 2, this.y - 150 );
+		ctx.fillText( text, Renderer.drawWidth / 2, this.y - this.titleGap );
 
 		if( suggestion ) {
 			ctx.font = `500 italic 20px ${fontFamilySerif}`;
-			ctx.fillText( `How about ${suggestion}?`, Renderer.drawWidth / 2, this.y - 110 );
+			ctx.fillText( `How about ${suggestion}?`, Renderer.drawWidth / 2, this.y - this.titleGap + 40 );
 		}
 	}
 
@@ -321,8 +322,10 @@ export class PaintingArea {
 		}
 		else if( this.for === Painting.FighterItem ) {
 			list = [
+				'a banana',
 				'a dagger',
 				'a fist',
+				'a flute',
 				'a pitchfork',
 				'a rapier',
 				'a scepter',
@@ -351,8 +354,11 @@ export class PaintingArea {
 			list = [
 				'a berry',
 				'a bolt',
+				'a boomerang',
 				'a cannon ball',
 				'a flame',
+				'an ice cube',
+				'a music note',
 				'a potato',
 				'a round little guy',
 				'a tomato',
@@ -387,7 +393,7 @@ export class PaintingArea {
 	 * @param {boolean} isFromHistory
 	 */
 	brushDown( pos, isFromHistory ) {
-		if( !this.visible ) {
+		if( !this.visible && !isFromHistory ) {
 			return;
 		}
 
@@ -441,7 +447,11 @@ export class PaintingArea {
 	 * @param {boolean} isFromHistory
 	 */
 	brushUp( _, isFromHistory ) {
-		if( this.visible && this._lastPos ) {
+		if( !this.visible && !isFromHistory ) {
+			return;
+		}
+
+		if( this._lastPos ) {
 			this._lastPos = null;
 
 			if( !isFromHistory ) {
@@ -588,7 +598,6 @@ export class PaintingArea {
 		}
 
 		this._color = painting.color;
-		this.resize( painting.w, painting.h );
 		this._history = painting.history;
 		this.repaintFromHistory();
 	}
