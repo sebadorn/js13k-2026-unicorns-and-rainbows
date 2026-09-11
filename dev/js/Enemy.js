@@ -22,15 +22,9 @@ export class Enemy extends LevelObject {
 		super( level, x, y, w, h );
 
 		this.isEnemy = true;
-	}
 
-
-	/**
-	 *
-	 * @returns {number}
-	 */
-	get attackDamage() {
-		return 5;
+		this.baseAttackDamage = 5;
+		this.baseAttackSpeed = 3;
 	}
 
 
@@ -57,6 +51,10 @@ export class Enemy extends LevelObject {
 			rotation = Math.sin( this.level.timer / 10 ) / 5;
 			center = this.getCenter();
 			center.y += this.h / 2;
+		}
+
+		if( !this.damageTakenTimer.elapsed() ) {
+			ctx.globalAlpha = this.damageTakenTimer.progress();
 		}
 
 		if( rotation ) {

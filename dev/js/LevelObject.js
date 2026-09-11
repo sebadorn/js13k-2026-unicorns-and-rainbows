@@ -35,7 +35,7 @@ export class LevelObject {
 	static baseAttackDamage = 40;
 	static baseAttackRange = 30;
 	static baseAttackRangeTower = 300;
-	static baseAttackSpeed = 2.5; // seconds between attacks
+	static baseAttackSpeed = 1.5; // seconds between attacks
 	static baseHealthMax = 100;
 	static baseMoveSpeed = 1.75;
 
@@ -55,9 +55,17 @@ export class LevelObject {
 		this.w = w;
 		this.h = h;
 
+		this.baseAttackDamage = LevelObject.baseAttackDamage;
+		this.baseAttackRange = LevelObject.baseAttackRange;
+		this.baseAttackRangeTower = LevelObject.baseAttackRangeTower;
+		this.baseAttackSpeed = LevelObject.baseAttackSpeed;
+		this.baseHealthMax = LevelObject.baseHealthMax;
+		this.baseMoveSpeed = LevelObject.baseMoveSpeed;
+
 		this.canMove = true;
 		this.color = Colors.Black;
 		this.cooldownAttack = new Timer( level );
+		this.damageTakenTimer = new Timer( level );
 		this.effects = {
 			isShielded: new Timer( level, 0 ),
 			isSlowed: new Timer( level, 0 ),
@@ -84,7 +92,7 @@ export class LevelObject {
 			return -10;
 		}
 
-		return LevelObject.baseAttackDamage + this.color.modAttackDamage;
+		return this.baseAttackDamage + this.color.modAttackDamage;
 	}
 
 
@@ -93,7 +101,7 @@ export class LevelObject {
 	 * @returns {number}
 	 */
 	get attackRange() {
-		const value = this.isTower ? LevelObject.baseAttackRangeTower : LevelObject.baseAttackRange;
+		const value = this.isTower ? this.baseAttackRangeTower : this.baseAttackRange;
 
 		return value + this.color.modAttackRange;
 	}
@@ -104,11 +112,11 @@ export class LevelObject {
 	 * @returns {number}
 	 */
 	get attackSpeed() {
-		let speed = LevelObject.baseAttackSpeed + this.isTower ? 0 : this.color.modAttackSpeed;
+		let speed = this.baseAttackSpeed + ( this.isTower ? 0 : this.color.modAttackSpeed );
 		let f = 1;
 
 		if( !this.effects.isSlowed.elapsed() ) {
-			f += 0.25;
+			f += 0.5;
 		}
 
 		if( !this.effects.isSpedUp.elapsed() ) {
@@ -124,7 +132,7 @@ export class LevelObject {
 	 * @returns {number}
 	 */
 	get healthMax() {
-		return LevelObject.baseHealthMax + this.color.modHealth;
+		return this.baseHealthMax + this.color.modHealth;
 	}
 
 
@@ -133,11 +141,11 @@ export class LevelObject {
 	 * @returns {number}
 	 */
 	get moveSpeed() {
-		let speed = this.canMove ? LevelObject.baseMoveSpeed + this.color.modMoveSpeed : 0;
+		let speed = this.canMove ? this.baseMoveSpeed + this.color.modMoveSpeed : 0;
 		let f = 1;
 
 		if( !this.effects.isSlowed.elapsed() ) {
-			f -= 0.5;
+			f -= 0.75;
 		}
 
 		if( !this.effects.isSpedUp.elapsed() ) {
@@ -206,10 +214,12 @@ export class LevelObject {
 		let distance;
 
 		if( this.effects.isTaunted.elapsed() ) {
+			this.taunter = null;
 			[target, distance] = this.findTarget();
 			this.target = target;
 		}
 		else {
+			this.target = this.taunter;
 			distance = euclidDistance( this.target.getCenter(), this.getCenter() );
 		}
 
@@ -364,7 +374,9 @@ export class LevelObject {
 		}
 
 		dmg = Math.ceil( dmg * f );
-		this.health -= dmg;
+
+		// Prevent over-healing
+		this.health = Math.min( this.healthMax, this.health - dmg );
 
 		if( this.health <= 0 ) {
 			if( this.isTower ) {
@@ -385,6 +397,8 @@ export class LevelObject {
 		const yEnd = yStart - 60;
 		let y = yStart;
 		let alpha = 1;
+
+		this.damageTakenTimer.set( 0.2 );
 
 		this.animations.push( new Animation( {
 			level: this.level,
