@@ -80,6 +80,10 @@ export class LevelObject {
 			return this.item.attackDamage + this.color.modAttackDamage;
 		}
 
+		if( this.color === Colors.Green ) {
+			return -10;
+		}
+
 		return LevelObject.baseAttackDamage + this.color.modAttackDamage;
 	}
 
@@ -266,7 +270,9 @@ export class LevelObject {
 	 * @returns {[LevelObject?, number]}
 	 */
 	findTarget() {
-		if( this.attackDamage < 0 || this.isEnemy ) {
+		const dmg = this.item ? this.item.attackDamage : this.attackDamage;
+
+		if( dmg < 0 || this.isEnemy ) {
 			return this.level.wave.getClosestPlayerUnit( this );
 		}
 

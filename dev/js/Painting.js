@@ -284,13 +284,12 @@ export class Painting extends LevelObject {
 	 * @returns {boolean}
 	 */
 	_abilityHeal( target ) {
-		const heal = -10;
-
 		if( target ) {
-			target.takeDamage( heal * 3, Colors.Green );
-
+			// Healing happens as part of normal attack
 			return false;
 		}
+
+		const heal = -10;
 
 		// Heal all allies in range
 		if( this.isTower ) {
@@ -306,7 +305,7 @@ export class Painting extends LevelObject {
 		}
 		// Heal self
 		else {
-			this.takeDamage( heal, Colors.Green );
+			this.takeDamage( heal * 3, Colors.Green );
 		}
 
 		return true;
