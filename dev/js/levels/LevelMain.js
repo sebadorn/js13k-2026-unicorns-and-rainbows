@@ -152,8 +152,6 @@ export class LevelMain extends Level {
 	 * @param {Function} cb
 	 */
 	_getItemForPainting( cb ) {
-		this.paintingArea.clear();
-
 		this.paintingArea.onDone = () => {
 			const item = this.paintingArea.getPainting( this );
 			this.paintingArea.clear();
@@ -179,18 +177,20 @@ export class LevelMain extends Level {
 			if( existing || this.towers.length < this.numMaxTowers ) {
 				this.paintingArea.resize( 300, 500 );
 				this.paintingArea.for = Painting.Tower;
-				this.paintingArea.loadPainting( existing );
 				this.paintingArea.visible = true;
+				this.paintingArea.loadPainting( existing );
+				existing?.freeColor();
 
 				this.paintingArea.onDone = () => {
-					existing?.freeColor();
 					removeItem( this.towers, existing );
 
 					const newTower = this.paintingArea.getPainting( this );
 					newTower.spawnLocation = index;
 
+					this.paintingArea.clear();
 					this.paintingArea.resize( 220, 220 );
 					this.paintingArea.for = Painting.TowerItem;
+					this.paintingArea.loadPainting( existing?.item );
 
 					this._getItemForPainting( item => {
 						this.addTower( newTower, tba );
@@ -210,18 +210,20 @@ export class LevelMain extends Level {
 				if( existing || this.fighters.length < this.numMaxFighters ) {
 					this.paintingArea.resize( 400, 400 );
 					this.paintingArea.for = Painting.Fighter;
-					this.paintingArea.loadPainting( existing );
 					this.paintingArea.visible = true;
+					this.paintingArea.loadPainting( existing );
+					existing?.freeColor();
 
 					this.paintingArea.onDone = () => {
-						existing?.freeColor();
 						removeItem( this.fighters, existing );
 
 						const newFighter = this.paintingArea.getPainting( this );
 						newFighter.spawnLocation = index;
 
+						this.paintingArea.clear();
 						this.paintingArea.resize( 220, 400 );
 						this.paintingArea.for = Painting.FighterItem;
+						this.paintingArea.loadPainting( existing?.item );
 
 						this._getItemForPainting( item => {
 							this.addFighter( newFighter, fsa );
