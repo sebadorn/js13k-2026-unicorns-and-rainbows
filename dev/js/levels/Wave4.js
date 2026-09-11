@@ -4,12 +4,12 @@ import { Renderer } from '../Renderer.js';
 import { Wave } from '../Wave.js';
 
 
-export class Wave3 extends Wave {
+export class Wave4 extends Wave {
 
 
-	index = 2;
-	numFighters = 3;
-	numTowers = 2;
+	index = 3;
+	numFighters = 4;
+	numTowers = 3;
 
 
 	/**

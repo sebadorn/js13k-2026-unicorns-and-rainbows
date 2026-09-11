@@ -27,7 +27,7 @@ export class Wave1 extends Wave {
 
 				ctx.fillText(
 					'Select a field to paint your first tower',
-					Renderer.drawWidth / 2, Renderer.drawHeight * 0.2
+					Renderer.drawWidth / 2, 150 + Math.sin( this.level.timer / 50 ) * 5
 				);
 			}
 		}

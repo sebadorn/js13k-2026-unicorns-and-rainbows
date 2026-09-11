@@ -1,6 +1,7 @@
 import { Wave1 } from './levels/Wave1.js';
 import { Wave2 } from './levels/Wave2.js';
 import { Wave3 } from './levels/Wave3.js';
+import { Wave4 } from './levels/Wave4.js';
 
 
 export const Waves = {
@@ -11,6 +12,7 @@ export const Waves = {
 		Wave1,
 		Wave2,
 		Wave3,
+		Wave4,
 	],
 
 
