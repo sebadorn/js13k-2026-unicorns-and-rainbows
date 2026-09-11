@@ -451,10 +451,11 @@ export class Painting extends LevelObject {
 		const slowTime = 2;
 
 		if( !target ) {
+			const range = this.isTower ? this.attackRange : LevelObject.baseAttackRangeTower * 0.75;
 			const center = this.getCenter();
 
 			this.level.wave.enemies.forEach( e => {
-				if( euclidDistance( center, e.getCenter() ) <= this.attackRange + e.w / 2 ) {
+				if( euclidDistance( center, e.getCenter() ) <= range + e.w / 2 ) {
 					if( e.effects.isSlowed.left() < slowTime ) {
 						e.effects.isSlowed.set( slowTime );
 					}
