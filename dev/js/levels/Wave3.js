@@ -26,7 +26,7 @@ export class Wave3 extends Wave {
 				ctx.textAlign = 'center';
 
 				ctx.fillText(
-					'Prepare for the coming wave. Fill all fields',
+					`${this.numTowers} towers, ${this.numFighters} fighters`,
 					Renderer.drawWidth / 2, 150 + Math.sin( this.level.timer / 50 ) * 5
 				);
 			}

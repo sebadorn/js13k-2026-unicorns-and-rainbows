@@ -1,4 +1,5 @@
 import { removeItem } from '../ArrayUtils.js';
+import { Audio } from '../Audio.js';
 import { fontFamilySerif } from '../Config.js';
 import { Level } from '../Level.js';
 import { Colors } from '../MagicColors.js';
@@ -47,17 +48,17 @@ export class LevelMain extends Level {
 
 		this._btnTryAgain = new UIButton(
 			{
-				w: 100,
+				w: 120,
 				h: 40,
-				text: 'Again',
+				text: 'Try again',
 			},
 			() => this._tryAgain(),
 		);
 
 		// TODO: remove, only used as shortcut in development
-		const [tmpCanvas, tmpCtx] = Renderer.getOffscreenCanvas( 80, 80 );
+		const [tmpCanvas, tmpCtx] = Renderer.getOffscreenCanvas( 180, 180 );
 		tmpCtx.fillStyle = Colors.White.color;
-		tmpCtx.fillRect( 0, 0, 80, 80 );
+		tmpCtx.fillRect( 0, 0, 180, 180 );
 		this.unicornPainting = new Painting( this, tmpCanvas, Colors.White );
 		this.unicornPainting.isOnMap = true;
 		this.unicornPainting.canMove = false;
@@ -122,21 +123,29 @@ export class LevelMain extends Level {
 		ctx.lineWidth = 2;
 		ctx.strokeStyle = Colors.White.color;
 
-		if( this.numMaxTowers > 0 ) {
+		if( this.numMaxTowers > 0 && this.towers.length < this.numMaxTowers ) {
 			this.towerBuildAreas.forEach( tba => {
+				const s = tba.isHovered ? Math.sin( this.timer / 10 ) * 2 : 0;
+				const h = tba.h + s + s;
 				ctx.setLineDash( tba.isHovered ? [] : [5, 10] );
 				ctx.beginPath();
-				ctx.roundRect( tba.x, tba.y, tba.w, tba.h, tba.h / 4 );
+				ctx.roundRect( tba.x - s, tba.y - s, tba.w + s + s, h, h / 4 );
 				ctx.closePath();
 				ctx.stroke();
 			} );
 		}
 
-		if( this.numMaxFighters > 0 ) {
+		if( this.numMaxFighters > 0 && this.fighters.length < this.numMaxFighters ) {
 			this.fighterStartAreas.forEach( fsa => {
+				const s = fsa.isHovered ? Math.sin( this.timer / 10 ) * 2 : 0;
 				ctx.setLineDash( fsa.isHovered ? [] : [5, 10] );
 				ctx.beginPath();
-				ctx.arc( fsa.x + fsa.w / 2, fsa.y + fsa.h / 2, fsa.w / 2, 0, Math.PI * 2 );
+				ctx.arc(
+					fsa.x + fsa.w / 2,
+					fsa.y + fsa.h / 2,
+					fsa.w / 2 + s,
+					0, Math.PI * 2
+				);
 				ctx.closePath();
 				ctx.stroke();
 			} );
@@ -175,6 +184,8 @@ export class LevelMain extends Level {
 			const existing = this.towers.find( t => t.spawnLocation === index );
 
 			if( existing || this.towers.length < this.numMaxTowers ) {
+				Audio.play( Audio.click );
+
 				this.paintingArea.resize( 300, 500 );
 				this.paintingArea.for = Painting.Tower;
 				this.paintingArea.visible = true;
@@ -208,6 +219,8 @@ export class LevelMain extends Level {
 
 				// Edit an existing one or add a new one (if under limit)
 				if( existing || this.fighters.length < this.numMaxFighters ) {
+					Audio.play( Audio.click );
+
 					this.paintingArea.resize( 400, 400 );
 					this.paintingArea.for = Painting.Fighter;
 					this.paintingArea.visible = true;

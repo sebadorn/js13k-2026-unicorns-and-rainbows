@@ -35,6 +35,8 @@ export class LevelIntro extends Level {
 				nextLevel.unicornPainting = this.paintingArea.getPainting( nextLevel );
 				nextLevel.unicornPainting.isOnMap = true;
 				nextLevel.unicornPainting.canMove = false;
+				nextLevel.unicornPainting.w = 180;
+				nextLevel.unicornPainting.h = 180;
 
 				this.paintingArea.clear();
 				this._step++;
@@ -69,16 +71,22 @@ export class LevelIntro extends Level {
 
 		ctx.fillStyle = Colors.White.color;
 		ctx.textAlign = 'center';
-		ctx.font = `600 italic 28px ${fontFamilySerif}`;
+		ctx.font = `600 italic 32px ${fontFamilySerif}`;
 		ctx.shadowColor = Colors.White.color;
 		ctx.shadowBlur = 16;
 
+		const maxLines = Math.min( this._step, 2 );
+		const maxStepY = Math.min( this._step, 3 );
+
 		this._texts.forEach( ( line, i ) => {
-			if( i <= Math.min( this._step, 2 ) ) {
-				ctx.fillText( line, w / 2, h / 2 - 104 + ( i - this._step ) * 52 );
+			if( i <= maxLines ) {
+				const y = h / 2 - 104 + ( i - maxStepY ) * 52;
+				ctx.globalAlpha = 1 - ( maxLines - i ) / 2.75;
+				ctx.fillText( line, w / 2, y );
 			}
 		} );
 
+		ctx.globalAlpha = 1;
 		ctx.shadowBlur = 0;
 
 		this.paintingArea.title = this._texts[this._step];
@@ -101,7 +109,7 @@ export class LevelIntro extends Level {
 		}
 
 		this._blockUntil = new Timer( this, 0.3 );
-		
+
 		if( !this.paintingArea.visible && this._step < this._texts.length ) {
 			this._step++;
 		}

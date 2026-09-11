@@ -45,6 +45,7 @@ export class PaintingArea {
 
 		this._random = Math.random();
 		this._updateTimer = null;
+		this._fadeInTimer = null;
 
 		[this.canvas, this.ctx] = Renderer.getOffscreenCanvas( w, h );
 		this.ctx.lineWidth = this.brushSize - 0.5;
@@ -134,6 +135,7 @@ export class PaintingArea {
 			document.body.classList.remove( 'c_' + this._color.id );
 		}
 		else {
+			this._fadeInTimer = new Timer( Renderer.level, 1 );
 			document.body.classList.add( 'c_' + this._color.id );
 		}
 	}
@@ -370,6 +372,7 @@ export class PaintingArea {
 				'a music note',
 				'a potato',
 				'a round little guy',
+				'a snail shell',
 				'a tomato',
 				'an arrow',
 			];
@@ -511,6 +514,10 @@ export class PaintingArea {
 			this._updateTimer.restart();
 		}
 
+		if( this._fadeInTimer ) {
+			ctx.globalAlpha = this._fadeInTimer.progress();
+		}
+
 		ctx.fillStyle = '#000a';
 		ctx.fillRect( 0, 0, Renderer.drawWidth, Renderer.drawHeight );
 
@@ -554,6 +561,7 @@ export class PaintingArea {
 		}
 
 		ctx.drawImage( this.canvas, this.x, this.y );
+		ctx.globalAlpha = 1;
 	}
 
 

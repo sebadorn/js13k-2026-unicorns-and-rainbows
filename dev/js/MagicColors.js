@@ -76,11 +76,11 @@ export const Colors = {
 		health: 50,
 	} ),
 
-	Cyan: new MagicColor( 'cyan', 'cyan', {
+	Cyan: new MagicColor( 'cyan', 'darkturquoise', {
 		moveSpeed: -0.25,
 	} ),
 
-	Blue: new MagicColor( 'blue', 'blue', {
+	Blue: new MagicColor( 'blue', 'dodgerblue', {
 		attackDamage: 10,
 	} ),
 

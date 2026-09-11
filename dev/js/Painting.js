@@ -58,14 +58,15 @@ export class Painting extends LevelObject {
 		}
 
 		const projectileSize = 80;
+		const sizeHalf = projectileSize / 2;
 		const progress = this.attackAnimation.timer.progress();
 
-		const xStart = this.x + this.w / 2 - projectileSize / 2;
+		const xStart = this.x + this.w / 2 - sizeHalf;
 		// "this.w" is correct, the projectile is shot from the top and not the center
-		const yStart = this.y + this.w / 2 - projectileSize / 2;
+		const yStart = this.y + this.w / 2 - sizeHalf;
 
-		const xEnd = this.targetStartPos.x - projectileSize / 2;
-		const yEnd = this.targetStartPos.y - projectileSize / 2;
+		const xEnd = this.targetStartPos.x - sizeHalf;
+		const yEnd = this.targetStartPos.y - sizeHalf;
 
 		const vTarget = {
 			x: xEnd - xStart,
@@ -84,9 +85,13 @@ export class Painting extends LevelObject {
 
 		const x = lerp( xStart, xEnd, progress );
 		const y = lerp( yStart, yEnd, progress );
+		const center = {
+			x: x + sizeHalf,
+			y: y + sizeHalf,
+		};
 
 		if( rotation ) {
-			Renderer.rotateCenter( ctx, rotation, { x, y } );
+			Renderer.rotateCenter( ctx, rotation, center );
 		}
 
 		ctx.drawImage(
@@ -96,7 +101,7 @@ export class Painting extends LevelObject {
 		);
 
 		if( rotation ) {
-			Renderer.rotateCenter( ctx, -rotation, { x, y } );
+			Renderer.rotateCenter( ctx, -rotation, center );
 		}
 	}
 
@@ -490,6 +495,7 @@ export class Painting extends LevelObject {
 
 			this.level.wave.enemies.forEach( e => {
 				if( euclidDistance( center, e.getCenter() ) <= range + e.w / 2 ) {
+					e.taunter = this;
 					e.target = this;
 
 					if( e.effects.isTaunted.left() < tauntTime ) {
@@ -504,6 +510,7 @@ export class Painting extends LevelObject {
 		}
 
 		if( target.effects.isTaunted.left() < tauntTime ) {
+			target.taunter = this;
 			target.effects.isTaunted.set( tauntTime );
 		}
 

@@ -44,7 +44,7 @@ export class Wave {
 			for( let j = 0; j < num; j++ ) {
 				this.enemies.push( new Enemy(
 					this.level,
-					Renderer.drawWidth + i * 400,
+					Renderer.drawWidth + i * 450,
 					offsetY + j * stepY,
 					60, 60
 				) );

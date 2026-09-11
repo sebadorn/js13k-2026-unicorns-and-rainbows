@@ -25,8 +25,8 @@ export class LevelOutro extends Level {
 	/** @type {Object[]} */
 	_steps = [
 		{ text: 'What did grass look like?', color: Colors.Green, timer: 6 },
-		{ text: 'A bird, flying in the sky.', color: Colors.Blue },
-		{ text: 'The sun shedding warmth.', color: Colors.Yellow, timer: 4 },
+		{ text: 'A bird, flying in the sky', color: Colors.Blue },
+		{ text: 'The sun shedding warmth', color: Colors.Yellow, timer: 4 },
 		{ text: 'You', color: Colors.White, type: Painting.Tower, timer: 6 },
 	];
 
@@ -76,9 +76,9 @@ export class LevelOutro extends Level {
 		this.paintingArea.changeColor( this._steps[0].color );
 
 		// TODO: remove, only used as shortcut in development
-		const [tmpCanvas, tmpCtx] = Renderer.getOffscreenCanvas( 80, 80 );
+		const [tmpCanvas, tmpCtx] = Renderer.getOffscreenCanvas( 180, 180 );
 		tmpCtx.fillStyle = Colors.White.color;
-		tmpCtx.fillRect( 0, 0, 80, 80 );
+		tmpCtx.fillRect( 0, 0, 180, 180 );
 		this.unicornPainting = new Painting( this, tmpCanvas, Colors.White );
 		this.unicornPainting.isOnMap = true;
 	}
@@ -98,7 +98,7 @@ export class LevelOutro extends Level {
 		}
 
 		const progress = this._timers[index].progress();
-		const step = 2;
+		const step = 1.5;
 		const size = 80;
 		const tilesX = Renderer.drawWidth / size;
 		const tilesY = Renderer.drawHeight / size;
@@ -109,8 +109,15 @@ export class LevelOutro extends Level {
 			for( let x = 0; x < tilesX; x += step ) {
 				const xi = x * size - ( y % ( step + step ) ) * size / 2;
 				const yi = y * size + this._translateY;
+				const c = {
+					x: xi + size / 2,
+					y: yi + size / 2,
+				};
+				const rotation = ( Math.sin( this.timer / 150 ) + 1 ) / 2 * Math.PI / 12;
 
+				Renderer.rotateCenter( ctx, rotation, c );
 				ctx.drawImage( painting.canvas, xi, yi, size, size );
+				Renderer.rotateCenter( ctx, -rotation, c );
 			}
 
 			ctx.globalAlpha = 1;
@@ -132,7 +139,7 @@ export class LevelOutro extends Level {
 		}
 
 		if( this._translateY > 0 ) {
-			ctx.fillStyle = Colors.Cyan.color;
+			ctx.fillStyle = '#19c';
 			ctx.fillRect( 0, 0, Renderer.drawWidth, this._translateY );
 		}
 
@@ -158,8 +165,9 @@ export class LevelOutro extends Level {
 		const x = ( Renderer.drawWidth - painting.w ) / 2;
 		const y = this._translateY - painting.h;
 
-		ctx.lineWidth = 20;
+		ctx.lineWidth = 24;
 
+		// Rainbow
 		Object.values( Colors ).reverse().forEach( ( c, i ) => {
 			if( c.hidden ) {
 				return;
@@ -167,16 +175,31 @@ export class LevelOutro extends Level {
 
 			ctx.strokeStyle = c.color;
 			ctx.beginPath();
-			ctx.arc( Renderer.drawWidth / 2, this._translateY, 120 + i * 19, Math.PI, 0 );
+			ctx.arc( Renderer.drawWidth / 2, this._translateY, 220 + i * 23, Math.PI, 0 );
 			ctx.stroke();
 		} );
 
 		ctx.fillStyle = Colors.White.color;
 		ctx.font = `600 italic 56px ${fontFamilySerif}`;
 		ctx.textAlign = 'center';
-		ctx.fillText( 'Thanks for playing!', Renderer.drawWidth / 2, y - 100 );
+		ctx.shadowColor = Colors.Black.color;
+		ctx.shadowBlur = 16;
+		ctx.fillText(
+			'Thanks for playing!',
+			Renderer.drawWidth / 2,
+			y - 100 + Math.sin( this.timer / 50 ) * 5
+		);
+		ctx.shadowBlur = 0;
 
+		// You
 		ctx.drawImage( painting.canvas, x, y, painting.w, painting.h );
+
+		if( this._timers[3] ) {
+			const progress = this._timers[3].progress();
+			this.unicornPainting.x = progress * x - this.unicornPainting.w;
+			this.unicornPainting.y = this._translateY - this.unicornPainting.h;
+			this.unicornPainting.draw( ctx );
+		}
 	}
 
 
