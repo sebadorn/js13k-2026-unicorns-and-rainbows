@@ -1,3 +1,5 @@
+import { fontFamilySerif } from '../Config.js';
+import { Colors } from '../MagicColors.js';
 import { Renderer } from '../Renderer.js';
 import { Wave } from '../Wave.js';
 
@@ -15,16 +17,17 @@ export class Wave1 extends Wave {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	draw( ctx ) {
-		const w = Renderer.drawWidth;
-		const h = Renderer.drawHeight;
-
 		super.draw( ctx );
 
 		if( this.phase === Wave.PhasePrepare ) {
 			if( !this.level.paintingArea.visible ) {
+				ctx.font = `500 italic 46px ${fontFamilySerif}`;
+				ctx.fillStyle = Colors.White.color;
+				ctx.textAlign = 'center';
+
 				ctx.fillText(
 					'Select a field to paint your first tower',
-					w / 2, h * 0.2
+					Renderer.drawWidth / 2, Renderer.drawHeight * 0.2
 				);
 			}
 		}

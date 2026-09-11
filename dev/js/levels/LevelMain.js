@@ -1,7 +1,6 @@
 import { removeItem } from '../ArrayUtils.js';
 import { fontFamilySerif } from '../Config.js';
 import { Level } from '../Level.js';
-import { LevelObject } from '../LevelObject.js';
 import { Colors } from '../MagicColors.js';
 import { isInside } from '../MathUtils.js';
 import { Painting } from '../Painting.js';
@@ -98,7 +97,7 @@ export class LevelMain extends Level {
 		const w = Renderer.drawWidth;
 		const h = Renderer.drawHeight;
 
-		ctx.fillStyle = '#000';
+		ctx.fillStyle = Colors.Black.color;
 		ctx.fillRect( 0, 0, w, h );
 
 		if( this.wave.phase === Wave.PhasePrepare ) {
@@ -122,10 +121,10 @@ export class LevelMain extends Level {
 	_drawStartAreas( ctx ) {
 		ctx.lineWidth = 2;
 		ctx.strokeStyle = Colors.White.color;
-		ctx.setLineDash( [5, 10] );
 
 		if( this.numMaxTowers > 0 ) {
 			this.towerBuildAreas.forEach( tba => {
+				ctx.setLineDash( tba.isHovered ? [] : [5, 10] );
 				ctx.beginPath();
 				ctx.roundRect( tba.x, tba.y, tba.w, tba.h, tba.h / 4 );
 				ctx.closePath();
@@ -135,6 +134,7 @@ export class LevelMain extends Level {
 
 		if( this.numMaxFighters > 0 ) {
 			this.fighterStartAreas.forEach( fsa => {
+				ctx.setLineDash( fsa.isHovered ? [] : [5, 10] );
 				ctx.beginPath();
 				ctx.arc( fsa.x + fsa.w / 2, fsa.y + fsa.h / 2, fsa.w / 2, 0, Math.PI * 2 );
 				ctx.closePath();
@@ -476,6 +476,9 @@ export class LevelMain extends Level {
 		}
 
 		if( this.wave.phase === Wave.PhasePrepare ) {
+			this.towerBuildAreas.forEach( a => a.isHovered = false );
+			this.fighterStartAreas.forEach( a => a.isHovered = false );
+
 			if( this.paintingArea.visible ) {
 				return this.paintingArea.onMouseMove( pos );
 			}
@@ -484,6 +487,7 @@ export class LevelMain extends Level {
 				const tba = this.towerBuildAreas[i];
 
 				if( isInside( pos, tba ) ) {
+					tba.isHovered = true;
 					return true;
 				}
 			}
@@ -492,6 +496,7 @@ export class LevelMain extends Level {
 				const fsa = this.fighterStartAreas[i];
 
 				if( isInside( pos, fsa ) ) {
+					fsa.isHovered = true;
 					return true;
 				}
 			}

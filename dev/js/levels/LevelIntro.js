@@ -65,17 +65,17 @@ export class LevelIntro extends Level {
 		const w = Renderer.drawWidth;
 		const h = Renderer.drawHeight;
 
-		ctx.fillStyle = '#000';
+		ctx.fillStyle = Colors.Black.color;
 		ctx.fillRect( 0, 0, w, h );
 
-		ctx.fillStyle = '#fff';
+		ctx.fillStyle = Colors.White.color;
 		ctx.textAlign = 'center';
 		ctx.font = `600 italic 28px ${fontFamilySerif}`;
-		ctx.shadowColor = '#fff';
+		ctx.shadowColor = Colors.White.color;
 		ctx.shadowBlur = 16;
 
 		this._texts.forEach( ( line, i ) => {
-			if( i <= this._step ) {
+			if( i <= Math.min( this._step, 2 ) ) {
 				ctx.fillText( line, w / 2, h / 2 - 104 + ( i - this._step ) * 52 );
 			}
 		} );
@@ -99,6 +99,7 @@ export class LevelIntro extends Level {
 		if( this._step === 3 || this._step === 4 ) {
 			const wasVisible = this.paintingArea.visible;
 			this.paintingArea.visible = true;
+			this.paintingArea.title = this._texts[this._step];
 
 			if( wasVisible ) {
 				this.paintingArea.onClick( pos );

@@ -189,7 +189,7 @@ export class LevelOutro extends Level {
 		const w = Renderer.drawWidth;
 		const h = Renderer.drawHeight;
 
-		ctx.fillStyle = '#000';
+		ctx.fillStyle = Colors.Black.color;
 		ctx.fillRect( 0, 0, w, h );
 
 		this._drawGrass( ctx );
@@ -200,10 +200,7 @@ export class LevelOutro extends Level {
 			const stepInfo = this._steps[this._step];
 
 			if( !this._paintings[this._step] ) {
-				ctx.fillStyle = '#fff';
-				ctx.textAlign = 'center';
-				ctx.font = `500 32px ${fontFamilySerif}`;
-				ctx.fillText( stepInfo.text, w / 2, this.paintingArea.y - 140 );
+				this.paintingArea.title = stepInfo.text;
 			}
 
 			this.paintingArea.draw( ctxUI );

@@ -3,6 +3,7 @@ import { Colors } from './MagicColors.js';
 import { euclidDistance, isInside } from './MathUtils.js';
 import { Painting } from './Painting.js';
 import { Renderer } from './Renderer.js';
+import { Timer } from './Timer.js';
 import { UIButton } from './UIButton.js';
 
 
@@ -34,11 +35,15 @@ export class PaintingArea {
 		this.offsetY = 0;
 		this.showColorSelection = true;
 		this.showLabels = true;
-		this._visible = true;
+		this.title = null;
 
 		this._color = Colors.Red;
 		this._history = [];
 		this._lastPos = null;
+		this._visible = true;
+
+		this._random = Math.random();
+		this._updateTimer = null;
 
 		[this.canvas, this.ctx] = Renderer.getOffscreenCanvas( w, h );
 		this.ctx.lineWidth = this.brushSize - 0.5;
@@ -121,7 +126,7 @@ export class PaintingArea {
 	 * @param {boolean} v
 	 */
 	set visible( v ) {
-		this._visible = v;
+		this._visible = !!v;
 		this._colorCheck();
 	}
 
@@ -220,6 +225,52 @@ export class PaintingArea {
 	/**
 	 *
 	 * @private
+	 * @param {CanvasRenderingContext2D} ctx
+	 */
+	_drawTitle( ctx ) {
+		if( this.title === null && this.for === Painting.Unspecific ) {
+			return;
+		}
+
+		let text = this.title;
+		let suggestion = null;
+
+		// Allow empty string
+		if( text === null ) {
+			if( this.for === Painting.Fighter ) {
+				text = 'Paint a fighter';
+			}
+			else if( this.for === Painting.FighterItem ) {
+				text = 'Paint a weapon for your fighter';
+			}
+			else if( this.for === Painting.Tower ) {
+				text = 'Paint a tower';
+			}
+			else if( this.for === Painting.TowerItem ) {
+				text = 'Paint a projectile for your tower';
+			}
+
+			if( text ) {
+				suggestion = this._getDrawSuggestion();
+			}
+		}
+
+		ctx.font = `500 italic 46px ${fontFamilySerif}`;
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillStyle = Colors.White.color;
+		ctx.fillText( text, Renderer.drawWidth / 2, this.y - 150 );
+
+		if( suggestion ) {
+			ctx.font = `500 italic 20px ${fontFamilySerif}`;
+			ctx.fillText( `How about ${suggestion}?`, Renderer.drawWidth / 2, this.y - 110 );
+		}
+	}
+
+
+	/**
+	 *
+	 * @private
 	 * @param {Position} pos
 	 * @returns {UIButton?}
 	 */
@@ -243,6 +294,79 @@ export class PaintingArea {
 		}
 
 		return hit;
+	}
+
+
+	/**
+	 *
+	 * @private
+	 * @returns {string?}
+	 */
+	_getDrawSuggestion() {
+		let list = null;
+
+		if( this.for === Painting.Fighter ) {
+			list = [
+				'a ball with legs',
+				'a dancer',
+				'a goblin',
+				'a gorilla',
+				'a spider',
+				'a suspicious box',
+				'a teapot on legs',
+				'a tree with arms',
+				'a viking',
+				'another unicorn',
+			];
+		}
+		else if( this.for === Painting.FighterItem ) {
+			list = [
+				'a dagger',
+				'a fist',
+				'a pitchfork',
+				'a rapier',
+				'a scepter',
+				'a shoe',
+				'a shoespoon',
+				'a spoon',
+				'a sword',
+				'a wing',
+			];
+		}
+		else if( this.for === Painting.Tower ) {
+			list = [
+				'a cactus',
+				'a cucumber on legs',
+				'a fir tree',
+				'a giant horn',
+				'a mushroom',
+				'a skyscraper',
+				'a slim giant',
+				'a stack of stones',
+				'a tall barn',
+				'a wizard tower',
+			];
+		}
+		else if( this.for === Painting.TowerItem ) {
+			list = [
+				'a berry',
+				'a bolt',
+				'a cannon ball',
+				'a flame',
+				'a potato',
+				'a round little guy',
+				'a tomato',
+				'an arrow',
+			];
+		}
+
+		if( !list ) {
+			return list;
+		}
+
+		const index = Math.round( this._random * ( list.length - 1 ) );
+
+		return list[index];
 	}
 
 
@@ -354,6 +478,15 @@ export class PaintingArea {
 			return;
 		}
 
+		if( !this._updateTimer ) {
+			this._updateTimer = new Timer( Renderer.level, 5 );
+		}
+
+		if( this._updateTimer.elapsed() ) {
+			this._random = Math.random();
+			this._updateTimer.restart();
+		}
+
 		ctx.fillStyle = '#000a';
 		ctx.fillRect( 0, 0, Renderer.drawWidth, Renderer.drawHeight );
 
@@ -363,6 +496,8 @@ export class PaintingArea {
 		// background
 		ctx.fillStyle = '#000';
 		ctx.fillRect( this.x, this.y, this.w, this.h );
+
+		this._drawTitle( ctx );
 
 		// border
 		ctx.strokeStyle = '#fff';
@@ -566,7 +701,7 @@ export class PaintingArea {
 			this._history.splice( index );
 		}
 		else {
-			this._history.splice( index >= 0 ? index : 0 );				
+			this._history.splice( index >= 0 ? index : 0 );
 			this.repaintFromHistory();
 		}
 
