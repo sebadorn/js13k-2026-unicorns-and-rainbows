@@ -1,4 +1,4 @@
-import { fontFamilySans } from './Config.js';
+import { fontFamilySans, fontFamilySerif } from './Config.js';
 import { Colors } from './MagicColors.js';
 import { euclidDistance, isInside } from './MathUtils.js';
 import { Painting } from './Painting.js';
@@ -141,6 +141,36 @@ export class PaintingArea {
 	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	_drawColorButtons( ctx ) {
+		const isForItem = this.for === Painting.FighterItem || this.for === Painting.TowerItem;
+
+		const getLabelText = c => {
+			let text = null;
+
+			if( c === Colors.Red ) {
+				text = 'Fire';
+			}
+			else if( c === Colors.Orange ) {
+				text = isForItem ? 'Stun' : 'Taunt';
+			}
+			else if( c === Colors.Yellow ) {
+				text = isForItem ? 'Lightning' : 'Speed';
+			}
+			else if( c === Colors.Green ) {
+				text = 'Healing';
+			}
+			else if( c === Colors.Cyan ) {
+				text = 'Cold';
+			}
+			else if( c === Colors.Blue ) {
+				text = isForItem ? 'Weakening' : 'Strengthening';
+			}
+			else if( c === Colors.Violet ) {
+				text = 'Random';
+			}
+
+			return text;
+		};
+
 		const gap = 5;
 		const offsetY = ( this.h - this._colorButtons.length * ( this._colorButtons[0].h + gap ) ) / 2;
 
@@ -148,6 +178,18 @@ export class PaintingArea {
 			btn.x = this.x - btn.w - 15;
 			btn.y = this.y + i * ( btn.h + gap ) + offsetY;
 			btn.draw( ctx );
+
+			if( btn.magicColor === this._color || btn.isHovered ) {
+				const text = getLabelText( btn.magicColor );
+
+				if( text ) {
+					ctx.font = `500 26px ${fontFamilySerif}`;
+					ctx.fillStyle = btn.magicColor.color;
+					ctx.textAlign = 'right';
+					ctx.textBaseline = 'middle';
+					ctx.fillText( text, btn.x - 10, btn.y + btn.h / 2 );
+				}
+			}
 		} );
 	}
 
