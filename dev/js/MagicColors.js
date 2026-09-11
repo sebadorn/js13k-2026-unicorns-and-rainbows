@@ -33,7 +33,7 @@ export class MagicColor {
 	 * @returns {boolean}
 	 */
 	hasUsesLeft() {
-		return this.hidden || this.used <= maxUsesMagicColor;
+		return this.hidden || ( this.used < maxUsesMagicColor );
 	}
 
 

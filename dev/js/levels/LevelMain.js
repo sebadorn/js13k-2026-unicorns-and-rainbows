@@ -243,6 +243,9 @@ export class LevelMain extends Level {
 
 		// Last wave done, proceed to outro
 		if( !this.wave ) {
+			this.towers.forEach( t => t.freeColor() );
+			this.fighters.forEach( f => f.freeColor() );
+
 			const outro = new LevelOutro();
 			outro.unicornPainting = this.unicornPainting;
 

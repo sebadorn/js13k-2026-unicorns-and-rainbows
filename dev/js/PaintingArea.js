@@ -34,7 +34,7 @@ export class PaintingArea {
 		this.offsetY = 0;
 		this.showColorSelection = true;
 		this.showLabels = true;
-		this.visible = true;
+		this._visible = true;
 
 		this._color = Colors.Red;
 		this._history = [];
@@ -60,7 +60,10 @@ export class PaintingArea {
 				h: 40,
 				text: '✕ clear',
 			},
-			() => this.clear(),
+			() => {
+				this.clear();
+				return true;
+			},
 		);
 
 		this._doneButton = new UIButton(
@@ -69,7 +72,10 @@ export class PaintingArea {
 				h: 40,
 				text: 'Done',
 			},
-			() => this.onDone(),
+			() => {
+				this.onDone();
+				return true;
+			},
 		);
 
 		this._colorButtons = Object.values( Colors )
@@ -84,7 +90,10 @@ export class PaintingArea {
 					() => {
 						if( c.hasUsesLeft() ) {
 							this.changeColor( c );
+							return true;
 						}
+
+						return false;
 					},
 				);
 			} );
@@ -95,6 +104,34 @@ export class PaintingArea {
 			this._doneButton,
 			this._undoButton,
 		];
+	}
+
+
+	/**
+	 *
+	 * @returns {boolean}
+	 */
+	get visible() {
+		return this._visible;
+	}
+
+
+	/**
+	 *
+	 * @param {boolean} v
+	 */
+	set visible( v ) {
+		this._visible = v;
+		this._colorCheck();
+	}
+
+
+	// If current color has no uses left, select
+	// the first one that still has some.
+	_colorCheck() {
+		if( !this._color.hasUsesLeft() ) {
+			this._color = Object.values( Colors ).find( c => c.hasUsesLeft() );
+		}
 	}
 
 
@@ -373,8 +410,8 @@ export class PaintingArea {
 			return;
 		}
 
-		this.resize( painting.w, painting.h );
 		this._color = painting.color;
+		this.resize( painting.w, painting.h );
 		this._history = painting.history;
 		this.repaintFromHistory();
 	}
@@ -452,13 +489,17 @@ export class PaintingArea {
 		this.h = h;
 		this.x = ( Renderer.drawWidth - this.w ) / 2;
 		this.y = ( Renderer.drawHeight - this.h ) / 2;
+
+		this._colorCheck();
 	}
 
 
 	/**
 	 * Undo the last brush stroke.
+	 * @returns {boolean} True if history length changed.
 	 */
 	undo() {
+		const lenAtStart = this._history.length;
 		let index = -1;
 		let color = null;
 
@@ -495,6 +536,8 @@ export class PaintingArea {
 		}
 
 		this._lastPos = null;
+
+		return lenAtStart !== this._history.length;
 	}
 
 

@@ -86,8 +86,11 @@ export class UIButton {
 	 *
 	 */
 	onClick() {
-		Audio.play( Audio.click );
-		this._clickEvent?.();
+		const clickOkay = this._clickEvent?.();
+
+		if( clickOkay ) {
+			Audio.play( Audio.click );
+		}
 	}
 
 
