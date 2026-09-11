@@ -25,7 +25,7 @@ export class LevelObject {
 	/** @type {Animation?} */
 	attackAnimation = null;
 
-	/** @type {Animation?} */
+	/** @type {Timer?} */
 	deathTimer = null;
 
 	/** @type {Animation?} */

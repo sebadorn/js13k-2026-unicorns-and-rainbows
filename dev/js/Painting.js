@@ -127,25 +127,43 @@ export class Painting extends LevelObject {
 	 * @param {CanvasRenderingContext2D} ctxUI
 	 */
 	draw( ctx, ctxUI ) {
-		if( !this.isOnMap || this.health <= 0 ) {
+		if( !this.isOnMap || this.deathTimer?.elapsed() ) {
 			return;
 		}
 
 		super.draw( ctx, ctxUI );
 		this.drawHealthBar( ctx, this.color.color );
 
+		let y = this.y;
+		let h = this.h;
 		let rotation = 0;
 		let center = null;
 
-		if( this.moveAnimation ) {
+		if( this.deathTimer ) {
+			let progress = this.deathTimer.progress();
+			ctx.globalAlpha = 1 - progress;
+
+			if( this.isTower ) {
+				progress *= progress;
+				y += h * progress;
+				h *= 1 - progress;
+			}
+			else {
+				rotation = progress * Math.PI / 2;
+				center = this.getCenter();
+			}
+		}
+		else if( this.moveAnimation ) {
 			rotation = Math.sin( this.level.timer / 10 ) / 5;
 			center = this.getCenter();
-			center.y += this.h / 2;
+			center.y += h / 2;
+		}
 
+		if( rotation ) {
 			Renderer.rotateCenter( ctx, rotation, center );
 		}
 
-		ctx.drawImage( this.canvas, this.x, this.y, this.w, this.h );
+		ctx.drawImage( this.canvas, this.x, y, this.w, h );
 
 		this._drawWeapon( ctx );
 
@@ -154,6 +172,8 @@ export class Painting extends LevelObject {
 		}
 
 		this._drawProjectile( ctx );
+
+		ctx.globalAlpha = 1;
 	}
 
 
