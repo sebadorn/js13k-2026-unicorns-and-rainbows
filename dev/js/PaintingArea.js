@@ -129,6 +129,13 @@ export class PaintingArea {
 	set visible( v ) {
 		this._visible = !!v;
 		this._colorCheck();
+
+		if( !this._visible ) {
+			document.body.classList.remove( 'c_' + this._color.id );
+		}
+		else {
+			document.body.classList.add( 'c_' + this._color.id );
+		}
 	}
 
 
@@ -256,11 +263,13 @@ export class PaintingArea {
 			}
 		}
 
+		const offsetY = Math.sin( Renderer.level.timer / 50 ) * 5;
+
 		ctx.font = `500 italic 46px ${fontFamilySerif}`;
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 		ctx.fillStyle = Colors.White.color;
-		ctx.fillText( text, Renderer.drawWidth / 2, this.y - this.titleGap );
+		ctx.fillText( text, Renderer.drawWidth / 2, this.y - this.titleGap + offsetY );
 
 		if( suggestion ) {
 			ctx.font = `500 italic 20px ${fontFamilySerif}`;
@@ -468,6 +477,11 @@ export class PaintingArea {
 	changeColor( newColor ) {
 		const oldColor = this._color;
 		this._color = newColor;
+
+		if( this._visible ) {
+			document.body.classList.remove( 'c_' + oldColor.id );
+			document.body.classList.add( 'c_' + newColor.id );
+		}
 
 		// No point adding a color change to an empty painting
 		if( this._history.length > 0 ) {

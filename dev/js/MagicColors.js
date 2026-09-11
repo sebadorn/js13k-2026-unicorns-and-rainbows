@@ -6,6 +6,7 @@ export class MagicColor {
 
 	/**
 	 *
+	 * @param {string} id
 	 * @param {string} color
 	 * @param {Object} [mods = {}]
 	 * @param {number?} mods.attackDamage
@@ -15,7 +16,8 @@ export class MagicColor {
 	 * @param {number?} mods.moveSpeed
 	 * @param {boolean} [hidden = false]
 	 */
-	constructor( color, mods = {}, hidden = false ) {
+	constructor( id, color, mods = {}, hidden = false ) {
+		this.id = id;
 		this.color = color;
 		this.used = 0;
 		this.hidden = hidden;
@@ -55,35 +57,37 @@ export class MagicColor {
 
 export const Colors = {
 
-	Red: new MagicColor( 'red', {
+	Red: new MagicColor( 'red', 'red', {
 		attackDamage: 10,
 		health: 50,
 	} ),
 
-	Orange: new MagicColor( 'orange', {
+	Orange: new MagicColor( 'orange', 'orange', {
 		attackDamage: -7,
-		health: 100,
+		health: 150,
 	} ),
 
-	Yellow: new MagicColor( 'yellow', {
+	Yellow: new MagicColor( 'yellow', 'yellow', {
 		attackSpeed: -0.2,
 		moveSpeed: 0.5,
 	} ),
 
-	Green: new MagicColor( 'green', {
-		health: 10,
+	Green: new MagicColor( 'green', 'green', {
+		health: 50,
 	} ),
 
-	Cyan: new MagicColor( 'cyan', {
+	Cyan: new MagicColor( 'cyan', 'cyan', {
 		moveSpeed: -0.25,
 	} ),
 
-	Blue: new MagicColor( 'blue' ),
+	Blue: new MagicColor( 'blue', 'blue', {
+		attackDamage: 10,
+	} ),
 
-	Violet: new MagicColor( 'darkviolet' ),
+	Violet: new MagicColor( 'violet', 'darkviolet' ),
 
-	White: new MagicColor( 'white', {}, true ),
+	White: new MagicColor( 'white', 'white', {}, true ),
 
-	Black: new MagicColor( 'black', {}, true ),
+	Black: new MagicColor( 'black', 'black', {}, true ),
 
 };

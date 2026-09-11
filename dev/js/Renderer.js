@@ -54,6 +54,8 @@ export const Renderer = {
 			return;
 		}
 
+		document.body.classList.remove( 'c_' + Colors.White.id );
+
 		this.level = newLevel;
 	},
 
