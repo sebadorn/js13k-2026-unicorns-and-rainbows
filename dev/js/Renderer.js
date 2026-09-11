@@ -1,3 +1,4 @@
+import { Animation } from './Animation.js';
 import { fontFamilySerif, targetFPS } from './Config.js';
 import { Input } from './Input.js';
 import { Colors } from './MagicColors.js';
@@ -56,7 +57,32 @@ export const Renderer = {
 
 		document.body.classList.remove( 'c_' + Colors.White.id );
 
+		// Snapshot of old level
+		const [snapCanvas, snapCtx] = this.getOffscreenCanvas( this.cnv.width, this.cnv.height );
+		snapCtx.drawImage( this.cnv, 0, 0, this.cnv.width, this.cnv.height );
+
 		this.level = newLevel;
+
+		this.animTransition = new Animation( {
+			level: newLevel,
+			duration: 1.5,
+			onUpdate: progress => {
+				const f = 1 - Math.sin( progress * Math.PI );
+
+				if( progress < 0.5 ) {
+					this.ctx.drawImage( snapCanvas, 0, 0, this.drawWidth, this.drawHeight );
+				}
+
+				this.ctx.fillStyle = '#000';
+				this.ctx.fillRect(
+					f * this.drawWidth, 0,
+					this.drawWidth, this.drawHeight
+				);
+			},
+			onDone: _ => {
+				this.animTransition = null;
+			},
+		} );
 	},
 
 
