@@ -336,6 +336,7 @@ export class LevelObject {
 	reset() {
 		this.animations = [];
 		this.attackAnimation = null;
+		this.deathTimer = null;
 		this.moveAnimation = null;
 		this.health = this.healthMax;
 		this.target = null;

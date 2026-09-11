@@ -1,6 +1,7 @@
 import { removeItem } from '../ArrayUtils.js';
 import { fontFamilySerif } from '../Config.js';
 import { Level } from '../Level.js';
+import { LevelObject } from '../LevelObject.js';
 import { Colors } from '../MagicColors.js';
 import { isInside } from '../MathUtils.js';
 import { Painting } from '../Painting.js';
@@ -359,7 +360,7 @@ export class LevelMain extends Level {
 			}
 		}
 
-		this.unicornPainting.health = 100;
+		this.unicornPainting.reset();
 		this.wave.restart();
 		this.isGameOver = false;
 	}
