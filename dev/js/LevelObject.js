@@ -168,13 +168,15 @@ export class LevelObject {
 			}
 		}
 
+		const attackTarget = this.target;
+
 		this.attackAnimation = new Animation( {
 			level: this.level,
 			duration: 0.4,
 			onDone: _ => {
-				if( this.target && this.target.health > 0 ) {
-					this.target.takeDamage( this.attackDamage );
-					this.triggerAbility( this.target );
+				if( attackTarget.health > 0 ) {
+					attackTarget.takeDamage( this.attackDamage, this.item?.color );
+					this.triggerAbility( attackTarget );
 				}
 
 				this.attackAnimation = null;
@@ -293,16 +295,18 @@ export class LevelObject {
 			return;
 		}
 
+		const moveTarget = this.target;
+
 		this.moveAnimation = new Animation( {
 			level: this.level,
 			duration: 1,
 			onUpdate: ( _progress, dt ) => {
-				if( !this.target || this.health <= 0 ) {
+				if( this.health <= 0 ) {
 					this.moveAnimation = null;
 					return;
 				}
 
-				const targetCenter = this.target.getCenter();
+				const targetCenter = moveTarget.getCenter();
 
 				const direction = normalizeVector( {
 					x: targetCenter.x - this.x,
@@ -385,7 +389,7 @@ export class LevelObject {
 			onDraw: ctx => {
 				ctx.globalAlpha = alpha;
 				ctx.font = `500 14px ${fontFamilySans}`;
-				ctx.fillStyle = type?.color || ( dmg > 0 ? Colors.Red.color : Colors.Green.color );
+				ctx.fillStyle = type?.color || ( dmg > 0 ? Colors.White.color : Colors.Green.color );
 				ctx.fillText( dmg, xStart, y );
 				ctx.globalAlpha = 1;
 			},
