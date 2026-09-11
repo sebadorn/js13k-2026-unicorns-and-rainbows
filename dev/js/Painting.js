@@ -67,13 +67,26 @@ export class Painting extends LevelObject {
 		const xEnd = this.targetStartPos.x - projectileSize / 2;
 		const yEnd = this.targetStartPos.y - projectileSize / 2;
 
+		const vTarget = {
+			x: xEnd - xStart,
+			y: yEnd - yStart,
+		};
+		const vLenEnd = euclidDistance( { x: 0, y: 0 }, vTarget );
+		let rotation = Math.acos( vTarget.x / vLenEnd );
+
+		if( vTarget.y < 0 ) {
+			rotation = -rotation;
+		}
+
+		if( isNaN( rotation ) ) {
+			rotation = 0;
+		}
+
 		const x = lerp( xStart, xEnd, progress );
 		const y = lerp( yStart, yEnd, progress );
 
-		const scaleX = xEnd < xStart ? -1 : 1;
-
-		if( scaleX === -1 ) {
-			Renderer.scaleCenter( ctx, scaleX, 1, { x, y } );
+		if( rotation ) {
+			Renderer.rotateCenter( ctx, rotation, { x, y } );
 		}
 
 		ctx.drawImage(
@@ -82,8 +95,8 @@ export class Painting extends LevelObject {
 			projectileSize, projectileSize
 		);
 
-		if( scaleX === -1 ) {
-			Renderer.scaleCenter( ctx, scaleX, 1, { x, y } );
+		if( rotation ) {
+			Renderer.rotateCenter( ctx, -rotation, { x, y } );
 		}
 	}
 
