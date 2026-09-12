@@ -36,6 +36,7 @@ export class Enemy extends LevelObject {
 	draw( ctx, ctxUI ) {
 		super.draw( ctx, ctxUI );
 
+		this.drawEffectTimers( ctx );
 		this.drawHealthBar( ctx, Colors.White.color );
 
 		let rotation = 0;

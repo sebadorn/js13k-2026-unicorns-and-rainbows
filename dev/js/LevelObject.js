@@ -67,6 +67,7 @@ export class LevelObject {
 		this.cooldownAttack = new Timer( level );
 		this.damageTakenTimer = new Timer( level );
 		this.effects = {
+			isBurning: new Timer( level, 0 ),
 			isShielded: new Timer( level, 0 ),
 			isSlowed: new Timer( level, 0 ),
 			isSpedUp: new Timer( level, 0 ),
@@ -251,6 +252,48 @@ export class LevelObject {
 	/**
 	 *
 	 * @param {CanvasRenderingContext2D} ctx
+	 */
+	drawEffectTimers( ctx ) {
+		const w = 58;
+		const x = this.x + 1;
+		let y = this.y - 9;
+
+		const drawBar = ( p, c ) => {
+			p = 1 - p;
+			ctx.fillStyle = c.color;
+			ctx.fillRect( x, y, p * w, 2 );
+			y += 2;
+		};
+
+		if( !this.effects.isBurning.elapsed() ) {
+			drawBar( this.effects.isBurning.progress(), Colors.Red );
+		}
+
+		if( !this.effects.isStunned.elapsed() ) {
+			drawBar( this.effects.isStunned.progress(), Colors.Orange );
+		}
+
+		if( !this.effects.isSpedUp.elapsed() ) {
+			drawBar( this.effects.isSpedUp.progress(), Colors.Yellow );
+		}
+
+		if( !this.effects.isSlowed.elapsed() ) {
+			drawBar( this.effects.isSlowed.progress(), Colors.Cyan );
+		}
+
+		if( !this.effects.isShielded.elapsed() ) {
+			drawBar( this.effects.isShielded.progress(), Colors.Blue );
+		}
+
+		if( !this.effects.isWeakened.elapsed() ) {
+			drawBar( this.effects.isWeakened.progress(), Colors.Blue );
+		}
+	}
+
+
+	/**
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
 	 * @param {string} color
 	 */
 	drawHealthBar( ctx, color ) {
@@ -258,12 +301,18 @@ export class LevelObject {
 			return;
 		}
 
-		const height = 6;
+		const height = 4;
 		const maxWidth = 60;
 
 		const x = this.x - ( maxWidth - this.w ) / 2;
-		const y = this.y - 10;
+		const y = this.y - 14;
 		const percent = this.health / this.healthMax;
+
+		ctx.save();
+
+		ctx.beginPath();
+		ctx.roundRect( x, y, maxWidth, height, height / 2 );
+		ctx.clip();
 
 		// background bar
 		ctx.fillStyle = '#fff2';
@@ -272,6 +321,8 @@ export class LevelObject {
 		// current state bar
 		ctx.fillStyle = color;
 		ctx.fillRect( x, y, percent * maxWidth, height );
+
+		ctx.restore();
 	}
 
 

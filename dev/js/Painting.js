@@ -150,6 +150,7 @@ export class Painting extends LevelObject {
 		}
 
 		super.draw( ctx, ctxUI );
+		this.drawEffectTimers( ctx );
 		this.drawHealthBar( ctx, this.color.color );
 
 		let y = this.y;
@@ -256,6 +257,8 @@ export class Painting extends LevelObject {
 
 			this.level.wave.enemies.forEach( e => {
 				if( euclidDistance( center, e.getCenter() ) <= this.attackRange + e.w / 2 ) {
+					e.effects.isBurning.set( 3 );
+
 					// Repeating burn damage
 					for( let i = 1; i <= 3; i++ ) {
 						e.animations.push( new Animation( {
@@ -277,6 +280,8 @@ export class Painting extends LevelObject {
 		}
 
 		if( target ) {
+			target.effects.isBurning.set( 5 );
+
 			// Repeating burn damage
 			for( let i = 1; i <= 5; i++ ) {
 				target.animations.push( new Animation( {
