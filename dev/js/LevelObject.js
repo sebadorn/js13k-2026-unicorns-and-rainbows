@@ -416,7 +416,7 @@ export class LevelObject {
 
 		let f = 1;
 
-		if( !this.effects.isShielded.elapsed() ) {
+		if( !this.effects.isShielded.elapsed() && dmg > 0 ) {
 			f -= 0.5;
 		}
 
