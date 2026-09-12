@@ -563,25 +563,36 @@ export class Painting extends LevelObject {
 	 */
 	triggerAbility( target ) {
 		const map = {
-			[Colors.Red.color]: this._abilityBurn.bind( this ),
-			[Colors.Orange.color]: this._abilityTaunt.bind( this ),
-			[Colors.Yellow.color]: this._abilityLightning.bind( this ),
-			[Colors.Green.color]: this._abilityHeal.bind( this ),
-			[Colors.Cyan.color]: this._abilitySlow.bind( this ),
-			[Colors.Blue.color]: this._abilityShield.bind( this ),
+			[Colors.Red.id]: this._abilityBurn.bind( this ),
+			[Colors.Orange.id]: this._abilityTaunt.bind( this ),
+			[Colors.Yellow.id]: this._abilityLightning.bind( this ),
+			[Colors.Green.id]: this._abilityHeal.bind( this ),
+			[Colors.Cyan.id]: this._abilitySlow.bind( this ),
+			[Colors.Blue.id]: this._abilityShield.bind( this ),
 		};
 
 		const color = target ? ( this.item?.color || this.color ) : this.color;
 
 		// Random effect
 		if( color === Colors.Violet ) {
-			const keys = Object.keys( map );
-			const key = keys[randInt( 0, keys.length - 1 )];
+			const options = [
+				Colors.Red.id,
+				Colors.Orange.id,
+				Colors.Yellow.id,
+				Colors.Cyan.id,
+				Colors.Blue.id,
+			];
+
+			if( !target ) {
+				options.push( Colors.Green.id );
+			}
+
+			const key = options[randInt( 0, options.length - 1 )];
 
 			return map[key]( target );
 		}
 
-		return map[color.color]?.( target );
+		return map[color.id]?.( target );
 	}
 
 
