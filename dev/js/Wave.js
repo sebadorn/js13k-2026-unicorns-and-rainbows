@@ -12,8 +12,13 @@ export class Wave {
 	numFighters = 0;
 	numTowers = 0;
 
+	/** @type {import('./Enemy').Enemy[][]} */
+	enemyWaves = [];
+
 	/** @type {import('./Enemy').Enemy[]} */
-	enemies = [];
+	get enemies() {
+		return this.enemyWaves[0] || [];
+	}
 
 	static PhasePrepare = 1;
 	static PhaseFight = 2;
@@ -34,21 +39,96 @@ export class Wave {
 	 * @param {number[]} nums
 	 */
 	createEnemies( nums ) {
-		this.enemies = [];
+		this.enemyWaves = [];
+
+		const adjustEnemy = ( enemy, i ) => {
+			enemy.baseAttackDamage += i + this.index;
+			enemy.baseAttackSpeed -= i * 0.25;
+
+			enemy.baseHealthMax += i * 5 + this.index * 2;
+			enemy.health = enemy.baseHealthMax;
+
+			enemy.baseMoveSpeed += i * 0.2;
+		};
 
 		for( let i = 0; i < nums.length; i++ ) {
 			const num = nums[i];
-			const stepY = Renderer.drawHeight / num;
-			const offsetY = stepY / 2;
+			const wave = [];
 
-			for( let j = 0; j < num; j++ ) {
-				this.enemies.push( new Enemy(
-					this.level,
-					Renderer.drawWidth + i * 450,
-					offsetY + j * stepY,
-					60, 60
-				) );
+			// Spawn from right only
+			if( i === 0 ) {
+				const stepY = Renderer.drawHeight / num;
+				const offsetY = stepY / 2;
+
+				for( let j = 0; j < num; j++ ) {
+					const enemy = new Enemy(
+						this.level,
+						Renderer.drawWidth,
+						offsetY + j * stepY - 30,
+						60, 60
+					);
+
+					adjustEnemy( enemy, i );
+					wave.push( enemy );
+				}
 			}
+			// Spaw from top and bottom
+			else if( i === 1 ) {
+				const perSide = num / 2;
+
+				for( let j = 0; j < perSide; j++ ) {
+					const enemyTop = new Enemy(
+						this.level,
+						Renderer.drawWidth - 100 - j * 200,
+						-60,
+						60, 60
+					);
+					const enemyBottom = new Enemy(
+						this.level,
+						Renderer.drawWidth - 100 - j * 200,
+						Renderer.drawHeight,
+						60, 60
+					);
+
+					adjustEnemy( enemyTop, i );
+					adjustEnemy( enemyBottom, i );
+					wave.push( enemyTop, enemyBottom );
+				}
+			}
+			// Spawn from right, top and bottom
+			else {
+				const perSide = num / 3;
+				const stepY = Renderer.drawHeight / perSide;
+				const offsetY = stepY / 2;
+
+				for( let j = 0; j < perSide; j++ ) {
+					const enemyRight = new Enemy(
+						this.level,
+						Renderer.drawWidth,
+						offsetY + j * stepY - 30,
+						60, 60
+					);
+					const enemyTop = new Enemy(
+						this.level,
+						Renderer.drawWidth - 100 - j * 200,
+						-60,
+						60, 60
+					);
+					const enemyBottom = new Enemy(
+						this.level,
+						Renderer.drawWidth - 100 - j * 200,
+						Renderer.drawHeight,
+						60, 60
+					);
+
+					adjustEnemy( enemyRight, i );
+					adjustEnemy( enemyTop, i );
+					adjustEnemy( enemyBottom, i );
+					wave.push( enemyRight, enemyTop, enemyBottom );
+				}
+			}
+
+			this.enemyWaves.push( wave );
 		}
 	}
 
@@ -164,7 +244,7 @@ export class Wave {
 	isDone() {
 		return (
 			this.phase === Wave.PhaseFight &&
-			this.enemies.length === 0
+			this.enemyWaves.length === 0
 		);
 	}
 
@@ -174,7 +254,7 @@ export class Wave {
 	 */
 	restart() {
 		this.phase = Wave.PhasePrepare;
-		this.enemies = [];
+		this.enemyWaves = [];
 	}
 
 
@@ -198,13 +278,23 @@ export class Wave {
 	 */
 	update( dt ) {
 		if( this.phase === Wave.PhaseFight ) {
-			for( let i = this.enemies.length - 1; i >= 0; i-- ) {
-				const enemy = this.enemies[i];
+			if( this.enemyWaves.length === 0 ) {
+				return;
+			}
+
+			const wave = this.enemyWaves[0];
+
+			for( let i = wave.length - 1; i >= 0; i-- ) {
+				const enemy = wave[i];
 				enemy.update( dt );
 
 				if( enemy.health <= 0 && enemy.deathTimer?.elapsed() ) {
-					this.enemies.splice( i, 1 );
+					wave.splice( i, 1 );
 				}
+			}
+
+			if( wave.length === 0 ) {
+				this.enemyWaves.splice( 0, 1 );
 			}
 		}
 	}

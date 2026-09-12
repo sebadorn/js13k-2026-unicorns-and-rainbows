@@ -44,6 +44,7 @@ export class Wave2 extends Wave {
 		if( this.phase === Wave.PhasePrepare ) {
 			if( this.level.hasAllUnits() ) {
 				this.createEnemies( [4, 6, 6] );
+				this.level.paintingArea.visible = false;
 				this.phase = Wave.PhaseFight;
 			}
 		}

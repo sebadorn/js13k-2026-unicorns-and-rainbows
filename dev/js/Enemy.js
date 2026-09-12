@@ -23,8 +23,13 @@ export class Enemy extends LevelObject {
 
 		this.isEnemy = true;
 
-		this.baseAttackDamage = 5;
-		this.baseAttackSpeed = 3;
+		this.baseAttackDamage = 10;
+		this.baseAttackSpeed = 2.5;
+		this.baseHealthMax = 80;
+		this.baseMoveSpeed = 1.25;
+
+		this.enemyDetectionRange = 275;
+		this.health = this.baseHealthMax;
 	}
 
 

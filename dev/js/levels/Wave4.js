@@ -26,7 +26,7 @@ export class Wave4 extends Wave {
 				ctx.textAlign = 'center';
 
 				ctx.fillText(
-					'Prepare for the coming wave. Fill all fields',
+					'Final push',
 					Renderer.drawWidth / 2, 150 + Math.sin( this.level.timer / 50 ) * 5
 				);
 			}
@@ -43,7 +43,8 @@ export class Wave4 extends Wave {
 
 		if( this.phase === Wave.PhasePrepare ) {
 			if( this.level.hasAllUnits() ) {
-				this.createEnemies( [6, 8, 8, 10] );
+				this.createEnemies( [8, 10, 12] );
+				this.level.paintingArea.visible = false;
 				this.phase = Wave.PhaseFight;
 			}
 		}

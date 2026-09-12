@@ -26,7 +26,7 @@ export class Wave3 extends Wave {
 				ctx.textAlign = 'center';
 
 				ctx.fillText(
-					`${this.numTowers} towers, ${this.numFighters} fighters`,
+					`${this.numTowers} towers, ${this.numFighters} fighters total`,
 					Renderer.drawWidth / 2, 150 + Math.sin( this.level.timer / 50 ) * 5
 				);
 			}
@@ -43,7 +43,8 @@ export class Wave3 extends Wave {
 
 		if( this.phase === Wave.PhasePrepare ) {
 			if( this.level.hasAllUnits() ) {
-				this.createEnemies( [6, 8, 10] );
+				this.createEnemies( [6, 10, 12] );
+				this.level.paintingArea.visible = false;
 				this.phase = Wave.PhaseFight;
 			}
 		}

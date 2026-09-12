@@ -3,7 +3,8 @@ import { removeItem } from './ArrayUtils.js';
 import { Audio } from './Audio.js';
 import { fontFamilySans } from './Config.js';
 import { Colors } from './MagicColors.js';
-import { euclidDistance, lerp, normalizeVector } from './MathUtils.js';
+import { clamp, euclidDistance, lerp, normalizeVector } from './MathUtils.js';
+import { Renderer } from './Renderer.js';
 import { Timer } from './Timer.js';
 
 
@@ -32,10 +33,10 @@ export class LevelObject {
 	moveAnimation = null;
 
 
-	static baseAttackDamage = 40;
+	static baseAttackDamage = 30;
 	static baseAttackRange = 30;
-	static baseAttackRangeTower = 300;
-	static baseAttackSpeed = 1.5; // seconds between attacks
+	static baseAttackRangeTower = 350;
+	static baseAttackSpeed = 1; // seconds between attacks
 	static baseHealthMax = 100;
 	static baseMoveSpeed = 1.75;
 
@@ -75,8 +76,8 @@ export class LevelObject {
 			isTaunted: new Timer( level, 0 ),
 			isWeakened: new Timer( level, 0 ),
 		};
-		this.enemyDetectionRange = 300;
-		this.health = 100;
+		this.enemyDetectionRange = 400;
+		this.health = LevelObject.baseHealthMax;
 	}
 
 
@@ -86,7 +87,13 @@ export class LevelObject {
 	 */
 	get attackDamage() {
 		if( this.item ) {
-			return this.item.attackDamage + this.color.modAttackDamage;
+			let dmg = this.item.attackDamage;
+
+			if( this.item.color === Colors.Green ) {
+				return dmg;
+			}
+
+			return dmg + this.color.modAttackDamage;
 		}
 
 		if( this.color === Colors.Green ) {
@@ -114,7 +121,7 @@ export class LevelObject {
 	 */
 	get attackSpeed() {
 		let speed = this.baseAttackSpeed + ( this.isTower ? 0 : this.color.modAttackSpeed );
-		let f = 1;
+		let f = 0;
 
 		if( !this.effects.isSlowed.elapsed() ) {
 			f += 0.5;
@@ -143,7 +150,7 @@ export class LevelObject {
 	 */
 	get moveSpeed() {
 		let speed = this.canMove ? this.baseMoveSpeed + this.color.modMoveSpeed : 0;
-		let f = 1;
+		let f = 0;
 
 		if( !this.effects.isSlowed.elapsed() ) {
 			f -= 0.75;
@@ -333,7 +340,31 @@ export class LevelObject {
 	findTarget() {
 		const dmg = this.item ? this.item.attackDamage : this.attackDamage;
 
-		if( dmg < 0 || this.isEnemy ) {
+		// Healer: Find all damaged units and pick the one with the least health
+		if( dmg < 0 ) {
+			const units = this.level.towers.concat( this.level.fighters );
+			units.push( this.level.unicornPainting );
+
+			const center = this.getCenter();
+			const range = Math.max( this.enemyDetectionRange, this.attackRange );
+			const candidates = [];
+
+			units.forEach( u => {
+				if( u === this || u.health >= u.healthMax || u.health <= 0 ) {
+					return;
+				}
+
+				const distance = euclidDistance( u.getCenter(), center );
+
+				if( distance <= range ) {
+					candidates.push( [u, distance] );
+				}
+			} );
+
+			return candidates.sort( ( a, b ) => a[0].health - b[0].health )[0] || [null, Infinity];
+		}
+
+		if( this.isEnemy ) {
 			return this.level.wave.getClosestPlayerUnit( this );
 		}
 
@@ -375,10 +406,28 @@ export class LevelObject {
 
 				const targetCenter = moveTarget.getCenter();
 
+				// Do not walk further than foremost tower
+				// and keep somewhat in the middle.
+				if( !this.isEnemy ) {
+					targetCenter.x = clamp(
+						targetCenter.x,
+						100, Renderer.drawWidth * 0.7
+					);
+					targetCenter.y = clamp(
+						targetCenter.y,
+						Renderer.drawHeight * 0.2, Renderer.drawHeight * 0.8
+					);
+				}
+
 				const direction = normalizeVector( {
 					x: targetCenter.x - this.x,
 					y: targetCenter.y - this.y,
 				} );
+
+				// Change direction slower on the y axis as another counter measure againt clusters
+				if( this.isEnemy ) {
+					direction.y *= 0.9;
+				}
 
 				const speed = this.moveSpeed * dt;
 				let newX = this.x + direction.x * speed;
@@ -467,7 +516,7 @@ export class LevelObject {
 		}
 
 		const xStart = this.x + this.w * 0.8;
-		const yStart = this.y;
+		const yStart = this.y + 10;
 		const yEnd = yStart - 60;
 		let y = yStart;
 		let alpha = 1;
@@ -487,7 +536,7 @@ export class LevelObject {
 				ctx.globalAlpha = alpha;
 				ctx.font = `500 14px ${fontFamilySans}`;
 				ctx.fillStyle = type?.color || ( dmg > 0 ? Colors.White.color : Colors.Green.color );
-				ctx.fillText( dmg, xStart, y );
+				ctx.fillText( dmg < 0 ? `+${-dmg}` : dmg, xStart, y );
 				ctx.globalAlpha = 1;
 			},
 			onDone: a => removeItem( this.animations, a ),

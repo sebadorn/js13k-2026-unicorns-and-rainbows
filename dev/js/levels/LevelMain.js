@@ -55,6 +55,17 @@ export class LevelMain extends Level {
 			() => this._tryAgain(),
 		);
 
+		this._btnRestart = new UIButton(
+			{
+				x: 20,
+				w: 120,
+				h: 40,
+				color: '#777',
+				text: 'Restart',
+			},
+			() => this._tryAgain(),
+		);
+
 		// TODO: remove, only used as shortcut in development
 		const [tmpCanvas, tmpCtx] = Renderer.getOffscreenCanvas( 180, 180 );
 		tmpCtx.fillStyle = Colors.White.color;
@@ -445,6 +456,11 @@ export class LevelMain extends Level {
 		}
 
 		this.paintingArea.draw( ctxUI );
+
+		if( this.wave.phase === Wave.PhaseFight ) {
+			this._btnRestart.y = Renderer.drawHeight - this._btnRestart.h - 20;
+			this._btnRestart.draw( ctxUI );
+		}
 	}
 
 
@@ -476,6 +492,11 @@ export class LevelMain extends Level {
 			}
 			else {
 				this._onClickCheckAreas( pos );
+			}
+		}
+		else {
+			if( isInside( pos, this._btnRestart ) ) {
+				this._btnRestart.onClick();
 			}
 		}
 	}
@@ -519,6 +540,11 @@ export class LevelMain extends Level {
 					return true;
 				}
 			}
+		}
+		else {
+			this._btnRestart.isHovered = isInside( pos, this._btnRestart );
+
+			return this._btnRestart.isHovered;
 		}
 
 		return false;

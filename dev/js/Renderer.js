@@ -48,6 +48,20 @@ export const Renderer = {
 
 	/**
 	 *
+	 * @param {import('./MagicColors').MagicColor?} newColor
+	 */
+	changeBgColor( newColor ) {
+		const list = Object.values( Colors ).map( c => 'c_' + c.id );
+		document.body.classList.remove( ...list );
+
+		if( newColor ) {
+			document.body.classList.add( 'c_' + newColor.id );
+		}
+	},
+
+
+	/**
+	 *
 	 * @param {import('./Level').Level} newLevel
 	 */
 	changeLevel( newLevel ) {
@@ -55,7 +69,7 @@ export const Renderer = {
 			return;
 		}
 
-		document.body.classList.remove( 'c_' + Colors.White.id );
+		this.changeBgColor();
 
 		// Snapshot of old level
 		const [snapCanvas, snapCtx] = this.getOffscreenCanvas( this.cnv.width, this.cnv.height );
@@ -248,15 +262,15 @@ export const Renderer = {
 			this.draw();
 			this.animTransition?.update( dt );
 
-			// Draw FPS info
-			this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
-			this.ctx.fillStyle = '#fff';
-			this.ctx.font = '600 12px ' + fontFamilySerif;
-			this.ctx.textAlign = 'left';
-			this.ctx.fillText(
-				String( Math.round( targetFPS / dt ) ).padStart( 3, '0' ) + ' FPS, ' + this.scale.toFixed( 5 ),
-				10, 20
-			);
+			// // Draw FPS info
+			// this.ctx.setTransform( this.scale, 0, 0, this.scale, 0, 0 );
+			// this.ctx.fillStyle = '#fff';
+			// this.ctx.font = '600 12px ' + fontFamilySerif;
+			// this.ctx.textAlign = 'left';
+			// this.ctx.fillText(
+			// 	String( Math.round( targetFPS / dt ) ).padStart( 3, '0' ) + ' FPS, ' + this.scale.toFixed( 5 ),
+			// 	10, 20
+			// );
 		}
 
 		this.last = timestamp;

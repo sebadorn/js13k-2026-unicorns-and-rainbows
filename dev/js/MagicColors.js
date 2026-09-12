@@ -58,12 +58,12 @@ export class MagicColor {
 export const Colors = {
 
 	Red: new MagicColor( 'red', 'red', {
-		attackDamage: 10,
+		attackDamage: 5,
 		health: 50,
 	} ),
 
 	Orange: new MagicColor( 'orange', 'orange', {
-		attackDamage: -7,
+		attackDamage: -5,
 		health: 150,
 	} ),
 
@@ -73,18 +73,24 @@ export const Colors = {
 	} ),
 
 	Green: new MagicColor( 'green', 'green', {
+		attackRange: 30,
 		health: 50,
 	} ),
 
 	Cyan: new MagicColor( 'cyan', 'darkturquoise', {
+		attackRange: 20,
 		moveSpeed: -0.25,
 	} ),
 
 	Blue: new MagicColor( 'blue', 'dodgerblue', {
-		attackDamage: 10,
+		attackDamage: 5,
+		moveSpeed: 0.2,
 	} ),
 
-	Violet: new MagicColor( 'violet', 'darkviolet' ),
+	Violet: new MagicColor( 'violet', 'darkviolet', {
+		attackSpeed: -0.1,
+		health: 30,
+	} ),
 
 	White: new MagicColor( 'white', 'white', {}, true ),
 

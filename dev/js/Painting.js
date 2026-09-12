@@ -267,7 +267,7 @@ export class Painting extends LevelObject {
 							duration: i,
 							onDone: a => {
 								Audio.play( Audio.burnDmg );
-								e.takeDamage( burnDamage / 2, Colors.Red );
+								e.takeDamage( burnDamage, Colors.Red );
 								removeItem( e.animations, a );
 							},
 						} ) );
@@ -330,7 +330,7 @@ export class Painting extends LevelObject {
 		}
 		// Heal self
 		else {
-			this.takeDamage( heal * 3, Colors.Green );
+			this.takeDamage( heal * 2, Colors.Green );
 		}
 
 		return true;
@@ -402,8 +402,7 @@ export class Painting extends LevelObject {
 				},
 				onDone: a => {
 					Audio.play( Audio.lightning );
-					target.takeDamage( 10, Colors.Yellow );
-					targets.forEach( t => t.takeDamage( 5, Colors.Yellow ) );
+					targets.forEach( t => t.takeDamage( 10, Colors.Yellow ) );
 
 					removeItem( this.animations, a );
 				},
@@ -438,8 +437,8 @@ export class Painting extends LevelObject {
 				this._drawEffectArea( center, range );
 			}
 			else {
-				if( this.effects.isShielded.left() < 4 ) {
-					this.effects.isShielded.set( 4 );
+				if( this.effects.isShielded.left() < 3 ) {
+					this.effects.isShielded.set( 3 );
 				}
 			}
 

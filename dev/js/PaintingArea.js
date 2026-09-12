@@ -132,11 +132,11 @@ export class PaintingArea {
 		this._colorCheck();
 
 		if( !this._visible ) {
-			document.body.classList.remove( 'c_' + this._color.id );
+			Renderer.changeBgColor();
 		}
 		else {
 			this._fadeInTimer = new Timer( Renderer.level, 1 );
-			document.body.classList.add( 'c_' + this._color.id );
+			Renderer.changeBgColor( this._color );
 		}
 	}
 
@@ -335,8 +335,10 @@ export class PaintingArea {
 			list = [
 				'a banana',
 				'a dagger',
+				'a feather',
 				'a fist',
 				'a flute',
+				'a hammer',
 				'a pitchfork',
 				'a rapier',
 				'a scepter',
@@ -344,7 +346,7 @@ export class PaintingArea {
 				'a shoespoon',
 				'a spoon',
 				'a sword',
-				'a wing',
+				'a torch',
 			];
 		}
 		else if( this.for === Painting.Tower ) {
@@ -368,6 +370,7 @@ export class PaintingArea {
 				'a boomerang',
 				'a cannon ball',
 				'a flame',
+				'a hammer',
 				'an ice cube',
 				'a music note',
 				'a potato',
@@ -482,8 +485,11 @@ export class PaintingArea {
 		this._color = newColor;
 
 		if( this._visible ) {
-			document.body.classList.remove( 'c_' + oldColor.id );
-			document.body.classList.add( 'c_' + newColor.id );
+			Renderer.changeBgColor( newColor );
+		}
+
+		if( oldColor === newColor ) {
+			return;
 		}
 
 		// No point adding a color change to an empty painting

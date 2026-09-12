@@ -25,8 +25,8 @@ export class LevelOutro extends Level {
 	/** @type {Object[]} */
 	_steps = [
 		{ text: 'What did grass look like?', color: Colors.Green, timer: 6 },
-		{ text: 'A bird, flying in the sky', color: Colors.Blue },
-		{ text: 'The sun shedding warmth', color: Colors.Yellow, timer: 4 },
+		{ text: 'A bird, flying in the sky', color: Colors.Orange },
+		{ text: 'The sun smiling down', color: Colors.Yellow, timer: 4 },
 		{ text: 'You', color: Colors.White, type: Painting.Tower, timer: 6 },
 	];
 
@@ -215,6 +215,20 @@ export class LevelOutro extends Level {
 		ctx.fillStyle = Colors.Black.color;
 		ctx.fillRect( 0, 0, w, h );
 
+		if( this._step === 0 && !this._timers[0] ) {
+			const texts = [
+				'An emptiness to fill',
+				'An old world to recreate',
+				'A clean canvas to paint',
+			];
+			const index = Math.round( this.timer / 400 ) % texts.length;
+
+			ctx.font = `500 26px ${fontFamilySerif}`;
+			ctx.textAlign = 'center';
+			ctx.fillStyle = '#777';
+			ctx.fillText( texts[index], Renderer.drawWidth / 2, Renderer.drawHeight * 0.8 );
+		}
+
 		this._drawGrass( ctx );
 		this._drawSun( ctx );
 		this._drawYou( ctx );
@@ -258,6 +272,15 @@ export class LevelOutro extends Level {
 	 */
 	update( dt ) {
 		super.update( dt );
+
+		// Workaround for bg color not being set due to level transition
+		if( this._step === 0 ) {
+			const color = this._steps[0].color;
+
+			if( !document.body.classList.contains( 'c_' + color.id ) ) {
+				Renderer.changeBgColor( color );
+			}
+		}
 
 		if( this._paintings[1] && this._timers[1]?.elapsed() ) {
 			const bird = this._paintings[1];
