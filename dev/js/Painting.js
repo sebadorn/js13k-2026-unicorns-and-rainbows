@@ -254,9 +254,10 @@ export class Painting extends LevelObject {
 		// Damage all enemies in range
 		if( !target && this.isTower ) {
 			const center = this.getCenter();
+			const range = this.attackRange;
 
 			this.level.wave.enemies.forEach( e => {
-				if( euclidDistance( center, e.getCenter() ) <= this.attackRange + e.w / 2 ) {
+				if( euclidDistance( center, e.getCenter() ) <= range + e.w / 2 ) {
 					e.effects.isBurning.set( 3 );
 
 					// Repeating burn damage
@@ -274,7 +275,7 @@ export class Painting extends LevelObject {
 				}
 			} );
 
-			this._drawEffectArea( center );
+			this._drawEffectArea( center, range );
 
 			return true;
 		}
@@ -317,14 +318,15 @@ export class Painting extends LevelObject {
 		// Heal all allies in range
 		if( this.isTower ) {
 			const center = this.getCenter();
+			const range = this.attackRange;
 
 			this.level.fighters.forEach( f => {
-				if( euclidDistance( center, f.getCenter() ) <= this.attackRange + f.w / 2 ) {
+				if( euclidDistance( center, f.getCenter() ) <= range + f.w / 2 ) {
 					f.takeDamage( heal, Colors.Green );
 				}
 			} );
 
-			this._drawEffectArea( center );
+			this._drawEffectArea( center, range );
 		}
 		// Heal self
 		else {
@@ -344,16 +346,17 @@ export class Painting extends LevelObject {
 	_abilityLightning( target ) {
 		if( !target && this.isTower ) {
 			const center = this.getCenter();
+			const range = this.attackRange;
 
 			this.level.fighters.forEach( f => {
-				if( euclidDistance( center, f.getCenter() ) <= this.attackRange + f.w / 2 ) {
+				if( euclidDistance( center, f.getCenter() ) <= range + f.w / 2 ) {
 					if( f.effects.isSpedUp.left() < 2 ) {
 						f.effects.isSpedUp.set( 2 );
 					}
 				}
 			} );
 
-			this._drawEffectArea( center );
+			this._drawEffectArea( center, range );
 
 			return true;
 		}
@@ -422,15 +425,17 @@ export class Painting extends LevelObject {
 			const center = this.getCenter();
 
 			if( this.isTower ) {
+				const range = this.attackRange;
+
 				this.level.fighters.forEach( f => {
-					if( euclidDistance( center, f.getCenter() ) <= this.attackRange + f.w / 2 ) {
+					if( euclidDistance( center, f.getCenter() ) <= range + f.w / 2 ) {
 						if( f.effects.isShielded.left() < 2 ) {
 							f.effects.isShielded.set( 2 );
 						}
 					}
 				} );
 
-				this._drawEffectArea( center );
+				this._drawEffectArea( center, range );
 			}
 			else {
 				if( this.effects.isShielded.left() < 4 ) {
@@ -461,7 +466,7 @@ export class Painting extends LevelObject {
 		const slowTime = 2;
 
 		if( !target ) {
-			const range = this.isTower ? this.attackRange : LevelObject.baseAttackRangeTower * 0.75;
+			const range = this.isTower ? this.attackRange : ( LevelObject.baseAttackRangeTower * 0.75 );
 			const center = this.getCenter();
 
 			this.level.wave.enemies.forEach( e => {
@@ -472,7 +477,7 @@ export class Painting extends LevelObject {
 				}
 			} );
 
-			this._drawEffectArea( center );
+			this._drawEffectArea( center, range );
 
 			return true;
 		}
@@ -495,7 +500,7 @@ export class Painting extends LevelObject {
 		const tauntTime = 4;
 
 		if( !target ) {
-			const range = this.isTower ? this.attackRange : LevelObject.baseAttackRangeTower * 0.75;
+			const range = this.isTower ? this.attackRange : ( LevelObject.baseAttackRangeTower * 0.75 );
 			const center = this.getCenter();
 
 			this.level.wave.enemies.forEach( e => {
@@ -509,7 +514,7 @@ export class Painting extends LevelObject {
 				}
 			} );
 
-			this._drawEffectArea( center );
+			this._drawEffectArea( center, range );
 
 			return true;
 		}
@@ -531,8 +536,9 @@ export class Painting extends LevelObject {
 	 *
 	 * @private
 	 * @param {Position} center
+	 * @param {number} range
 	 */
-	_drawEffectArea( center ) {
+	_drawEffectArea( center, range ) {
 		this.animations.push( new Animation( {
 			level: this.level,
 			duration: 0.5,
@@ -540,7 +546,7 @@ export class Painting extends LevelObject {
 				ctx.globalAlpha = Math.sin( progress * Math.PI ) * 0.5;
 				ctx.strokeStyle = this.color.color;
 				ctx.beginPath();
-				ctx.arc( center.x, center.y, this.attackRange, 0, Math.PI * 2 );
+				ctx.arc( center.x, center.y, range, 0, Math.PI * 2 );
 				ctx.closePath();
 				ctx.stroke();
 				ctx.globalAlpha = 1;
