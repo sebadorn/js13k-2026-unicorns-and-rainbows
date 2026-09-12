@@ -449,7 +449,9 @@ export class LevelObject {
 		let y = yStart;
 		let alpha = 1;
 
-		this.damageTakenTimer.set( 0.2 );
+		if( dmg > 0 ) {
+			this.damageTakenTimer.set( 0.2 );
+		}
 
 		this.animations.push( new Animation( {
 			level: this.level,
