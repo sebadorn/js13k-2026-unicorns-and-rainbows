@@ -381,8 +381,31 @@ export class LevelObject {
 				} );
 
 				const speed = this.moveSpeed * dt;
-				this.x += direction.x * speed;
-				this.y += direction.y * speed;
+				let newX = this.x + direction.x * speed;
+				let newY = this.y + direction.y * speed;
+
+				// Try to keep a minimum distance to other enemies
+				if( this.isEnemy ) {
+					const newPos = {
+						x: newX + this.w / 2,
+						y: newY + this.h / 2,
+					};
+
+					const tooClose = this.level.wave.enemies.find( e => {
+						return (
+							e !== this &&
+							this.x > e.x && // try to check only others in front
+							euclidDistance( newPos, e.getCenter() ) < this.w / 3
+						);
+					} );
+
+					if( tooClose ) {
+						return;
+					}
+				}
+
+				this.x = newX;
+				this.y = newY;
 			},
 			onDone: _ => {
 				this.moveAnimation = null;
