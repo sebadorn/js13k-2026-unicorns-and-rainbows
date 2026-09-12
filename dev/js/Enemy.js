@@ -34,6 +34,10 @@ export class Enemy extends LevelObject {
 	 * @param {CanvasRenderingContext2D} ctxUI
 	 */
 	draw( ctx, ctxUI ) {
+		if( this.x > Renderer.drawWidth ) {
+			return;
+		}
+
 		super.draw( ctx, ctxUI );
 
 		this.drawEffectTimers( ctx );
@@ -41,6 +45,7 @@ export class Enemy extends LevelObject {
 
 		let rotation = 0;
 		let center = null;
+		let x = this.x;
 
 		if( this.deathTimer ) {
 			const progress = this.deathTimer.progress();
@@ -53,6 +58,9 @@ export class Enemy extends LevelObject {
 			center = this.getCenter();
 			center.y += this.h / 2;
 		}
+		else if( this.attackAnimation ) {
+			x += Math.sin( this.attackAnimation.timer.progress() * Math.PI / 2 ) * -20;
+		}
 
 		if( !this.damageTakenTimer.elapsed() ) {
 			ctx.globalAlpha = this.damageTakenTimer.progress();
@@ -63,18 +71,18 @@ export class Enemy extends LevelObject {
 		}
 
 		if( Enemy.canvas ) {
-			ctx.drawImage( Enemy.canvas, this.x, this.y, this.w, this.h );
+			ctx.drawImage( Enemy.canvas, x, this.y, this.w, this.h );
 		}
 		else {
 			ctx.strokeStyle = Colors.White.color;
-			ctx.strokeRect( this.x, this.y, this.w, this.h );
+			ctx.strokeRect( x, this.y, this.w, this.h );
 		}
 
 		ctx.globalCompositeOperation = 'multiply';
 
 		if( !this.effects.isSlowed.elapsed() ) {
 			ctx.fillStyle = Colors.Cyan.color;
-			ctx.fillRect( this.x, this.y, this.w, this.h );
+			ctx.fillRect( x, this.y, this.w, this.h );
 		}
 
 		if(
@@ -82,12 +90,12 @@ export class Enemy extends LevelObject {
 			!this.effects.isStunned.elapsed()
 		) {
 			ctx.fillStyle = Colors.Orange.color;
-			ctx.fillRect( this.x, this.y, this.w, this.h );
+			ctx.fillRect( x, this.y, this.w, this.h );
 		}
 
 		if( !this.effects.isWeakened.elapsed() ) {
 			ctx.fillStyle = Colors.Blue.color;
-			ctx.fillRect( this.x, this.y, this.w, this.h );
+			ctx.fillRect( x, this.y, this.w, this.h );
 		}
 
 		ctx.globalCompositeOperation = 'source-over';
