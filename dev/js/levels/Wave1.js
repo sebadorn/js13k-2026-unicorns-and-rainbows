@@ -26,7 +26,7 @@ export class Wave1 extends Wave {
 				ctx.textAlign = 'center';
 
 				ctx.fillText(
-					'Select a field to paint your first tower',
+					'Select the field to paint your first tower',
 					Renderer.drawWidth / 2, 150 + Math.sin( this.level.timer / 50 ) * 5
 				);
 			}

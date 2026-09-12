@@ -124,7 +124,11 @@ export class LevelMain extends Level {
 		ctx.strokeStyle = Colors.White.color;
 
 		if( this.numMaxTowers > 0 && this.towers.length < this.numMaxTowers ) {
-			this.towerBuildAreas.forEach( tba => {
+			this.towerBuildAreas.forEach( ( tba, i ) => {
+				if( this.numMaxTowers === 1 && i > 0 ) {
+					return;
+				}
+
 				const s = tba.isHovered ? Math.sin( this.timer / 10 ) * 2 : 0;
 				const h = tba.h + s + s;
 				ctx.setLineDash( tba.isHovered ? [] : [5, 10] );
