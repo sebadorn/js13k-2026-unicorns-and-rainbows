@@ -124,7 +124,7 @@ export class LevelObject {
 			f -= 0.25;
 		}
 
-		return speed * f;
+		return speed + f;
 	}
 
 
@@ -153,7 +153,7 @@ export class LevelObject {
 			f += 0.5;
 		}
 
-		return speed * f;
+		return speed + f;
 	}
 
 
